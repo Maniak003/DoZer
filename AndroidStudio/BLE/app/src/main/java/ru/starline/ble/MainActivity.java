@@ -634,7 +634,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             fileName = simpleDateFormat.format(now);
             Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
             try {
-                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + fileName + ".csv");
+                File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
+                if(!direct.exists()) {
+                    if(direct.mkdir()); // Создаем каталог если его нет;
+                }
+                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".csv");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
                 int j = 0;
@@ -642,7 +646,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
-                    outputStream.write(0x20);
+                    outputStream.write(0x3b);
                     dataStr = String.valueOf((int) tmpVal);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
@@ -669,7 +673,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         /*
                             Запись координат в файл
                          */
-                        File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + fileName + ".txt");
+                        File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".txt");
                         myFile.createNewFile();                                         // Создается файл, если он не был создан
                         FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
                         //String timeStr = java.text.DateFormat.getDateTimeInstance().format(loc.getTime());
