@@ -1,0 +1,12 @@
+stm32g0xx_ll_adc.h:4133:22:LL_ADC_DisableInternalRegulator	16	static
+stm32g0xx_ll_adc.h:4204:26:LL_ADC_IsEnabled	16	static
+stm32g0xx_ll_adc.h:4261:26:LL_ADC_IsCalibrationOnGoing	16	static
+stm32g0xx_ll_adc.h:4328:26:LL_ADC_REG_IsConversionOngoing	16	static
+stm32g0xx_hal_adc_ex.c:104:19:HAL_ADCEx_Calibration_Start	40	static
+stm32g0xx_hal_adc_ex.c:187:10:HAL_ADCEx_Calibration_GetValue	16	static
+stm32g0xx_hal_adc_ex.c:203:19:HAL_ADCEx_Calibration_SetValue	24	static
+stm32g0xx_hal_adc_ex.c:249:13:HAL_ADCEx_LevelOutOfWindow2Callback	16	static
+stm32g0xx_hal_adc_ex.c:264:13:HAL_ADCEx_LevelOutOfWindow3Callback	16	static
+stm32g0xx_hal_adc_ex.c:280:13:HAL_ADCEx_EndOfSamplingCallback	16	static
+stm32g0xx_hal_adc_ex.c:295:13:HAL_ADCEx_ChannelConfigReadyCallback	16	static
+stm32g0xx_hal_adc_ex.c:318:19:HAL_ADCEx_DisableVoltageRegulator	24	static
