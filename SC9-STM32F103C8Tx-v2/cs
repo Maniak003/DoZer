@@ -1,0 +1,72 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>KiCad BOM Example 5</title>
+    </head>
+    <body>
+    <h1>/home/ed/work/kicad/SC9-STM32G031-v2/cs.sch</h1>
+    <p>Пн 01 фев 2021 16:30:14</p>
+    <p>Eeschema 5.1.8+dfsg1-1~bpo10+1</p>
+    <p><b>Component Count:</b>78</p>
+    <table>
+    <tr><th style='width:640px'>Ref</th><th>Qnty</th><th>Value</th><th>Part</th><th>Footprint</th><th>Description</th><th>Vendor</th></tr>
+    <tr><td>C1, C2</td><td>2</td><td>.1uF</td><td>Device:C</td><td>Capacitor_SMD:C_1206_3216Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C3, C4, C5, C10, C17</td><td>5</td><td>10uFx50v</td><td>Device:C</td><td>Capacitor_SMD:C_1210_3225Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C6</td><td>1</td><td>82pF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C7, C8, C9, C11, C12, C13, C18, C20, C23, C24, C25</td><td>11</td><td>22uF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C14, C21</td><td>2</td><td>0.1uF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C15</td><td>1</td><td>470pF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C16</td><td>1</td><td>10nF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C22</td><td>1</td><td>470uF</td><td>Device:CP</td><td>Capacitor_Tantalum_SMD:CP_EIA-7343-15_Kemet-W</td><td>Polarized capacitor</td><td></td></tr>
+    <tr><td>D1</td><td>1</td><td>MBR0520LT</td><td>Device:D</td><td>Diode_SMD:D_SOD-123</td><td>Diode</td><td></td></tr>
+    <tr><td>D2</td><td>1</td><td>MBR0540LT</td><td>Device:D</td><td>Diode_SMD:D_SOD-123</td><td>Diode</td><td></td></tr>
+    <tr><td>D3, D6</td><td>2</td><td>LED</td><td>Device:LED</td><td>LED_SMD:LED_0805_2012Metric</td><td>Light emitting diode</td><td></td></tr>
+    <tr><td>D5</td><td>1</td><td>TLV3501</td><td>cs-rescue:TLV3501-My_Library</td><td>Package_TO_SOT_SMD:SOT-23-6</td><td></td><td></td></tr>
+    <tr><td>D7</td><td>1</td><td>STM32G031F8</td><td>cs-rescue:STM32G031F8-My_Library</td><td>Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm</td><td></td><td></td></tr>
+    <tr><td>D8</td><td>1</td><td>NCP551SN</td><td>cs-rescue:NCP551SN-My_Library</td><td>Package_TO_SOT_SMD:TSOT-23-5</td><td></td><td></td></tr>
+    <tr><td>J1</td><td>1</td><td>SiPM Catode(3) 29.6v</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J2</td><td>1</td><td>USB_B_Micro</td><td>Connector:USB_B_Micro</td><td>Connector_USB:USB_Micro-B_Molex_47346-0001</td><td>USB Micro Type B connector</td><td></td></tr>
+    <tr><td>J3</td><td>1</td><td>SWDIO</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J4</td><td>1</td><td>SWCLK</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J5</td><td>1</td><td>BT-status</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J6</td><td>1</td><td>BT</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J7</td><td>1</td><td>Vibro</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J8</td><td>1</td><td>nRST</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J9</td><td>1</td><td>SiPM Anode(1)</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J10</td><td>1</td><td>B+</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J11</td><td>1</td><td>B-</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J12</td><td>1</td><td>Buzzer</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J13</td><td>1</td><td>+BAT</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J18</td><td>1</td><td>I2C-SCL</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J19</td><td>1</td><td>I2C-SDA</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J20</td><td>1</td><td>UART-TX</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>J21</td><td>1</td><td>UART-RX</td><td>My_Library:Conn</td><td>My-library:SMD-CONN</td><td>Generic connector, single row, 01x01</td><td></td></tr>
+    <tr><td>L2</td><td>1</td><td>10uH</td><td>Device:L</td><td>Inductor_SMD:L_0805_2012Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>L3</td><td>1</td><td>B82422A1223K100</td><td>Device:L</td><td>Inductor_SMD:L_1210_3225Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>L4, L6</td><td>2</td><td>47uH</td><td>Device:L</td><td>Inductor_SMD:L_0805_2012Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>Q1</td><td>1</td><td>IRLML5203</td><td>Device:Q_PMOS_GSD</td><td>Package_TO_SOT_SMD:SOT-23</td><td>P-MOSFET transistor, gate/source/drain</td><td></td></tr>
+    <tr><td>Q2, Q3</td><td>2</td><td>KT231</td><td>Device:Q_NPN_BEC</td><td>Package_TO_SOT_SMD:SOT-23</td><td>NPN transistor, base/emitter/collector</td><td></td></tr>
+    <tr><td>R1</td><td>1</td><td>100</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R2, R10, R15</td><td>3</td><td>1k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R3</td><td>1</td><td>1R</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R4, R7, R8, R16, R17</td><td>5</td><td>10k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R5</td><td>1</td><td>300k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R6</td><td>1</td><td>20k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R9</td><td>1</td><td>13k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R11</td><td>1</td><td>100k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R12</td><td>1</td><td>2.2k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R13</td><td>1</td><td>4.7k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R14</td><td>1</td><td>12k</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R18</td><td>1</td><td>220</td><td>Device:R</td><td>Resistor_SMD:R_0805_2012Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>SW1</td><td>1</td><td>power</td><td>Switch:SW_SPDT</td><td>My-library:MySwithc</td><td>Switch, single pole double throw</td><td></td></tr>
+    <tr><td>U1</td><td>1</td><td>AD8541</td><td>Amplifier_Operational:AD8603</td><td>Package_TO_SOT_SMD:TSOT-23-5</td><td>Precision Micropower, Low Noise CMOS, Rail-to-Rail Input/Output Operational Amplifier, TSOT-23-5</td><td></td></tr>
+    <tr><td>U2</td><td>1</td><td>LM2733YMF</td><td>Regulator_Switching:LM2733YMF</td><td>Package_TO_SOT_SMD:SOT-23-5</td><td>LM27313, 1A, 40Vout Boost Voltage Regulator, 600KHz Frequency,</td><td></td></tr>
+    <tr><td>U3</td><td>1</td><td>LTC4054ES5-4.2</td><td>Battery_Management:LTC4054ES5-4.2</td><td>Package_TO_SOT_SMD:TSOT-23-5</td><td>Constant-current/constant-voltage linear charger for single cell lithium-ion batteries with 2.9V Trickle Charge, 4.5V to 6.5V VDD, -40 to +85 degree Celcius, TSOT-23-5</td><td></td></tr>
+    <tr><td>U4</td><td>1</td><td>LP2985-3</td><td>Regulator_Linear:LP2985-3.3</td><td>Package_TO_SOT_SMD:SOT-23-5</td><td>150mA 16V Low-noise Low-dropout Regulator With Shutdown, 3.3V output voltage, SOT-23-5</td><td></td></tr><!--TABLEROW-->
+    </table>
+    </body>
+</html>
+    
