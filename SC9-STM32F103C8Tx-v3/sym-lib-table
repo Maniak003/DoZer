@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name cs-rescue)(type Legacy)(uri ${KIPRJMOD}/cs-rescue.lib)(options "")(descr ""))
+)
