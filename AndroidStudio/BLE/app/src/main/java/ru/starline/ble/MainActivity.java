@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -30,9 +29,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +38,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewDebug;
@@ -84,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
     public getBluetooth BT;
     public BluetoothGatt gatt;
     public byte[] spectrData = new byte[4096];
+    public int findDataSize = 512;
+    public long[] findData = new long[findDataSize];
+    public long tmpFindData, fstTrh1 = 20, sndTrh2 = 30;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
 
@@ -92,12 +92,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         myView = new DrawView(this);
+
+        myView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    if (event.getX() < 500) {
+                        DH.saveHistogram();
+                    } else {
+                        try {
+                            DH.resetAll();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return true;
+            }
+        });
+        /*
         myView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 DH.saveHistogram();
             }
         });
+
+         */
+
+        // Очищаем массив для поиска
+        for ( int i = 0; i < 256; i++) {
+            findData[i] = 0;
+        }
         setContentView(myView);
         BT = new getBluetooth();
         BT.initLeDevice();
@@ -610,8 +637,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
     class drawHistogram {
         double countsAll, interval;
         char maxPoint, tmpVal; /* Unsigned short. Долбаная Java */
-        float mastab, mastabLog, maxPointLog, penSize = 2, pen2Size = 1;
-        private Paint p = new Paint(), pLog = new Paint(), pText = new Paint(), pInd = new Paint();
+        float mastab, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        private Paint p = new Paint(), pLog = new Paint(), pText = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
 
         // Перерисовка индикатора подключения.
         public void connectIndicator(Canvas canvas, int cl) {
@@ -624,21 +651,30 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             canvas.drawCircle(WSize - 20, 20, 6, pInd);
         }
 
+        // Обнуление данных
+        public void resetAll() throws IOException {
+            for ( int i = 0; i < findDataSize; i++) {
+                findData[i] = 0;
+            }
+            byte[] sndData = new byte[1];
+            sndData[0] = 'C';
+            BT.write(sndData);
+        }
+
         //  Сохранение гистограммы
-        @SuppressLint("MissingPermission")
         public void saveHistogram() {
             String dataStr, fileName;
             Calendar calendar = Calendar.getInstance();
             Date now = calendar.getTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss'.csv'");
             fileName = simpleDateFormat.format(now);
             Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
             try {
-                File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
-                if(!direct.exists()) {
-                    if(direct.mkdir()); // Создаем каталог если его нет;
-                }
-                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".csv");
+                /*
+                 * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
+                 * Обращение идёт, как и было сказано выше к внешнему накопителю
+                 */
+                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + fileName);
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
                 int j = 0;
@@ -646,7 +682,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
-                    outputStream.write(0x3b);
+                    outputStream.write(0x20);
                     dataStr = String.valueOf((int) tmpVal);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
@@ -661,38 +697,6 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
             }
             toast.show();
-            /*
-                Определение GPS координат
-             */
-            try {
-                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (lm != null) {
-                    Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (loc != null) {
-                        //Toast.makeText(getBaseContext(), "Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude() + " Alt: " + loc.getAltitude(), Toast.LENGTH_SHORT).show();
-                        /*
-                            Запись координат в файл
-                         */
-                        File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".txt");
-                        myFile.createNewFile();                                         // Создается файл, если он не был создан
-                        FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
-                        //String timeStr = java.text.DateFormat.getDateTimeInstance().format(loc.getTime());
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
-                        String timeStr = sdf.format(loc.getTime());
-                        String nowStr = sdf.format(now);
-                        dataStr = "Date: " + nowStr + " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude() + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed() + " GPS last update: " + timeStr;
-                        outputStream.write(dataStr.getBytes());
-                        outputStream.close();
-                    } else {
-                        Toast.makeText(getBaseContext(), "Ошибка получения координат.", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getBaseContext(), "Ошибка создания LocationManager.", Toast.LENGTH_SHORT).show();
-                }
-
-            } catch (Exception e) {
-                Toast.makeText(getBaseContext(), "Ошибка получения и записи координат." + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
         }
 
         //  Перерисовка графика
@@ -704,7 +708,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             mastabLog = 1;
             maxPoint = 1;
             maxPointLog = 0;
-            for (int i = 0; i < 2048; i++) {
+            for (int i = 2; i < 2048; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 if (tmpVal > maxPoint) {
                     maxPoint = tmpVal;
@@ -731,28 +735,77 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             pText.setColor(Color.argb(100, 255, 40, 255));
             pText.setStrokeWidth(penSize);
             pText.setTextSize(35.0f);
+            // График дла поиска
+            pFindData.setColor(Color.argb(200, 40, 255, 40));
+            pFindData.setStrokeWidth(pen3Size);
+            pFindData1.setColor(Color.argb(200, 255, 255, 40));
+            pFindData1.setStrokeWidth(pen3Size);
+            pFindData2.setColor(Color.argb(200, 255, 40, 40));
+            pFindData2.setStrokeWidth(pen3Size);
             /*
                     Прорисовка гистограмм
              */
             countsAll = 0;
-            for (int i = 0; i < 2048; i++) {
+            for (int i = 2; i < 2048; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll = countsAll + tmpVal;
+                float X = Math.round((i) / 2) * penSize - 2;
                 // В линейном представлении
-                canvas.drawLine(Math.round((i) / 2) * penSize, HSize - tmpVal * mastab, Math.round((i) / 2) * penSize, HSize, p);
+                canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
                 // В логарифмическом представлении
-                canvas.drawLine(Math.round((i) / 2) * penSize, HSize - (float) Math.log10(tmpVal) * mastabLog, Math.round((i) / 2) * penSize, HSize, pLog);
+                canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
             }
             // Вывод обшего количества измерений и скорости счета
-            if (oldCounts == 0 ) {
+            if (oldCounts <= 0 ) {
                 oldCounts = countsAll;
                 curentTime = System.currentTimeMillis() / 1000;
             } else {
                 interval = System.currentTimeMillis() / 1000 - curentTime;
                 curentTime = System.currentTimeMillis() / 1000;
-                canvas.drawText("total: " + Math.round(countsAll) + " cps: " + Math.round((countsAll - oldCounts) / interval), 1600, 40, pText);
-                oldCounts = countsAll;
+                mastab = 0;
+
+                // Смещение графика поиска
+                tmpFindData = Math.round((countsAll - oldCounts) / interval);
+                if (tmpFindData > 0) {
+                    for (int i = findDataSize - 2; i >= 0; i--) {
+                        if (mastab < findData[i])
+                            mastab = findData[i];
+                        findData[i + 1] = findData[i];
+                    }
+                    findData[0] = tmpFindData;
+                    if (mastab < findData[0])
+                        mastab = findData[0];
+                    mastab = hsizeFindData / mastab;
+
+                    // Перерисовка графика поиска
+                    for (int i = 0; i < findDataSize - 1; i++) {
+                        float X;
+                        X = (WSize - 20) - i * pen3Size;
+                        if (findData[i] < fstTrh1) {
+                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData);
+                        } else if (findData[i] < sndTrh2) {
+                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData1);
+                        } else {
+                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData2);
+                        }
+                    }
+
+                    // Вывод статистики
+                    tmpVal = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
+                    float acps = 0;
+                    if (tmpVal > 0) {
+                        acps = Math.round((float) (countsAll / tmpVal));
+                    }
+                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], 1600, 40, pText);
+                    canvas.drawText("time: " + (int) tmpVal + " avg: " + (float) acps, 1600, 80, pText);
+                    oldCounts = countsAll;
+                } else {
+                    oldCounts = countsAll;
+                    curentTime = System.currentTimeMillis() / 1000;
+                }
             }
+
+
         }
     }
 }
