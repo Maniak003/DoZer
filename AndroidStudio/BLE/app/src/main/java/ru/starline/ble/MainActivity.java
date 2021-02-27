@@ -98,10 +98,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
                     if (event.getX() < 500) {
-                        DH.saveHistogram();
+                        DH.saveHistogram(); // сохранение данных в файл
                     } else {
                         try {
-                            DH.resetAll();
+                            DH.resetAll();  // Очистка всех данных
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -791,13 +791,13 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     }
 
                     // Вывод статистики
-                    tmpVal = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
+                    int tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
                     float acps = 0;
-                    if (tmpVal > 0) {
-                        acps = Math.round((float) (countsAll / tmpVal));
+                    if (tmpTime > 0) {
+                        acps = (float) (countsAll / tmpTime);
                     }
                     canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], 1600, 40, pText);
-                    canvas.drawText("time: " + (int) tmpVal + " avg: " + (float) acps, 1600, 80, pText);
+                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.3f",acps), 1600, 80, pText);
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
