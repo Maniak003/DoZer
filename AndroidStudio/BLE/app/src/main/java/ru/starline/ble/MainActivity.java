@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 512;
     public long[] findData = new long[findDataSize];
-    public long tmpFindData, fstTrh1 = 20, sndTrh2 = 30;
+    public long tmpFindData, Trh1 = 30, Trh2 = 40;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
 
@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
          */
 
         // Очищаем массив для поиска
-        for ( int i = 0; i < 256; i++) {
-            findData[i] = 0;
+        for ( int i = 0; i < findDataSize; i++) {
+            findData[i] = 1;
         }
         setContentView(myView);
         BT = new getBluetooth();
@@ -781,9 +781,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     for (int i = 0; i < findDataSize - 1; i++) {
                         float X;
                         X = (WSize - 20) - i * pen3Size;
-                        if (findData[i] < fstTrh1) {
+                        if (findData[i] < Trh1) {
                             canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData);
-                        } else if (findData[i] < sndTrh2) {
+                        } else if (findData[i] < Trh2) {
                             canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData1);
                         } else {
                             canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData2);
@@ -797,7 +797,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         acps = (float) (countsAll / tmpTime);
                     }
                     canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], 1600, 40, pText);
-                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.3f",acps), 1600, 80, pText);
+                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.2f",acps), 1600, 80, pText);
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
