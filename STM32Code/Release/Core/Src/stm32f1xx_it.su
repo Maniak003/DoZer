@@ -8,4 +8,4 @@ stm32f1xx_it.c:157:6:DebugMon_Handler	0	static
 stm32f1xx_it.c:170:6:PendSV_Handler	0	static
 stm32f1xx_it.c:183:6:SysTick_Handler	0	static
 stm32f1xx_it.c:204:6:ADC1_2_IRQHandler	8	static
-stm32f1xx_it.c:229:6:TIM3_IRQHandler	8	static
+stm32f1xx_it.c:232:6:TIM3_IRQHandler	8	static
