@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -29,6 +30,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -666,15 +669,19 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             String dataStr, fileName;
             Calendar calendar = Calendar.getInstance();
             Date now = calendar.getTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss'.csv'");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss");
             fileName = simpleDateFormat.format(now);
             Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
             try {
+                File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
+                if(!direct.exists()) {
+                    if(direct.mkdir()); // Создаем каталог если его нет;
+                }
                 /*
                  * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
                  * Обращение идёт, как и было сказано выше к внешнему накопителю
                  */
-                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + fileName);
+                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".csv");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
                 int j = 0;
@@ -682,7 +689,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
-                    outputStream.write(0x20);
+                    outputStream.write(0x3b);
                     dataStr = String.valueOf((int) tmpVal);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
@@ -697,6 +704,42 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
             }
             toast.show();
+            /*
+                Определение GPS координат
+             */
+            try {
+                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (lm != null) {
+                    @SuppressLint("MissingPermission") Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (loc != null) {
+                        //Toast.makeText(getBaseContext(), "Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude() + " Alt: " + loc.getAltitude(), Toast.LENGTH_SHORT).show();
+                        /*
+                            Запись координат в файл
+                         */
+                        File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".txt");
+                        myFile.createNewFile();                                         // Создается файл, если он не был создан
+                        FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
+                        //String timeStr = java.text.DateFormat.getDateTimeInstance().format(loc.getTime());
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+                        String timeStr = sdf.format(loc.getTime());
+                        String nowStr = sdf.format(now);
+                        int tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                        dataStr = "Date: " + nowStr + " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
+                                + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed() + " GPS last update: " + timeStr
+                                + " Measurement time: " + tmpTime;
+                        outputStream.write(dataStr.getBytes());
+                        outputStream.close();
+                    } else {
+                        Toast.makeText(getBaseContext(), "Ошибка получения координат.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getBaseContext(), "Ошибка создания LocationManager.", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (Exception e) {
+                Toast.makeText(getBaseContext(), "Ошибка получения и записи координат." + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
         }
 
         //  Перерисовка графика
@@ -779,14 +822,18 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
                     // Перерисовка графика поиска
                     for (int i = 0; i < findDataSize - 1; i++) {
-                        float X;
+                        float X, Y;
                         X = (WSize - 20) - i * pen3Size;
+                        Y = 200 - findData[i] * mastab;
+                        if (200 - Y < 1) {
+                            Y = 199;
+                        }
                         if (findData[i] < Trh1) {
-                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData);
+                            canvas.drawLine(X, Y, X, 200, pFindData);
                         } else if (findData[i] < Trh2) {
-                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData1);
+                            canvas.drawLine(X, Y, X, 200, pFindData1);
                         } else {
-                            canvas.drawLine(X, 200 - findData[i] * mastab, X, 200, pFindData2);
+                            canvas.drawLine(X, Y, X, 200, pFindData2);
                         }
                     }
 
