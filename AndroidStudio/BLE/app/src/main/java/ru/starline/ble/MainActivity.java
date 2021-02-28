@@ -821,8 +821,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     mastab = hsizeFindData / mastab;
 
                     // Перерисовка графика поиска
+                    float X, Y;
                     for (int i = 0; i < findDataSize - 1; i++) {
-                        float X, Y;
                         X = (WSize - 20) - i * pen3Size;
                         Y = 200 - findData[i] * mastab;
                         if (200 - Y < 1) {
@@ -838,13 +838,14 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     }
 
                     // Вывод статистики
-                    int tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
+                    float tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
                     float acps = 0;
+                    X = WSize - 470;
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
-                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], 1600, 40, pText);
-                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.2f",acps), 1600, 80, pText);
+                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], X, 40, pText);
+                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.2f", acps), X, 80, pText);
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
