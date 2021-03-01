@@ -211,7 +211,8 @@ void ADC1_2_IRQHandler(void)
   adcResult = HAL_ADC_GetValue(&hadc1);
   if (adcResult > 0) {
 	  adcResult = adcResult & 0x0FFF;
-	  adcResult = adcResult >> 1;
+	  adcResult = adcResult >> 2;
+	  adcResult = adcResult + 2; // Резервируем место в буфере под дополнительные параметры для передачи
 	  if (spectrData[adcResult] < 0xFFFF) // Проверка переполнения канала.
 		  spectrData[adcResult]++;
 	  counterCC++;
