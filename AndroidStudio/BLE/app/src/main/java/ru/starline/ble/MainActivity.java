@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 512;
     public long[] findData = new long[findDataSize];
-    public long tmpFindData, Trh1 = 40, Trh2 = 80;
+    public long tmpFindData, Trh1 = 40, Trh2 = 90;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
 
