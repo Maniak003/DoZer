@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
                     if (event.getX() < 500) {
-                        DH.saveHistogram(); // сохранение данных в файл
+                        DH.saveHistogramXML(); // сохранение данных в файл
                     } else {
                         try {
                             DH.resetAll();  // Очистка всех данных
@@ -664,9 +664,10 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             BT.write(sndData);
         }
 
-        //  Сохранение гистограммы
+
+        //  Сохранение гистограммы CSV format
         public void saveHistogram() {
-            String dataStr, fileName;
+            String dataStr = null, fileName;
             Calendar calendar = Calendar.getInstance();
             Date now = calendar.getTime();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss");
@@ -689,11 +690,14 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
-                    outputStream.write(0x3b);
+                    outputStream.write(0x2c);
                     dataStr = String.valueOf((int) tmpVal);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
                 }
+                outputStream.write(dataStr.getBytes());
+
+
                 outputStream.close();
                 /*
                  * Вызов сообщения Toast не относится к теме.
@@ -741,6 +745,133 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             }
 
         }
+
+        //  Сохранение гистограммы XML BqMonitor format
+        public void saveHistogramXML() {
+            String dataStr, fileName, startTime, endTime;
+            double sTime, eTime;
+            Calendar calendar = Calendar.getInstance();
+            Date now = calendar.getTime();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'_'HHmmss");
+            fileName = simpleDateFormat.format(now);
+            Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
+            try {
+                File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
+                if(!direct.exists()) {
+                    if(direct.mkdir()); // Создаем каталог если его нет;
+                }
+                /*
+                 * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
+                 * Обращение идёт, как и было сказано выше к внешнему накопителю
+                 */
+                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".xml");
+                myFile.createNewFile();                                         // Создается файл, если он не был создан
+                FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
+
+                double tmpTime = (double) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                double pulseSumm = 0, tmpPulse = 0;
+                String locationStr = " Unknown.";
+                            /*
+                Определение GPS координат
+             */
+                try {
+                    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    if (lm != null) {
+                        @SuppressLint("MissingPermission") Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (loc != null) {
+                            locationStr = " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
+                                    + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed();
+                        } else {
+                            Toast.makeText(getBaseContext(), "Ошибка получения координат.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getBaseContext(), "Ошибка создания LocationManager.", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(getBaseContext(), "Ошибка получения и записи координат." + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+
+                simpleDateFormat = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SZZZZZ");
+                startTime = simpleDateFormat.format(now);
+                sTime = System.currentTimeMillis() - tmpTime * 1000;
+                startTime = simpleDateFormat.format(sTime);
+                endTime = simpleDateFormat.format(now);
+
+                for (int i = 0; i < 2048; i++) {
+                    tmpPulse = (double) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                    pulseSumm = pulseSumm + tmpPulse;
+                }
+                dataStr = (String) "<?xml version=\"1.0\"?>\n" +
+                        "<ResultDataFile xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "<FormatVersion>120920</FormatVersion>\n" +
+                        "<ResultDataList>\n" +
+                        "<ResultData>\n" +
+                        "<SampleInfo>\n" +
+                        "<Name />\n" +
+                        "<Location>Lat: " + locationStr + "</Location>\n" +
+                        "<Time>" + startTime + "</Time>\n" +
+                        "<Weight>1</Weight>\n" +
+                        "<Volume>1</Volume>\n" +
+                        "<Note />\n" +
+                        "</SampleInfo>\n" +
+                        "<DeviceConfigReference>\n" +
+                        "<Name>DoZer</Name>\n" +
+                        "<Guid>fb3c0393-034b-495b-8ab1-f3011c558a4d</Guid>\n" +
+                        "</DeviceConfigReference>\n" +
+                        "<ROIConfigReference>\n" +
+                        "<Name>10x40_Sensl</Name>\n" +
+                        "<Guid>63afa7cf-0dc5-44d7-8933-535c84c4c18c</Guid>\n" +
+                        "</ROIConfigReference>\n" +
+                        "<BackgroundSpectrumFile />\n" +
+                        "<StartTime>" + startTime + "</StartTime>\n" +
+                        "<EndTime>" + endTime + "</EndTime>\n" +
+                        "<PresetTime>" + Math.round(tmpTime) + "</PresetTime>\n" +
+                        "<EnergySpectrum>\n" +
+                        "<NumberOfChannels>1023</NumberOfChannels>\n" +
+                        "<ChannelPitch>0.0221</ChannelPitch>\n" +
+                        "<EnergyCalibration>\n" +
+                        "<PolynomialOrder>2</PolynomialOrder>\n" +
+                        "<Coefficients>\n" +
+                        "<Coefficient>0</Coefficient>\n" +
+                        "<Coefficient>3.2051282051282</Coefficient>\n" +
+                        "<Coefficient>0</Coefficient>\n" +
+                        "</Coefficients>\n" +
+                        "</EnergyCalibration>\n" +
+                        "<ValidPulseCount>" + Math.round(pulseSumm) + "</ValidPulseCount>\n" +
+                        "<TotalPulseCount>" + Math.round(pulseSumm) + "</TotalPulseCount>\n" +
+                        "<MeasurementTime>" + Math.round(tmpTime) + "</MeasurementTime>\n" +
+                        "<NumberOfSamples>0</NumberOfSamples>\n" +
+                        "<Spectrum>\n";
+                outputStream.write(dataStr.getBytes());
+
+                for (int i = 2; i < 2048; i++) {
+                    tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                    dataStr = "<DataPoint>" + String.valueOf((int) tmpVal) + "</DataPoint>\n";
+                    outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
+                }
+                dataStr = (String) "</Spectrum>\n" +
+                        "</EnergySpectrum>\n" +
+                        "<Visible>true</Visible>\n" +
+                        "<PulseCollection>\n" +
+                        "<Format>Base64 encoded binary</Format>\n" +
+                        "<Pulses />\n" +
+                        "</PulseCollection>\n" +
+                        "</ResultData>\n" +
+                        "</ResultDataList>\n" +
+                        "</ResultDataFile>\n";
+                outputStream.write(dataStr.getBytes());
+
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
+            }
+            toast.show();
+        }
+
+
+
 
         //  Перерисовка графика
         public void writeHistogram(Canvas canvas) {
