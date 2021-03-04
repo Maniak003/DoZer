@@ -809,7 +809,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<ResultData>\n" +
                         "<SampleInfo>\n" +
                         "<Name />\n" +
-                        "<Location>Lat: " + locationStr + "</Location>\n" +
+                        "<Location>" + locationStr + "</Location>\n" +
                         "<Time>" + startTime + "</Time>\n" +
                         "<Weight>1</Weight>\n" +
                         "<Volume>1</Volume>\n" +
