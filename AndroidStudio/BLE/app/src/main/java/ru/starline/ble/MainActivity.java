@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Очищаем массив для поиска
         for ( int i = 0; i < findDataSize; i++) {
-            findData[i] = 1;
+            findData[i] = 0;
         }
         setContentView(myView);
         BT = new getBluetooth();
