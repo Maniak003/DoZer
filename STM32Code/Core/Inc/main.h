@@ -21,6 +21,8 @@
 #define INIT_TIME  2000
 #define TRANSMIT_DALAY 20
 #define LED_PULSE_ENABLE
+#define LED_PIN GPIO_PIN_2
+#define ANALOG_INPUT
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/

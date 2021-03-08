@@ -1499,7 +1499,7 @@ F 3 "GRM21BR60J226M" H 4600 2300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L My_Library:JDY-10 D4
+L cs-rescue:JDY-10-My_Library D4
 U 1 1 6021FB35
 P 8250 4950
 F 0 "D4" H 8250 5675 50  0000 C CNN
