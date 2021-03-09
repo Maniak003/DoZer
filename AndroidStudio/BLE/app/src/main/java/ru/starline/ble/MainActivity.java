@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    if (event.getX() < 500) {
+                    if (event.getX() < 1000) {
                         DH.saveHistogramXML(); // сохранение данных в файл
                     } else {
                         try {
@@ -491,7 +491,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         };
 
         /*
-                Этими парамертрами корректно инициализируется JDY-23
+                Этими парамертрами корректно инициализируется JDY-23, JDY-10
          */
         private class Cc245XDelegate extends DeviceDelegate {
             //@Override
