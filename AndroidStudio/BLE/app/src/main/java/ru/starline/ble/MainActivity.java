@@ -727,10 +727,10 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
                         String timeStr = sdf.format(loc.getTime());
                         String nowStr = sdf.format(now);
-                        int tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                        float tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff));
                         dataStr = "Date: " + nowStr + " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
                                 + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed() + " GPS last update: " + timeStr
-                                + " Measurement time: " + tmpTime;
+                                + " Measurement time: " + Math.round(tmpTime);
                         outputStream.write(dataStr.getBytes());
                         outputStream.close();
                     } else {
@@ -768,7 +768,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
 
-                double tmpTime = (double) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                float tmpTime = (float) (spectrData[0] << 8 | (spectrData[1] & 0xff));
                 double pulseSumm = 0, tmpPulse = 0;
                 String locationStr = " Unknown.";
                             /*
@@ -799,8 +799,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 endTime = simpleDateFormat.format(now);
 
                 for (int i = 0; i < 2048; i++) {
-                    tmpPulse = (double) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                    pulseSumm = pulseSumm + tmpPulse;
+                    pulseSumm = pulseSumm + (float) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 }
                 dataStr = (String) "<?xml version=\"1.0\"?>\n" +
                         "<ResultDataFile xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
@@ -976,7 +975,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         acps = (float) (countsAll / tmpTime);
                     }
                     canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], X, 40, pText);
-                    canvas.drawText("time: " + (int) tmpTime + " avg: " + String.format("%.2f", acps), X, 80, pText);
+                    canvas.drawText("time: " + String.format("%.0f", tmpTime) + " avg: " + String.format("%.2f", acps), X, 80, pText);
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
