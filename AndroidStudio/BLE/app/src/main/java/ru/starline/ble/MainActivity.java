@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    if (event.getX() < 1000) {
+                    if (event.getX() < 1100) {
                         DH.saveHistogramXML(); // сохранение данных в файл
                     } else {
                         try {
