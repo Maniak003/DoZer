@@ -22,6 +22,11 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -66,6 +71,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -89,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     public long tmpFindData, Trh1 = 40, Trh2 = 100;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
+    scanLE SLE = new scanLE();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,13 +176,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if ( connected ) {
-                String str = "<DATA>";
-                Log.i(TAG, "Timer tick.");
-                try {
-                    BT.write(str.getBytes());
-                } catch (IOException e) {
-                    Log.i(TAG, "Write error : " + e.getMessage());
-                }
+                //String str = "<DATA>";
+                //Log.i(TAG, "Timer tick.");
+                //try {
+                //    BT.write(str.getBytes());
+                //} catch (IOException e) {
+                //    Log.i(TAG, "Write error : " + e.getMessage());
+                //}
             } else {
                 if ( BT == null ) {
                     BT = new getBluetooth();
@@ -215,8 +222,65 @@ Unknown characteristic (0000FFE1-0000-1000-8000-00805F9B34FB)
 Unknown service (0000180F-0000-1000-8000-00805F9B34FB)
 Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 */
+    class scanLE {
+        public void scnLE() {
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            BluetoothLeScanner scanner = adapter.getBluetoothLeScanner();
 
-    class getBluetooth  {
+            //String[] peripheralAddresses = new String[]{"20:06:12:09:74:3E"};
+            //List<ScanFilter> filters = new ArrayList<>();
+            //for (String address : peripheralAddresses) {
+            //    ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(address).build();
+            //    filters.add(filter);
+            //}
+            String[] names = new String[]{"DoZer"};
+            List<ScanFilter> filters = null;
+            if (names != null) {
+                filters = new ArrayList<>();
+                for (String name : names) {
+                    ScanFilter filter = new ScanFilter.Builder().setDeviceName(name).build();
+                    filters.add(filter);
+                }
+            }
+
+            ScanSettings scanSettings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                    .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+                    .setReportDelay(0L)
+                    .build();
+
+            if(scanner !=null) {
+                scanner.startScan(filters, scanSettings, scanCallback);
+                Log.d(TAG, "Scan started.");
+            }  else
+
+            {
+                Log.e(TAG, "could not get scanner object");
+            }
+        }
+
+        private final ScanCallback scanCallback = new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                BluetoothDevice device = result.getDevice();
+                Log.d(TAG, "---------------------scan finished-----------------");
+            }
+
+            @Override
+            public void onBatchScanResults(List<ScanResult> results) {
+                Log.d(TAG, "---------------------scan result-----------------");
+            }
+
+            @Override
+            public void onScanFailed(int errorCode) {
+                Log.d(TAG, "---------------------scan failed-----------------");
+            }
+        };
+    }
+
+    class getBluetooth {
         Context context = getApplicationContext();
         public BluetoothAdapter bluetooth;
         private BluetoothSocket btSocket = null;
@@ -237,7 +301,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
         // https://play.google.com/store/apps/details?id=com.telit.tiosample
         // https://www.telit.com/wp-content/uploads/2017/09/TIO_Implementation_Guide_r6.pdf
-        public final UUID BLUETOOTH_LE_CCCD           = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+        public final UUID BLUETOOTH_LE_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_SERVICE = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_CHAR_RW = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
         //public final UUID SPP_UUID                    = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -262,7 +326,6 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         //private static final int STATE_DISCONNECTED = 0;
         //private static final int STATE_CONNECTING = 1;
         //private static final int STATE_CONNECTED = 2;
-
 
         /**
          * delegate device specific behaviour to inner class
@@ -388,7 +451,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 if (canceled)
                     return;
                 if (characteristic == writeCharacteristic) { // NOPMD - test object identity
-                    Log.d(TAG, "write finished, status=" + status);
+                    //Log.d(TAG, "write finished, status=" + status);
                     writeNext();
                 }
             }
@@ -471,7 +534,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                 case 2:
                                     if (data[i] == '>') {
                                         startFlag++;
-                                        Log.i(TAG, "Start marker found.");
+                                        //Log.i(TAG, "Start marker found.");
                                         bufferIndex = 0;
                                     } else {
                                         startFlag = 0;
@@ -584,7 +647,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Log.d(TAG,"Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
                 } else {
-                    Log.d(TAG,"write started, len=" + data0.length);
+                    //Log.d(TAG,"write started, len=" + data0.length);
                 }
             }
             // continues asynchronously in onCharacteristicWrite()
@@ -608,7 +671,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Log.d(TAG,"Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
                 } else {
-                    Log.d(TAG,"write started from next, len=" + data.length);
+                    //Log.d(TAG,"write started from next, len=" + data.length);
                 }
             }
         }
@@ -626,7 +689,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         protected void onDraw(Canvas canvas) {
             HSize = canvas.getHeight();
             WSize = canvas.getWidth();
-            Log.i(TAG,"onDraw");
+            //Log.i(TAG,"onDraw");
             DH.writeHistogram(canvas);
             if ( connected ) {
                 DH.connectIndicator(canvas, 0);
@@ -868,8 +931,6 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             }
             toast.show();
         }
-
-
 
 
         //  Перерисовка графика
