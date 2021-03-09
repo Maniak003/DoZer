@@ -14,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L My_Library:STM32L412K8 D6
+L SC-STM32L412K8-rescue:STM32L412K8-My_Library D6
 U 1 1 60361EE9
 P 7350 4450
 F 0 "D6" H 7350 4500 50  0000 C CNN
@@ -347,7 +347,7 @@ F 3 "~" H 6850 3550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L My_Library:Conn J5
+L SC-STM32L412K8-rescue:Conn-My_Library J5
 U 1 1 603AE044
 P 6750 5250
 F 0 "J5" H 6692 5025 50  0001 C CNN
@@ -358,7 +358,7 @@ F 3 "~" H 6750 5250 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L My_Library:Conn J6
+L SC-STM32L412K8-rescue:Conn-My_Library J6
 U 1 1 603AE9C5
 P 6750 5350
 F 0 "J6" H 6692 5125 50  0001 C CNN
@@ -369,7 +369,7 @@ F 3 "~" H 6750 5350 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L My_Library:Conn J3
+L SC-STM32L412K8-rescue:Conn-My_Library J3
 U 1 1 603B523F
 P 6750 4850
 F 0 "J3" H 6692 4625 50  0001 C CNN
@@ -380,7 +380,7 @@ F 3 "~" H 6750 4850 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L My_Library:Conn J4
+L SC-STM32L412K8-rescue:Conn-My_Library J4
 U 1 1 603B58EC
 P 6750 4950
 F 0 "J4" H 6692 4725 50  0001 C CNN
@@ -793,7 +793,7 @@ F 3 "" H 3850 1450 50  0001 C CNN
 $EndComp
 Connection ~ 3850 1450
 $Comp
-L My_Library:Conn J2
+L SC-STM32L412K8-rescue:Conn-My_Library J2
 U 1 1 604E175B
 P 6150 1450
 F 0 "J2" H 6092 1225 50  0001 C CNN
@@ -862,7 +862,7 @@ Wire Wire Line
 	7850 3750 7950 3750
 Connection ~ 7950 3750
 $Comp
-L My_Library:Conn J7
+L SC-STM32L412K8-rescue:Conn-My_Library J7
 U 1 1 60622710
 P 5200 3700
 F 0 "J7" H 5142 3475 50  0001 C CNN
@@ -874,7 +874,7 @@ F 3 "~" H 5200 3700 50  0001 C CNN
 $EndComp
 Connection ~ 5200 3600
 $Comp
-L My_Library:Conn J8
+L SC-STM32L412K8-rescue:Conn-My_Library J8
 U 1 1 606AB650
 P 5250 5050
 F 0 "J8" H 5192 4825 50  0001 C CNN
@@ -885,7 +885,7 @@ F 3 "~" H 5250 5050 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L My_Library:Conn J9
+L SC-STM32L412K8-rescue:Conn-My_Library J9
 U 1 1 6072E770
 P 6750 5450
 F 0 "J9" H 6692 5225 50  0001 C CNN
@@ -1001,7 +1001,7 @@ Connection ~ 5350 3600
 Wire Wire Line
 	5350 3600 5350 2900
 $Comp
-L My_Library:LMV7239M5 U4
+L SC-STM32L412K8-rescue:LMV7239M5-My_Library U4
 U 1 1 6056F677
 P 6200 5050
 F 0 "U4" H 6050 5800 50  0000 L CNN

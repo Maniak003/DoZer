@@ -57,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
 extern TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN EV */
 
@@ -207,6 +208,7 @@ void ADC1_2_IRQHandler(void)
 
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
+  HAL_ADC_IRQHandler(&hadc2);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
   adcResult = HAL_ADC_GetValue(&hadc1);
   if (adcResult > 0) {
@@ -218,7 +220,7 @@ void ADC1_2_IRQHandler(void)
 	  counterCC++;
 	  counterALL++;
 #ifdef LED_PULSE_ENABLE
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET); // Включаем светодиод.
+	  HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_SET); // Включаем светодиод.
 	  HAL_TIM_Base_Start_IT(&htim3); // запуск таймера для гашения светодиода.
 #endif
   }
@@ -232,7 +234,7 @@ void ADC1_2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET); // Выключаем светодиод.
+	HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_RESET); // Выключаем светодиод.
 
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
