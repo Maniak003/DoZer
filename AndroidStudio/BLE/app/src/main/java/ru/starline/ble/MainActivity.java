@@ -812,7 +812,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         //  Сохранение гистограммы XML BqMonitor format
         public void saveHistogramXML() {
             String dataStr, fileName, startTime, endTime;
-            double sTime, eTime;
+            double sTime;
             Calendar calendar = Calendar.getInstance();
             Date now = calendar.getTime();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'_'HHmmss");
@@ -831,8 +831,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
 
-                float tmpTime = (float) (spectrData[0] << 8 | (spectrData[1] & 0xff));
-                double pulseSumm = 0, tmpPulse = 0;
+                float tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                double pulseSumm = 0;
                 String locationStr = " Unknown.";
                             /*
                 Определение GPS координат
@@ -882,7 +882,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<Guid>fb3c0393-034b-495b-8ab1-f3011c558a4d</Guid>\n" +
                         "</DeviceConfigReference>\n" +
                         "<ROIConfigReference>\n" +
-                        "<Name>10x40_Sensl</Name>\n" +
+                        "<Name>10x40NaI(Tl)_Sensl</Name>\n" +
                         "<Guid>63afa7cf-0dc5-44d7-8933-535c84c4c18c</Guid>\n" +
                         "</ROIConfigReference>\n" +
                         "<BackgroundSpectrumFile />\n" +
@@ -896,7 +896,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
                         "<Coefficients>\n" +
                         "<Coefficient>0</Coefficient>\n" +
-                        "<Coefficient>3.2051282051282</Coefficient>\n" +
+                        "<Coefficient>3.11965811965812</Coefficient>\n" +
                         "<Coefficient>0</Coefficient>\n" +
                         "</Coefficients>\n" +
                         "</EnergyCalibration>\n" +
