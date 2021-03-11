@@ -91,8 +91,9 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothGatt gatt;
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 512;
-    public long[] findData = new long[findDataSize];
-    public long tmpFindData, Trh1 = 40, Trh2 = 100;
+    public float koeffR = (float) 0.5378061767;
+    public float[] findData = new float[findDataSize];
+    public float tmpFindData, Trh1 = 40, Trh2 = 100;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
     scanLE SLE = new scanLE();
@@ -542,7 +543,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                     break;
                                 default:   // Стартовая последовательность найдена, заполняем массив
                                     spectrData[bufferIndex++] = (byte) (data[i] & 0xFF);
-                                    if (bufferIndex == 2048) {     //Передача закончена, перерисовываем картинку.
+                                    if (bufferIndex == 2051) {     //Передача закончена, перерисовываем картинку.
                                         startFlag = 0;
                                         myView.invalidate();
                                     }
@@ -702,9 +703,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
     class drawHistogram {
         double countsAll, interval;
-        char maxPoint, tmpVal; /* Unsigned short. Долбаная Java */
-        float mastab, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
-        private Paint p = new Paint(), pLog = new Paint(), pText = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
+        //char ; /* Unsigned short. Долбаная Java */
+        float maxPoint, mastab, tmpVal, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        private Paint p = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
 
         // Перерисовка индикатора подключения.
         public void connectIndicator(Canvas canvas, int cl) {
@@ -717,7 +718,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             canvas.drawCircle(WSize - 20, 20, 6, pInd);
         }
 
-        // Обнуление данных
+        // Обнуление данных в приборе
         public void resetAll() throws IOException {
             for ( int i = 0; i < findDataSize; i++) {
                 findData[i] = 0;
@@ -861,7 +862,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 startTime = simpleDateFormat.format(sTime);
                 endTime = simpleDateFormat.format(now);
 
-                for (int i = 0; i < 2048; i++) {
+                for (int i = 2; i < 2050; i++) {
                     pulseSumm = pulseSumm + (float) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 }
                 dataStr = (String) "<?xml version=\"1.0\"?>\n" +
@@ -890,7 +891,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<EndTime>" + endTime + "</EndTime>\n" +
                         "<PresetTime>" + Math.round(tmpTime) + "</PresetTime>\n" +
                         "<EnergySpectrum>\n" +
-                        "<NumberOfChannels>1023</NumberOfChannels>\n" +
+                        "<NumberOfChannels>1024</NumberOfChannels>\n" +
                         "<ChannelPitch>0.0221</ChannelPitch>\n" +
                         "<EnergyCalibration>\n" +
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
@@ -907,9 +908,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<Spectrum>\n";
                 outputStream.write(dataStr.getBytes());
 
-                for (int i = 2; i < 2048; i++) {
+                for (int i = 2; i < 2050; i++) {
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                    dataStr = "<DataPoint>" + String.valueOf((int) tmpVal) + "</DataPoint>\n";
+                    dataStr = "<DataPoint>" + String.format("%.0f", tmpVal) + "</DataPoint>\n";
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                 }
                 dataStr = (String) "</Spectrum>\n" +
@@ -969,6 +970,16 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             pText.setColor(Color.argb(100, 255, 40, 255));
             pText.setStrokeWidth(penSize);
             pText.setTextSize(35.0f);
+            // Текст значений в мкР/ч
+            pTextR1.setColor(Color.argb(100, 40, 255, 40));
+            pTextR1.setStrokeWidth(penSize);
+            pTextR1.setTextSize(60.0f);
+            pTextR2.setColor(Color.argb(100, 255, 255, 40));
+            pTextR2.setStrokeWidth(penSize);
+            pTextR2.setTextSize(60.0f);
+            pTextR3.setColor(Color.argb(100, 255, 40, 40));
+            pTextR3.setStrokeWidth(penSize);
+            pTextR3.setTextSize(60.0f);
             // График дла поиска
             pFindData.setColor(Color.argb(200, 40, 255, 40));
             pFindData.setStrokeWidth(pen3Size);
@@ -998,7 +1009,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 curentTime = System.currentTimeMillis() / 1000;
                 mastab = 0;
 
-                // Смещение графика поиска
+                // Смещение графика поиска на одну позицию.
                 tmpFindData = Math.round((countsAll - oldCounts) / interval);
                 if (tmpFindData > 0) {
                     for (int i = findDataSize - 2; i >= 0; i--) {
@@ -1015,16 +1026,16 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     float X, Y;
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = (WSize - 20) - i * pen3Size;
-                        Y = 200 - findData[i] * mastab;
-                        if (200 - Y < 1) {
-                            Y = 199;
+                        Y = 190 - findData[i] * mastab;
+                        if (190 - Y < 1) {
+                            Y = 189;
                         }
                         if (findData[i] < Trh1) {
-                            canvas.drawLine(X, Y, X, 200, pFindData);
+                            canvas.drawLine(X, Y, X, 190, pFindData);
                         } else if (findData[i] < Trh2) {
-                            canvas.drawLine(X, Y, X, 200, pFindData1);
+                            canvas.drawLine(X, Y, X, 190, pFindData1);
                         } else {
-                            canvas.drawLine(X, Y, X, 200, pFindData2);
+                            canvas.drawLine(X, Y, X, 190, pFindData2);
                         }
                     }
 
@@ -1035,8 +1046,25 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
-                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + findData[0], X, 40, pText);
+                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + String.format("%.0f", findData[0]), X, 40, pText);
                     canvas.drawText("time: " + String.format("%.0f", tmpTime) + " avg: " + String.format("%.2f", acps), X, 80, pText);
+                    /* Текущее значение */
+                    if (findData[0] < Trh1) {
+                        canvas.drawText("Now: " + String.format("%.1f", findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR1);
+                    } else if ( findData[0] < Trh2 ) {
+                        canvas.drawText("Now: " + String.format("%.1f",findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR2);
+                    } else {
+                        canvas.drawText("Now: " + String.format("%.1f",findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR3);
+                    }
+                    /* Среднее значение */
+                    if (acps < Trh1) {
+                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR1);
+                    } else if (acps < Trh2) {
+                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR2);
+                    } else {
+                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR3);
+
+                    }
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
