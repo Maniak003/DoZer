@@ -205,7 +205,7 @@ int main(void)
 		  }
 
 		  // Управление с BT
-		  if(HAL_UART_Receive(&huart1, btCommand, sizeof(btCommand), 10)) {
+		  if(HAL_UART_Receive(&huart1, btCommand, sizeof(btCommand), 10) == HAL_OK) {
 			  if (strstr(btCommand, "C")) { // Очистка массива спектра и времени измерения.
 				  for (int i = 0; i < 2048; i++) {
 					  spectrData[i] = 0;
