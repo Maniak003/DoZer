@@ -648,7 +648,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Log.d(TAG,"Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
                 } else {
-                    //Log.d(TAG,"write started, len=" + data0.length);
+                    Log.d(TAG,"write started, len=" + data0.length);
                 }
             }
             // continues asynchronously in onCharacteristicWrite()
@@ -672,7 +672,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Log.d(TAG,"Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
                 } else {
-                    //Log.d(TAG,"write started from next, len=" + data.length);
+                    Log.d(TAG,"write started from next, len=" + data.length);
                 }
             }
         }

@@ -205,14 +205,14 @@ int main(void)
 		  }
 
 		  // Управление с BT
-		  if(HAL_UART_Receive(&huart1, btCommand, sizeof(btCommand), 10) == HAL_OK) {
-			  if ( btCommand[0] == 'C' ) { // Очистка массива спектра и времени измерения.
+		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
+			  //if ( btCommand[0] == 'C' ) { // Очистка массива спектра и времени измерения.
 				  for (int i = 0; i < 2050; i++) {
 					  spectrData[i] = 0;
 				  }
 				  oldTimeAll = HAL_GetTick();
 				  counterALL = 0;
-			  }
+			  //}
 		  }
 	  } else {
 #ifdef DISPLAY_ENABLE
