@@ -104,9 +104,9 @@ Disassembly of section .text:
 	...
 
 080001b0 <main>:
- 80001b0:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
+ 80001b0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
  80001b4:	2710      	movs	r7, #16
- 80001b6:	b08a      	sub	sp, #40	; 0x28
+ 80001b6:	b08b      	sub	sp, #44	; 0x2c
  80001b8:	f000 fb3e 	bl	8000838 <HAL_Init>
  80001bc:	f7ff ffc6 	bl	800014c <SystemClock_Config>
  80001c0:	463a      	mov	r2, r7
@@ -137,26 +137,26 @@ Disassembly of section .text:
  8000202:	f640 0318 	movw	r3, #2072	; 0x818
  8000206:	e9cd 3806 	strd	r3, r8, [sp, #24]
  800020a:	2302      	movs	r3, #2
- 800020c:	a906      	add	r1, sp, #24
- 800020e:	488d      	ldr	r0, [pc, #564]	; (8000444 <main+0x294>)
- 8000210:	e9cd 4308 	strd	r4, r3, [sp, #32]
- 8000214:	f000 fe54 	bl	8000ec0 <HAL_GPIO_Init>
- 8000218:	f44f 6200 	mov.w	r2, #2048	; 0x800
- 800021c:	f44f 5980 	mov.w	r9, #4096	; 0x1000
+ 800020c:	f44f 6900 	mov.w	r9, #2048	; 0x800
+ 8000210:	f44f 5a80 	mov.w	sl, #4096	; 0x1000
+ 8000214:	a906      	add	r1, sp, #24
+ 8000216:	488b      	ldr	r0, [pc, #556]	; (8000444 <main+0x294>)
+ 8000218:	e9cd 4308 	strd	r4, r3, [sp, #32]
+ 800021c:	f000 fe50 	bl	8000ec0 <HAL_GPIO_Init>
  8000220:	4b89      	ldr	r3, [pc, #548]	; (8000448 <main+0x298>)
  8000222:	a906      	add	r1, sp, #24
  8000224:	4889      	ldr	r0, [pc, #548]	; (800044c <main+0x29c>)
- 8000226:	e9cd 2306 	strd	r2, r3, [sp, #24]
+ 8000226:	e9cd 9306 	strd	r9, r3, [sp, #24]
  800022a:	9408      	str	r4, [sp, #32]
  800022c:	f000 fe48 	bl	8000ec0 <HAL_GPIO_Init>
  8000230:	a906      	add	r1, sp, #24
  8000232:	4886      	ldr	r0, [pc, #536]	; (800044c <main+0x29c>)
  8000234:	4e86      	ldr	r6, [pc, #536]	; (8000450 <main+0x2a0>)
- 8000236:	e9cd 9406 	strd	r9, r4, [sp, #24]
+ 8000236:	e9cd a406 	strd	sl, r4, [sp, #24]
  800023a:	9408      	str	r4, [sp, #32]
  800023c:	f000 fe40 	bl	8000ec0 <HAL_GPIO_Init>
  8000240:	4b84      	ldr	r3, [pc, #528]	; (8000454 <main+0x2a4>)
- 8000242:	f04f 0a08 	mov.w	sl, #8
+ 8000242:	f04f 0b08 	mov.w	fp, #8
  8000246:	6033      	str	r3, [r6, #0]
  8000248:	f44f 2340 	mov.w	r3, #786432	; 0xc0000
  800024c:	4630      	mov	r0, r6
@@ -171,14 +171,14 @@ Disassembly of section .text:
  8000262:	f000 fcd9 	bl	8000c18 <HAL_ADC_Init>
  8000266:	a906      	add	r1, sp, #24
  8000268:	4630      	mov	r0, r6
- 800026a:	e9cd a806 	strd	sl, r8, [sp, #24]
+ 800026a:	e9cd b806 	strd	fp, r8, [sp, #24]
  800026e:	f8cd 8020 	str.w	r8, [sp, #32]
  8000272:	f000 fb93 	bl	800099c <HAL_ADC_ConfigChannel>
  8000276:	4878      	ldr	r0, [pc, #480]	; (8000458 <main+0x2a8>)
- 8000278:	4978      	ldr	r1, [pc, #480]	; (800045c <main+0x2ac>)
+ 8000278:	4a78      	ldr	r2, [pc, #480]	; (800045c <main+0x2ac>)
  800027a:	4b79      	ldr	r3, [pc, #484]	; (8000460 <main+0x2b0>)
  800027c:	e9c0 4402 	strd	r4, r4, [r0, #8]
- 8000280:	e9c0 1300 	strd	r1, r3, [r0]
+ 8000280:	e9c0 2300 	strd	r2, r3, [r0]
  8000284:	f44f 4380 	mov.w	r3, #16384	; 0x4000
  8000288:	e9c0 4406 	strd	r4, r4, [r0, #24]
  800028c:	e9c0 3404 	strd	r3, r4, [r0, #16]
@@ -186,9 +186,9 @@ Disassembly of section .text:
  8000292:	f000 ff01 	bl	8001098 <HAL_I2C_Init>
  8000296:	f44f 33e1 	mov.w	r3, #115200	; 0x1c200
  800029a:	4872      	ldr	r0, [pc, #456]	; (8000464 <main+0x2b4>)
- 800029c:	4d72      	ldr	r5, [pc, #456]	; (8000468 <main+0x2b8>)
+ 800029c:	4972      	ldr	r1, [pc, #456]	; (8000468 <main+0x2b8>)
  800029e:	e9c0 4402 	strd	r4, r4, [r0, #8]
- 80002a2:	e9c0 5300 	strd	r5, r3, [r0]
+ 80002a2:	e9c0 1300 	strd	r1, r3, [r0]
  80002a6:	230c      	movs	r3, #12
  80002a8:	6104      	str	r4, [r0, #16]
  80002aa:	e9c0 3405 	strd	r3, r4, [r0, #20]
@@ -201,7 +201,7 @@ Disassembly of section .text:
  80002be:	4d6b      	ldr	r5, [pc, #428]	; (800046c <main+0x2bc>)
  80002c0:	4b6b      	ldr	r3, [pc, #428]	; (8000470 <main+0x2c0>)
  80002c2:	4628      	mov	r0, r5
- 80002c4:	e9c5 3a00 	strd	r3, sl, [r5]
+ 80002c4:	e9c5 3b00 	strd	r3, fp, [r5]
  80002c8:	f241 3388 	movw	r3, #5000	; 0x1388
  80002cc:	e9c5 3403 	strd	r3, r4, [r5, #12]
  80002d0:	2380      	movs	r3, #128	; 0x80
@@ -211,7 +211,7 @@ Disassembly of section .text:
  80002da:	f001 fc13 	bl	8001b04 <HAL_TIM_Base_Init>
  80002de:	a906      	add	r1, sp, #24
  80002e0:	4628      	mov	r0, r5
- 80002e2:	f8cd 9018 	str.w	r9, [sp, #24]
+ 80002e2:	f8cd a018 	str.w	sl, [sp, #24]
  80002e6:	f001 fc43 	bl	8001b70 <HAL_TIM_ConfigClockSource>
  80002ea:	eb0d 0107 	add.w	r1, sp, r7
  80002ee:	4628      	mov	r0, r5
@@ -249,7 +249,7 @@ Disassembly of section .text:
  8000346:	4606      	mov	r6, r0
  8000348:	4b4e      	ldr	r3, [pc, #312]	; (8000484 <main+0x2d4>)
  800034a:	4642      	mov	r2, r8
- 800034c:	2104      	movs	r1, #4
+ 800034c:	4649      	mov	r1, r9
  800034e:	483d      	ldr	r0, [pc, #244]	; (8000444 <main+0x294>)
  8000350:	601c      	str	r4, [r3, #0]
  8000352:	f000 fe9b 	bl	800108c <HAL_GPIO_WritePin>
@@ -627,19 +627,18 @@ Disassembly of section .text:
  80006f2:	4a0d      	ldr	r2, [pc, #52]	; (8000728 <ADC1_2_IRQHandler+0x70>)
  80006f4:	480d      	ldr	r0, [pc, #52]	; (800072c <ADC1_2_IRQHandler+0x74>)
  80006f6:	6813      	ldr	r3, [r2, #0]
- 80006f8:	2104      	movs	r1, #4
- 80006fa:	3301      	adds	r3, #1
- 80006fc:	6013      	str	r3, [r2, #0]
- 80006fe:	4a0c      	ldr	r2, [pc, #48]	; (8000730 <ADC1_2_IRQHandler+0x78>)
- 8000700:	6813      	ldr	r3, [r2, #0]
- 8000702:	3301      	adds	r3, #1
- 8000704:	6013      	str	r3, [r2, #0]
- 8000706:	2201      	movs	r2, #1
- 8000708:	f000 fcc0 	bl	800108c <HAL_GPIO_WritePin>
- 800070c:	e8bd 4008 	ldmia.w	sp!, {r3, lr}
- 8000710:	4808      	ldr	r0, [pc, #32]	; (8000734 <ADC1_2_IRQHandler+0x7c>)
- 8000712:	f001 b8ed 	b.w	80018f0 <HAL_TIM_Base_Start_IT>
- 8000716:	bf00      	nop
+ 80006f8:	f44f 6100 	mov.w	r1, #2048	; 0x800
+ 80006fc:	3301      	adds	r3, #1
+ 80006fe:	6013      	str	r3, [r2, #0]
+ 8000700:	4a0b      	ldr	r2, [pc, #44]	; (8000730 <ADC1_2_IRQHandler+0x78>)
+ 8000702:	6813      	ldr	r3, [r2, #0]
+ 8000704:	3301      	adds	r3, #1
+ 8000706:	6013      	str	r3, [r2, #0]
+ 8000708:	2201      	movs	r2, #1
+ 800070a:	f000 fcbf 	bl	800108c <HAL_GPIO_WritePin>
+ 800070e:	e8bd 4008 	ldmia.w	sp!, {r3, lr}
+ 8000712:	4808      	ldr	r0, [pc, #32]	; (8000734 <ADC1_2_IRQHandler+0x7c>)
+ 8000714:	f001 b8ec 	b.w	80018f0 <HAL_TIM_Base_Start_IT>
  8000718:	20001118 	.word	0x20001118
  800071c:	20001038 	.word	0x20001038
  8000720:	2000002c 	.word	0x2000002c
@@ -653,12 +652,11 @@ Disassembly of section .text:
  8000738:	b508      	push	{r3, lr}
  800073a:	4805      	ldr	r0, [pc, #20]	; (8000750 <TIM3_IRQHandler+0x18>)
  800073c:	2200      	movs	r2, #0
- 800073e:	2104      	movs	r1, #4
- 8000740:	f000 fca4 	bl	800108c <HAL_GPIO_WritePin>
- 8000744:	e8bd 4008 	ldmia.w	sp!, {r3, lr}
- 8000748:	4802      	ldr	r0, [pc, #8]	; (8000754 <TIM3_IRQHandler+0x1c>)
- 800074a:	f001 b900 	b.w	800194e <HAL_TIM_IRQHandler>
- 800074e:	bf00      	nop
+ 800073e:	f44f 6100 	mov.w	r1, #2048	; 0x800
+ 8000742:	f000 fca3 	bl	800108c <HAL_GPIO_WritePin>
+ 8000746:	e8bd 4008 	ldmia.w	sp!, {r3, lr}
+ 800074a:	4802      	ldr	r0, [pc, #8]	; (8000754 <TIM3_IRQHandler+0x1c>)
+ 800074c:	f001 b8ff 	b.w	800194e <HAL_TIM_IRQHandler>
  8000750:	40010800 	.word	0x40010800
  8000754:	200010d0 	.word	0x200010d0
 
