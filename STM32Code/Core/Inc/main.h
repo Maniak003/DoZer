@@ -51,7 +51,7 @@ extern "C" {
 char counterPP[20];
 uint32_t counterCC, counterALL;
 uint16_t adcResult;
-uint16_t spectrData[2048];
+uint16_t spectrData[2050];
 
 /* USER CODE END EC */
 

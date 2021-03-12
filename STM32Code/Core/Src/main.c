@@ -59,7 +59,7 @@ char counterPP[20];
 _Bool initFlag = 1;
 uint32_t counterCC = 0, counterALL = 0;
 uint16_t adcResult = 0;
-uint16_t spectrData[2048] = {0};
+uint16_t spectrData[2050] = {0};
 
 /* USER CODE END PV */
 
@@ -206,8 +206,8 @@ int main(void)
 
 		  // Управление с BT
 		  if(HAL_UART_Receive(&huart1, btCommand, sizeof(btCommand), 10) == HAL_OK) {
-			  if (strstr(btCommand, "C")) { // Очистка массива спектра и времени измерения.
-				  for (int i = 0; i < 2048; i++) {
+			  if ( btCommand[0] == 'C' ) { // Очистка массива спектра и времени измерения.
+				  for (int i = 0; i < 2050; i++) {
 					  spectrData[i] = 0;
 				  }
 				  oldTimeAll = HAL_GetTick();
