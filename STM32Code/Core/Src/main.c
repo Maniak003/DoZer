@@ -60,7 +60,7 @@ _Bool initFlag = 1;
 uint32_t counterCC = 0, counterALL = 0;
 uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
-uint16_t SpecrtCRC;
+uint16_t spectrCRC;
 
 /* USER CODE END PV */
 
@@ -202,11 +202,11 @@ int main(void)
 		  j = 0;
 		  // Transmit data over BT.
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
-		  specrtCRC = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Spectr collection time.
-		  spectrData[0] = specrtCRC;		// Transmit collection time.
+		  spectrCRC = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Spectr collection time.
+		  spectrData[0] = spectrCRC;		// Transmit collection time.
 		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
 		  for ( int i = 0; i < 1040; i++) {
-			  specrtCRC = spectrCRC + spectrData[i];
+			  spectrCRC = spectrCRC + spectrData[i];
 			  lowSpectr = spectrData[i] & 0xFF;
 			  highSpectr = (spectrData[i] & 0xFF00) >> 8;
 			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);

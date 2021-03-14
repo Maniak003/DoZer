@@ -52,7 +52,7 @@ char counterPP[20];
 uint32_t counterCC, counterALL;
 uint16_t adcResult;
 uint16_t spectrData[2050];
-uint16_t specrtCRC;
+uint16_t spectrCRC;
 
 /* USER CODE END EC */
 
