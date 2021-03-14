@@ -214,14 +214,14 @@ void ADC1_2_IRQHandler(void)
   if (adcResult > 0) {
 	  adcResult = adcResult & 0x0FFF;
 	  adcResult = adcResult >> 2;
-	  adcResult = adcResult + 2; // Резервируем место в буфере под дополнительные параметры для передачи
-	  if (spectrData[adcResult] < 0xFFFF) // Проверка переполнения канала.
+	  adcResult = adcResult + 2; // Reserved additional parameter in send buffer ( 4 bytes )
+	  if (spectrData[adcResult] < 0xFFFF) // Check overflow in chanel.
 		  spectrData[adcResult]++;
 	  counterCC++;
 	  counterALL++;
 #ifdef LED_PULSE_ENABLE
-	  HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_SET); // Включаем светодиод.
-	  HAL_TIM_Base_Start_IT(&htim3); // запуск таймера для гашения светодиода.
+	  HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_SET); // LED on.
+	  HAL_TIM_Base_Start_IT(&htim3); // Start timer for turn off LED.
 #endif
   }
 
@@ -234,7 +234,7 @@ void ADC1_2_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-	HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_RESET); // Выключаем светодиод.
+	HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_RESET); // LED of.
 
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);

@@ -60,6 +60,7 @@ _Bool initFlag = 1;
 uint32_t counterCC = 0, counterALL = 0;
 uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
+uint16_t SpecrtCRC;
 
 /* USER CODE END PV */
 
@@ -131,8 +132,8 @@ int main(void)
   initDelay = oldTime;
   oldTimeAll = oldTime;
   counterCC = 0;
-  HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_SET); // Включаем светодиод.
-  HAL_TIM_Base_Start_IT(&htim3); // запуск таймера для светодиода
+  HAL_GPIO_WritePin(GPIOA, LED_PIN, GPIO_PIN_SET); // LED on.
+  HAL_TIM_Base_Start_IT(&htim3); // Start timer for turn off LED
 
   while (1)
   {
@@ -144,7 +145,7 @@ int main(void)
 	  ssd1306_WriteString(counterPP, Font_6x8, 0x01);
 #endif
 	  int ttt, max = 1;
-	  for ( int i = 0; i < 2048; i++) {
+	  for ( int i = 2; i < 2050; i++) {
 		  ttt = spectrData[i];
 		  if ((float) ttt > max)
 			  max = ttt;
@@ -173,13 +174,13 @@ int main(void)
 #ifdef DISPLAY_ENABLE
 	  ssd1306_UpdateScreen();
 #endif
-	  // Начальная инициализация, задержка после включения.
+	  // Delay after on.
 	  if (initFlag && (HAL_GetTick() - initDelay > INIT_TIME)) {
 		  initFlag = 0;
-		  HAL_ADC_Start_IT(&hadc1);
-		  oldTimeAll = HAL_GetTick();  // Начало отсчета времени, после запуска АЦП.
+		  HAL_ADC_Start_IT(&hadc1);  // Init ADC.
+		  oldTimeAll = HAL_GetTick();
 	  }
-	  /* Опрос status JDY-23, BT подключен ? */
+	  /* Status JDY-23, BT connected ? */
 #ifdef DISPLAY_ENABLE
 	  ssd1306_SetCursor(0, 24);
 #endif
@@ -187,26 +188,9 @@ int main(void)
 #ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: connect   ", Font_6x8, 0x01);
 #endif
-		  j = 0;
-		  // Передача данных в BT модуль.
-		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Стартовая последовательность.
-		  tmpData = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Время сбора спектра в секундах
-		  spectrData[0] = tmpData;		// Передадим время сбора данных.
-		  HAL_Delay(TRANSMIT_DALAY);  // В случае сбоев в передаче, задержку увеличить.
-		  for ( int i = 0; i < 1040; i++) {
-			  lowSpectr = spectrData[i] & 0xFF;
-			  highSpectr = (spectrData[i] & 0xFF00) >> 8;
-			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
-			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
-			  if ( j++ >= 9) {
-				  HAL_Delay(TRANSMIT_DALAY);  // В случае сбоев в передаче, задержку увеличить.
-				  j = 0;
-			  }
-		  }
-
-		  // Управление с BT
+		  // Control from BT
 		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
-			  //if ( btCommand[0] == 'C' ) { // Очистка массива спектра и времени измерения.
+			  //if ( btCommand[0] == 'C' ) { // Clear all measurement.
 				  for (int i = 0; i < 2050; i++) {
 					  spectrData[i] = 0;
 				  }
@@ -214,6 +198,30 @@ int main(void)
 				  counterALL = 0;
 			  //}
 		  }
+
+		  j = 0;
+		  // Transmit data over BT.
+		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
+		  specrtCRC = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Spectr collection time.
+		  spectrData[0] = specrtCRC;		// Transmit collection time.
+		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+		  for ( int i = 0; i < 1040; i++) {
+			  specrtCRC = spectrCRC + spectrData[i];
+			  lowSpectr = spectrData[i] & 0xFF;
+			  highSpectr = (spectrData[i] & 0xFF00) >> 8;
+			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+			  if ( j++ >= 9) {
+				  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+				  j = 0;
+			  }
+		  }
+		  /* Transmit CRC */
+		  HAL_Delay(TRANSMIT_DALAY);
+		  lowSpectr = spectrCRC & 0xFF;
+		  highSpectr = (spectrCRC & 0xFF00) >> 8;
+		  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+		  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 	  } else {
 #ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: disconnect", Font_6x8, 0x01);
