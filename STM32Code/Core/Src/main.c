@@ -190,25 +190,25 @@ int main(void)
 #endif
 		  // Control from BT
 		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
-			  //if ( btCommand[0] == 'C' ) { // Clear all measurement.
+			  if ( btCommand[0] == 'C' ) { // Clear all measurement.
 				  for (int i = 0; i < 2050; i++) {
 					  spectrData[i] = 0;
 				  }
 				  oldTimeAll = HAL_GetTick();
 				  counterALL = 0;
-			  //}
+			  }
 		  }
 
 		  j = 0;
 		  // Transmit data over BT.
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
-		  spectrCRC = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Spectr collection time.
-		  spectrData[0] = spectrCRC;		// Transmit collection time.
+		  spectrData[0] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
+		  spectrCRC = 0;
 		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
 		  for ( int i = 0; i < 1040; i++) {
-			  spectrCRC = spectrCRC + spectrData[i];
 			  lowSpectr = spectrData[i] & 0xFF;
 			  highSpectr = (spectrData[i] & 0xFF00) >> 8;
+			  spectrCRC = spectrCRC + lowSpectr + highSpectr;
 			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
 			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 			  if ( j++ >= 9) {

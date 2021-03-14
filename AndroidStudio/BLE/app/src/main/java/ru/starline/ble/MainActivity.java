@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     public int findDataSize = 512;
     public float koeffR = (float) 0.5378061767;
     public float[] findData = new float[findDataSize];
-    public float tmpFindData, Trh1 = 40, Trh2 = 100;
+    public float tmpFindData, Trh1 = 40, Trh2 = 100, specrtCRC;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
     scanLE SLE = new scanLE();
@@ -537,15 +537,23 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                         startFlag++;
                                         //Log.i(TAG, "Start marker found.");
                                         bufferIndex = 0;
+                                        specrtCRC = 0;
                                     } else {
                                         startFlag = 0;
                                     }
                                     break;
                                 default:   // Стартовая последовательность найдена, заполняем массив
+                                    if (bufferIndex < 2080) {
+                                        specrtCRC = specrtCRC + (char) (data[i] & 0xFF);   // CRC
+                                    }
                                     spectrData[bufferIndex++] = (byte) (data[i] & 0xFF);
-                                    if (bufferIndex == 2051) {     //Передача закончена, перерисовываем картинку.
+                                    if (bufferIndex == 2082) {     //Передача закончена, перерисовываем картинку.
                                         startFlag = 0;
-                                        myView.invalidate();
+                                        float tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xff));
+                                        //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC :  " + specrtCRC + ", delta : " + (tmpCRC - specrtCRC));
+                                        if (tmpCRC == specrtCRC) { // Update if CRC correct.
+                                            myView.invalidate();
+                                        }
                                     }
                             }
                         }
@@ -991,14 +999,16 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Прорисовка гистограмм
              */
             countsAll = 0;
-            for (int i = 2; i < 2048; i++) {
+            for (int i = 2; i < 2080; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll = countsAll + tmpVal;
-                float X = Math.round((i) / 2) * penSize - 2;
-                // В линейном представлении
-                canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
-                // В логарифмическом представлении
-                canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
+                if ( i < 2051) {
+                    float X = Math.round((i) / 2) * penSize - 2;
+                    // В линейном представлении
+                    canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
+                    // В логарифмическом представлении
+                    canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
+                }
             }
             // Вывод обшего количества измерений и скорости счета
             if (oldCounts <= 0 ) {
