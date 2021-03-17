@@ -954,8 +954,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             mastabLog = 1;
             maxPoint = 1;
             maxPointLog = 0;
-            for (int i = 2; i < 2048; i++) {
-                tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+            for (int i = 8; i < 2080; i++) {
+                tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
                 if (tmpVal > maxPoint) {
                     maxPoint = tmpVal;
                 }
@@ -1002,10 +1002,10 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Прорисовка гистограмм
              */
             countsAll = 0;
-            for (int i = 2; i < 2080; i++) {
+            for (int i = 8; i < 2080; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll = countsAll + tmpVal;
-                if ( i < 2051) {
+                if ( i < 2055) {
                     float X = Math.round((i) / 2) * penSize - 2;
                     // В линейном представлении
                     canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
@@ -1014,6 +1014,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 }
             }
             // Вывод обшего количества измерений и скорости счета
+            //countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
+            //countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
             if (oldCounts <= 0 ) {
                 oldCounts = countsAll;
                 curentTime = System.currentTimeMillis() / 1000;
@@ -1054,6 +1056,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
                     // Вывод статистики
                     float tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
+                    tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                     float acps = 0;
                     X = WSize - 470;
                     if (tmpTime > 0) {

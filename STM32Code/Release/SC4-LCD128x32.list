@@ -653,7 +653,7 @@ Disassembly of section .text:
  8000746:	f64f 71ff 	movw	r1, #65535	; 0xffff
  800074a:	4a12      	ldr	r2, [pc, #72]	; (8000794 <ADC1_2_IRQHandler+0x6c>)
  800074c:	f3c0 0089 	ubfx	r0, r0, #2, #10
- 8000750:	3002      	adds	r0, #2
+ 8000750:	3004      	adds	r0, #4
  8000752:	8018      	strh	r0, [r3, #0]
  8000754:	f832 3010 	ldrh.w	r3, [r2, r0, lsl #1]
  8000758:	428b      	cmp	r3, r1

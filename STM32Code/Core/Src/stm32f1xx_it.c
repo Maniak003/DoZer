@@ -214,7 +214,7 @@ void ADC1_2_IRQHandler(void)
   if (adcResult > 0) {
 	  adcResult = adcResult & 0x0FFF;
 	  adcResult = adcResult >> 2;
-	  adcResult = adcResult + 2; // Reserved additional parameter in send buffer ( 4 bytes )
+	  adcResult = adcResult + 4; // Reserved additional parameter in send buffer ( 4 bytes )
 	  if (spectrData[adcResult] < 0xFFFF) // Check overflow in chanel.
 		  spectrData[adcResult]++;
 	  counterCC++;
