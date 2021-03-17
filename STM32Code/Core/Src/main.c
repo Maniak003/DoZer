@@ -203,6 +203,9 @@ int main(void)
 		  // Transmit data over BT.
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
 		  spectrData[0] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
+		  spectrData[1] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
+		  spectrData[2] = (uint16_t) (counterALL & 0xFFFF);
+		  spectrData[3] = (uint16_t) (counterALL >> 16);
 		  spectrCRC = 0;
 		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
 		  for ( int i = 0; i < 1040; i++) {

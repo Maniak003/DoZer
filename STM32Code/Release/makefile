@@ -47,8 +47,8 @@ SC4-LCD128x32.bin \
 all: SC4-LCD128x32.elf secondary-outputs
 
 # Tool invocations
-SC4-LCD128x32.elf: $(OBJS) $(USER_OBJS) /home/ed/work/Dozer/STM32Code/STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "SC4-LCD128x32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/ed/work/Dozer/STM32Code/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SC4-LCD128x32.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+SC4-LCD128x32.elf: $(OBJS) $(USER_OBJS) /home/ed/work/DoZer/STM32Code/STM32F103C8TX_FLASH.ld
+	arm-none-eabi-gcc -o "SC4-LCD128x32.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/ed/work/DoZer/STM32Code/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SC4-LCD128x32.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
