@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView textCount;
     public boolean connected = false;
     public int HSize, WSize;
-    public double oldCounts = 0;
+    public double oldCounts = 0, specrtCRC;
     public Long curentTime;
     public String TAG = "!!!!! BLE report : ";
     //public String TAG1 = " ";
@@ -91,9 +91,11 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothGatt gatt;
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 512;
-    public float koeffR = (float) 0.5378061767;
+    /* uR/h -- on 1 cps */
+    //public float koeffR = (float) 0.5378061767;
+    public float koeffR = (float) 0.5310015898;
     public float[] findData = new float[findDataSize];
-    public float tmpFindData, Trh1 = 40, Trh2 = 100, specrtCRC;
+    public float tmpFindData, Trh1 = 40, Trh2 = 100;
     public int startFlag = 0, bufferIndex = 0;
     drawHistogram DH = new drawHistogram();
     scanLE SLE = new scanLE();
@@ -542,17 +544,18 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                         startFlag = 0;
                                     }
                                     break;
-                                default:   // Стартовая последовательность найдена, заполняем массив
+                                default:   // Start sequence found, data load.
                                     if (bufferIndex < 2080) {
                                         specrtCRC = specrtCRC + (char) (data[i] & 0xFF);   // CRC
                                     }
                                     spectrData[bufferIndex++] = (byte) (data[i] & 0xFF);
-                                    if (bufferIndex == 2082) {     //Передача закончена, перерисовываем картинку.
+                                    if (bufferIndex == 2082) {     //Transmission complete.
                                         startFlag = 0;
-                                        float tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xff));
-                                        //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC :  " + specrtCRC + ", delta : " + (tmpCRC - specrtCRC));
+                                        float tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xFF));
+                                        specrtCRC = specrtCRC - (Math.round(specrtCRC / 65536) * 65536);
+                                        Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                         if (tmpCRC == specrtCRC) { // Update if CRC correct.
-                                            myView.invalidate();
+                                            myView.invalidate();    // Redraw screen.
                                         }
                                     }
                             }
