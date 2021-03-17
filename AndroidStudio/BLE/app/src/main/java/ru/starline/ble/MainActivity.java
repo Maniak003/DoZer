@@ -552,7 +552,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                     if (bufferIndex == 2082) {     //Transmission complete.
                                         startFlag = 0;
                                         float tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xFF));
-                                        specrtCRC = specrtCRC - (Math.round(specrtCRC / 65536) * 65536);
+                                        specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Facking Java
                                         Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                         if (tmpCRC == specrtCRC) { // Update if CRC correct.
                                             myView.invalidate();    // Redraw screen.
