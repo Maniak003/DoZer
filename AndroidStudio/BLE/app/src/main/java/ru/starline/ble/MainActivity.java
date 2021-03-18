@@ -84,13 +84,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean connected = false;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
-    public Long curentTime;
-    public String TAG = "!!!!! BLE report : ";
+    public float curentTime, tmpTime, countsAll1;
+    public String TAG = "!!!!! BLE report : ", FLAG = "";
     //public String TAG1 = " ";
     public getBluetooth BT;
     public BluetoothGatt gatt;
     public byte[] spectrData = new byte[4096];
-    public int findDataSize = 512;
+    public int findDataSize = 512, maxCanal = 2055;
     /* uR/h -- on 1 cps */
     //public float koeffR = (float) 0.5378061767;
     public float koeffR = (float) 0.5310015898;
@@ -520,22 +520,22 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     */
                     // Ищем стартовую последовательность <B>.
                     if (data.length > 0) {
-                        for (int i = 0; i < data.length; i++) {
+                        for (int i2 = 0; i2 < data.length; i2++) {
                             switch (startFlag) {
                                 case 0:
-                                    if (data[i] == '<') {
+                                    if (data[i2] == '<') {
                                         startFlag++;
                                     }
                                     break;
                                 case 1:
-                                    if (data[i] == 'B') {
+                                    if (data[i2] == 'B') {
                                         startFlag++;
                                     } else {
                                         startFlag = 0;
                                     }
                                     break;
                                 case 2:
-                                    if (data[i] == '>') {
+                                    if (data[i2] == '>') {
                                         startFlag++;
                                         //Log.i(TAG, "Start marker found.");
                                         bufferIndex = 0;
@@ -546,15 +546,19 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                                     break;
                                 default:   // Start sequence found, data load.
                                     if (bufferIndex < 2080) {
-                                        specrtCRC = specrtCRC + (char) (data[i] & 0xFF);   // CRC
+                                        specrtCRC = specrtCRC + (char) (data[i2] & 0xFF);   // CRC
                                     }
-                                    spectrData[bufferIndex++] = (byte) (data[i] & 0xFF);
+                                    spectrData[bufferIndex++] = (byte) (data[i2] & 0xFF);
                                     if (bufferIndex == 2082) {     //Transmission complete.
                                         startFlag = 0;
-                                        float tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xFF));
+                                        double tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xFF));
                                         specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Facking Java
-                                        Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                        //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                         if (tmpCRC == specrtCRC) { // Update if CRC correct.
+                                            /* Debug */
+                                            //tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+                                            //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
+                                            //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
                                             myView.invalidate();    // Redraw screen.
                                         }
                                     }
@@ -701,7 +705,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         protected void onDraw(Canvas canvas) {
             HSize = canvas.getHeight();
             WSize = canvas.getWidth();
-            //Log.i(TAG,"onDraw");
+            //Log.i(TAG,"onDraw flag: " + FLAG);
             DH.writeHistogram(canvas);
             if ( connected ) {
                 DH.connectIndicator(canvas, 0);
@@ -761,7 +765,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
                 int j = 0;
-                for (int i = 0; i < 2048; i++) {
+                for (int i = 8; i < maxCanal; i++) {
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
@@ -771,13 +775,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     outputStream.write(0x0a);
                 }
                 outputStream.write(dataStr.getBytes());
-
-
                 outputStream.close();
-                /*
-                 * Вызов сообщения Toast не относится к теме.
-                 * Просто для удобства визуального контроля исполнения метода в приложении
-                 */
+
             } catch (Exception e) {
                 e.printStackTrace();
                 toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
@@ -802,10 +801,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
                         String timeStr = sdf.format(loc.getTime());
                         String nowStr = sdf.format(now);
-                        float tmpTime = (int) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                        float tmpTime2 = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+                        tmpTime2 = tmpTime2 + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                         dataStr = "Date: " + nowStr + " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
                                 + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed() + " GPS last update: " + timeStr
-                                + " Measurement time: " + Math.round(tmpTime);
+                                + " Measurement time: " + Math.round(tmpTime2);
                         outputStream.write(dataStr.getBytes());
                         outputStream.close();
                     } else {
@@ -843,7 +843,8 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
 
-                float tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff));
+                float tmpTime2 = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+                tmpTime2 = tmpTime2 + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                 double pulseSumm = 0;
                 String locationStr = " Unknown.";
                             /*
@@ -869,11 +870,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
                 simpleDateFormat = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SZZZZZ");
                 startTime = simpleDateFormat.format(now);
-                sTime = System.currentTimeMillis() - tmpTime * 1000;
+                sTime = System.currentTimeMillis() - tmpTime2 * 1000;
                 startTime = simpleDateFormat.format(sTime);
                 endTime = simpleDateFormat.format(now);
 
-                for (int i = 2; i < 2050; i++) {
+                for (int i = 8; i < maxCanal; i++) {
                     pulseSumm = pulseSumm + (float) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 }
                 dataStr = (String) "<?xml version=\"1.0\"?>\n" +
@@ -914,12 +915,12 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "</EnergyCalibration>\n" +
                         "<ValidPulseCount>" + Math.round(pulseSumm) + "</ValidPulseCount>\n" +
                         "<TotalPulseCount>" + Math.round(pulseSumm) + "</TotalPulseCount>\n" +
-                        "<MeasurementTime>" + Math.round(tmpTime) + "</MeasurementTime>\n" +
+                        "<MeasurementTime>" + Math.round(tmpTime2) + "</MeasurementTime>\n" +
                         "<NumberOfSamples>0</NumberOfSamples>\n" +
                         "<Spectrum>\n";
                 outputStream.write(dataStr.getBytes());
 
-                for (int i = 2; i < 2050; i++) {
+                for (int i = 8; i < maxCanal; i++) {
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = "<DataPoint>" + String.format("%.0f", tmpVal) + "</DataPoint>\n";
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
@@ -954,7 +955,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             mastabLog = 1;
             maxPoint = 1;
             maxPointLog = 0;
-            for (int i = 8; i < 2080; i++) {
+            for (int i = 8; i < maxCanal; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
                 if (tmpVal > maxPoint) {
                     maxPoint = tmpVal;
@@ -1002,10 +1003,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     Прорисовка гистограмм
              */
             countsAll = 0;
+            countsAll1 = 0;
             for (int i = 8; i < 2080; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                countsAll = countsAll + tmpVal;
-                if ( i < 2055) {
+                countsAll1 = countsAll1 + tmpVal;
+                if ( i < maxCanal) {
                     float X = Math.round((i) / 2) * penSize - 2;
                     // В линейном представлении
                     canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
@@ -1013,15 +1015,22 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
                 }
             }
-            // Вывод обшего количества измерений и скорости счета
-            //countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
-            //countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
+            // Output total counts and cps.
+            countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
+            countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
+            tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+            tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
+            //Log.i(TAG, "tmpTime : " + tmpTime + ", curentTime : " + curentTime + ", countsAll: " + countsAll + ", countsAll - oldCounts: " + (countsAll - oldCounts) + ", countsAll1: " + countsAll1);
+
             if (oldCounts <= 0 ) {
                 oldCounts = countsAll;
-                curentTime = System.currentTimeMillis() / 1000;
+                curentTime = tmpTime;
+                //curentTime = System.currentTimeMillis() / 1000;
             } else {
-                interval = System.currentTimeMillis() / 1000 - curentTime;
-                curentTime = System.currentTimeMillis() / 1000;
+                //interval = System.currentTimeMillis() / 1000 - curentTime;
+                //curentTime = System.currentTimeMillis() / 1000;
+                interval = tmpTime - curentTime;
+                curentTime = tmpTime;
                 mastab = 0;
 
                 // Смещение графика поиска на одну позицию.
@@ -1055,8 +1064,6 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     }
 
                     // Вывод статистики
-                    float tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Общее время сбора данных полученое с прибора.
-                    tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                     float acps = 0;
                     X = WSize - 470;
                     if (tmpTime > 0) {
@@ -1084,11 +1091,10 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
-                    curentTime = System.currentTimeMillis() / 1000;
+                    //curentTime = System.currentTimeMillis() / 1000;
+                    curentTime = tmpTime;
                 }
             }
-
-
         }
     }
 }
