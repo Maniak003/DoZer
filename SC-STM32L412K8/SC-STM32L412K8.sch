@@ -1263,6 +1263,57 @@ Wire Wire Line
 Connection ~ 8100 3100
 Wire Wire Line
 	7950 2800 8100 2800
-Text GLabel 7950 4200 2    50   Input ~ 0
+Text GLabel 6850 4550 0    50   Input ~ 0
 tm
+$Comp
+L Device:R R19
+U 1 1 60539C8E
+P 7750 1650
+F 0 "R19" H 7600 1650 50  0000 C CNN
+F 1 "X" H 7600 1550 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7680 1650 50  0001 C CNN
+F 3 "~" H 7750 1650 50  0001 C CNN
+	1    7750 1650
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:R R20
+U 1 1 6053A8EC
+P 7750 1950
+F 0 "R20" H 7600 2050 50  0000 C CNN
+F 1 "X" H 7600 1950 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7680 1950 50  0001 C CNN
+F 3 "~" H 7750 1950 50  0001 C CNN
+	1    7750 1950
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0104
+U 1 1 6053B5D1
+P 7750 2100
+F 0 "#PWR0104" H 7750 1850 50  0001 C CNN
+F 1 "GND" H 7755 1927 50  0001 C CNN
+F 2 "" H 7750 2100 50  0001 C CNN
+F 3 "" H 7750 2100 50  0001 C CNN
+	1    7750 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+BATT #PWR0105
+U 1 1 605487AC
+P 7750 1500
+F 0 "#PWR0105" H 7750 1350 50  0001 C CNN
+F 1 "+BATT" H 7850 1650 50  0000 C CNN
+F 2 "" H 7750 1500 50  0001 C CNN
+F 3 "" H 7750 1500 50  0001 C CNN
+	1    7750 1500
+	1    0    0    -1  
+$EndComp
+Text GLabel 7950 1800 2    50   Input ~ 0
+bl
+Wire Wire Line
+	7750 1800 7950 1800
+Connection ~ 7750 1800
+Text GLabel 6850 4650 0    50   Input ~ 0
+bl
 $EndSCHEMATC
