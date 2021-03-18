@@ -226,12 +226,12 @@ int main(void)
 		  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
 		  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 	  } else {
-		  HAL_Delay(500);
 #ifdef DISPLAY_ENABLE
 		  HAL_Delay(500);
 		  ssd1306_WriteString("BT: disconnect", Font_6x8, 0x01);
 #endif
 	  }
+	  HAL_Delay(500);
 
     /* USER CODE END WHILE */
 
