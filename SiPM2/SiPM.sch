@@ -1,0 +1,101 @@
+EESchema Schematic File Version 4
+LIBS:SiPM-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L My_Library:FC-60035 D1
+U 1 1 5F454BB1
+P 3650 2900
+F 0 "D1" H 3941 3021 50  0000 L CNN
+F 1 "FC-60035" H 3941 2930 50  0000 L CNN
+F 2 "My-library:FC-60035" H 3650 2900 50  0001 C CNN
+F 3 "" H 3650 2900 50  0001 C CNN
+	1    3650 2900
+	0    1    1    0   
+$EndComp
+$Comp
+L My_Library:FC-60035 D2
+U 1 1 5F454BFB
+P 5100 2900
+F 0 "D2" H 5391 3021 50  0000 L CNN
+F 1 "FC-60035" H 5391 2930 50  0000 L CNN
+F 2 "My-library:FC-60035" H 5100 2900 50  0001 C CNN
+F 3 "" H 5100 2900 50  0001 C CNN
+	1    5100 2900
+	0    1    1    0   
+$EndComp
+$Comp
+L My_Library:CON4 J1
+U 1 1 5F454FCD
+P 3700 3500
+F 0 "J1" V 3743 3172 50  0000 R CNN
+F 1 "CON4" V 3834 3172 50  0000 R CNN
+F 2 "My-library:CON4" H 3700 3450 50  0001 C CNN
+F 3 "" H 3700 3450 50  0001 C CNN
+	1    3700 3500
+	0    -1   1    0   
+$EndComp
+$Comp
+L My_Library:CON4 J2
+U 1 1 5F4550E3
+P 5150 3500
+F 0 "J2" V 5193 3172 50  0000 R CNN
+F 1 "CON4" V 5284 3172 50  0000 R CNN
+F 2 "My-library:CON4" H 5150 3450 50  0001 C CNN
+F 3 "" H 5150 3450 50  0001 C CNN
+	1    5150 3500
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	3500 2900 3500 3350
+Wire Wire Line
+	3750 3150 3650 3150
+Wire Wire Line
+	3650 3150 3650 3350
+Wire Wire Line
+	3950 2900 3950 3200
+Wire Wire Line
+	3950 3200 3800 3200
+Wire Wire Line
+	3800 3200 3800 3350
+Wire Wire Line
+	3750 2650 4000 2650
+Wire Wire Line
+	4000 2650 4000 3250
+Wire Wire Line
+	4000 3250 3950 3250
+Wire Wire Line
+	3950 3250 3950 3350
+Wire Wire Line
+	4950 2900 4950 3350
+Wire Wire Line
+	5200 3150 5100 3150
+Wire Wire Line
+	5100 3150 5100 3350
+Wire Wire Line
+	5400 2900 5400 3200
+Wire Wire Line
+	5400 3200 5250 3200
+Wire Wire Line
+	5250 3200 5250 3350
+Wire Wire Line
+	5200 2650 5450 2650
+Wire Wire Line
+	5450 2650 5450 3250
+Wire Wire Line
+	5450 3250 5400 3250
+Wire Wire Line
+	5400 3250 5400 3350
+$EndSCHEMATC
