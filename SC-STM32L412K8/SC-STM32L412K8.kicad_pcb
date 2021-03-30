@@ -1,13 +1,9 @@
-(kicad_pcb (version 20171130) (host pcbnew 5.1.9+dfsg1-1~bpo10+1)
+(kicad_pcb (version 20171130) (host pcbnew 5.1.8+dfsg1-1~bpo10+1)
 
   (general
     (thickness 1.6)
     (drawings 8)
-<<<<<<< HEAD
-    (tracks 509)
-=======
     (tracks 557)
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (zones 0)
     (modules 72)
     (nets 44)
@@ -168,10 +164,7 @@
     (add_net "Net-(D1-Pad1)")
     (add_net "Net-(D1-Pad2)")
     (add_net "Net-(D2-Pad2)")
-    (add_net "Net-(D6-Pad11)")
-    (add_net "Net-(D6-Pad18)")
     (add_net "Net-(D6-Pad19)")
-    (add_net "Net-(D6-Pad2)")
     (add_net "Net-(D6-Pad20)")
     (add_net "Net-(D6-Pad21)")
     (add_net "Net-(D6-Pad22)")
@@ -179,18 +172,7 @@
     (add_net "Net-(D6-Pad24)")
     (add_net "Net-(D6-Pad25)")
     (add_net "Net-(D6-Pad26)")
-    (add_net "Net-(D6-Pad27)")
-    (add_net "Net-(D6-Pad28)")
-    (add_net "Net-(D6-Pad29)")
-    (add_net "Net-(D6-Pad3)")
-    (add_net "Net-(D6-Pad30)")
-    (add_net "Net-(D6-Pad6)")
-    (add_net "Net-(D6-Pad8)")
-    (add_net "Net-(D6-Pad9)")
     (add_net "Net-(D7-Pad2)")
-    (add_net "Net-(J1-Pad2)")
-    (add_net "Net-(J1-Pad3)")
-    (add_net "Net-(J1-Pad4)")
     (add_net "Net-(J11-Pad1)")
     (add_net "Net-(J7-Pad1)")
     (add_net "Net-(Q2-Pad1)")
@@ -205,7 +187,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer B.Cu) (tedit 5B301BBD) (tstamp 60536CDF)
-    (at 47.27956 62.7634 270)
+    (at 48.1203 63.24346 270)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /6053A8EC)
@@ -277,19 +259,15 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer B.Cu) (tedit 5B301BBD) (tstamp 6051F0E4)
-<<<<<<< HEAD
-    (at 44.9834 63.5254)
-=======
     (at 49.53 63.246 270)
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /60570A8B)
     (attr smd)
-    (fp_text reference R18 (at 0 1.43) (layer B.SilkS)
+    (fp_text reference R18 (at 0 1.43 90) (layer B.SilkS)
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
-    (fp_text value X (at 0 -1.43) (layer B.Fab)
+    (fp_text value X (at 0 -1.43 90) (layer B.Fab)
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
     (fp_line (start 1.48 -0.73) (end -1.48 -0.73) (layer B.CrtYd) (width 0.05))
@@ -302,20 +280,13 @@
     (fp_line (start 0.8 0.4) (end 0.8 -0.4) (layer B.Fab) (width 0.1))
     (fp_line (start -0.8 0.4) (end 0.8 0.4) (layer B.Fab) (width 0.1))
     (fp_line (start -0.8 -0.4) (end -0.8 0.4) (layer B.Fab) (width 0.1))
-    (fp_text user %R (at 0 0) (layer B.Fab)
+    (fp_text user %R (at 0 0 90) (layer B.Fab)
       (effects (font (size 0.4 0.4) (thickness 0.06)) (justify mirror))
     )
-<<<<<<< HEAD
-    (pad 2 smd roundrect (at 0.7875 0) (size 0.875 0.95) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25)
-      (net 41 tm))
-    (pad 1 smd roundrect (at -0.7875 0) (size 0.875 0.95) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25)
-      (net 2 GND))
-=======
     (pad 2 smd roundrect (at 0.7875 0 270) (size 0.875 0.95) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25)
       (net 41 tm))
     (pad 1 smd roundrect (at -0.7875 0 270) (size 0.875 0.95) (layers B.Cu B.Paste B.Mask) (roundrect_rratio 0.25)
       (net 43 com))
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.wrl
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
@@ -324,11 +295,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer B.Cu) (tedit 5B301BBD) (tstamp 6051F0D3)
-<<<<<<< HEAD
-    (at 48.76292 64.83604)
-=======
     (at 48.8315 65.3415)
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /6056FB73)
@@ -340,7 +307,6 @@
       (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
     )
     (fp_line (start 1.48 -0.73) (end -1.48 -0.73) (layer B.CrtYd) (width 0.05))
-<<<<<<< HEAD
     (fp_line (start 1.48 0.73) (end 1.48 -0.73) (layer B.CrtYd) (width 0.05))
     (fp_line (start -1.48 0.73) (end 1.48 0.73) (layer B.CrtYd) (width 0.05))
     (fp_line (start -1.48 -0.73) (end -1.48 0.73) (layer B.CrtYd) (width 0.05))
@@ -350,8 +316,6 @@
     (fp_line (start 0.8 0.4) (end 0.8 -0.4) (layer B.Fab) (width 0.1))
     (fp_line (start -0.8 0.4) (end 0.8 0.4) (layer B.Fab) (width 0.1))
     (fp_line (start -0.8 -0.4) (end -0.8 0.4) (layer B.Fab) (width 0.1))
-=======
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (fp_text user %R (at 0 0) (layer B.Fab)
       (effects (font (size 0.4 0.4) (thickness 0.06)) (justify mirror))
     )
@@ -592,11 +556,7 @@
   )
 
   (module Package_TO_SOT_SMD:SOT-23 (layer B.Cu) (tedit 5A02FF57) (tstamp 6038B2DD)
-<<<<<<< HEAD
-    (at 53.721 65.49136)
-=======
     (at 53.7845 65.5955)
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
     (descr "SOT-23, Standard")
     (tags SOT-23)
     (path /6038EAE6)
@@ -2665,7 +2625,7 @@
   (gr_line (start 59.02198 52.87518) (end 59.02198 67.93738) (layer Edge.Cuts) (width 0.05))
   (gr_line (start 27.44978 52.87518) (end 59.02198 52.87518) (layer Edge.Cuts) (width 0.05))
   (dimension 15.062203 (width 0.15) (layer Dwgs.User)
-    (gr_text "15,062 мм" (at 63.344579 60.408924 270.0386481) (layer Dwgs.User) (tstamp 605E71F2)
+    (gr_text "15,062 мм" (at 63.344579 60.408924 270.0386481) (layer Dwgs.User)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (feature1 (pts (xy 59.73826 67.94246) (xy 62.63608 67.940505)))
@@ -2677,7 +2637,7 @@
     (arrow2b (pts (xy 62.039499 52.878701) (xy 62.626679 54.004809)))
   )
   (dimension 31.52648 (width 0.15) (layer Dwgs.User)
-    (gr_text "31,52648 mm" (at 43.23334 71.26938) (layer Dwgs.User) (tstamp 605E71EC)
+    (gr_text "31,52648 mm" (at 43.23334 71.26938) (layer Dwgs.User)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (feature1 (pts (xy 27.4701 68.07454) (xy 27.4701 70.555801)))
@@ -2720,10 +2680,6 @@
   (segment (start 28.70962 64.3149) (end 29.63462 65.2399) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 28.70962 57.47258) (end 28.70962 64.3149) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 29.62974 56.55246) (end 28.70962 57.47258) (width 0.25) (layer B.Cu) (net 1))
-<<<<<<< HEAD
-  (segment (start 57.67046 65.49136) (end 57.81294 65.34888) (width 0.25) (layer B.Cu) (net 1))
-  (segment (start 54.721 65.49136) (end 57.67046 65.49136) (width 0.6) (layer B.Cu) (net 1))
-=======
   (segment (start 57.81294 62.71284) (end 57.94272 62.58306) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 57.77738 64.1985) (end 57.81294 64.16294) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 57.0485 64.1985) (end 57.77738 64.1985) (width 0.7) (layer B.Cu) (net 1))
@@ -2731,7 +2687,6 @@
   (segment (start 57.81294 64.16294) (end 57.81294 62.71284) (width 0.7) (layer B.Cu) (net 1))
   (segment (start 57.56632 65.5955) (end 57.81294 65.34888) (width 0.25) (layer B.Cu) (net 1))
   (segment (start 54.7845 65.5955) (end 57.56632 65.5955) (width 0.7) (layer B.Cu) (net 1))
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
   (via (at 45.9105 58.54954) (size 0.8) (drill 0.4) (layers F.Cu B.Cu) (net 2))
   (segment (start 53.01742 61.24194) (end 53.01742 61.24194) (width 0.25) (layer F.Cu) (net 2))
   (segment (start 49.49282 65.01442) (end 49.50748 65.01442) (width 0.25) (layer F.Cu) (net 2))
@@ -2859,16 +2814,11 @@
   (segment (start 49.49282 65.01442) (end 49.49282 64.141738) (width 0.5) (layer F.Cu) (net 2) (tstamp 6051FE57))
   (segment (start 48.380281 63.029199) (end 46.968942 61.61786) (width 0.6) (layer F.Cu) (net 2) (tstamp 60538A79))
   (segment (start 57.77508 67.26174) (end 57.81294 67.22388) (width 0.25) (layer B.Cu) (net 2))
+  (segment (start 47.01286 67.26174) (end 57.77508 67.26174) (width 0.6) (layer B.Cu) (net 2))
   (segment (start 36.97986 65.66662) (end 37.02558 65.71234) (width 0.25) (layer B.Cu) (net 2))
   (segment (start 36.97986 65.1383) (end 36.97986 65.66662) (width 0.5) (layer B.Cu) (net 2))
   (segment (start 37.8783 65.71234) (end 37.97478 65.61586) (width 0.25) (layer B.Cu) (net 2))
   (segment (start 37.02558 65.71234) (end 37.8783 65.71234) (width 0.5) (layer B.Cu) (net 2))
-<<<<<<< HEAD
-  (segment (start 52.721 67.20916) (end 52.77358 67.26174) (width 0.25) (layer B.Cu) (net 2))
-  (segment (start 52.721 66.44136) (end 52.721 67.20916) (width 0.25) (layer B.Cu) (net 2))
-  (segment (start 52.77358 67.26174) (end 57.77508 67.26174) (width 0.6) (layer B.Cu) (net 2))
-  (segment (start 47.01286 67.26174) (end 52.77358 67.26174) (width 0.6) (layer B.Cu) (net 2))
-=======
   (segment (start 50.78938 59.57362) (end 49.25314 59.57362) (width 0.25) (layer B.Cu) (net 2))
   (segment (start 52.40274 59.57362) (end 50.78938 59.57362) (width 0.25) (layer B.Cu) (net 2))
   (segment (start 55.65878 62.992) (end 56.06772 62.58306) (width 0.25) (layer B.Cu) (net 2))
@@ -2910,7 +2860,6 @@
   (segment (start 54.581691 55.493539) (end 54.599636 55.478059) (width 0.25) (layer F.Cu) (net 2) (tstamp D9))
   (segment (start 54.599636 55.478059) (end 54.616801 55.461718) (width 0.25) (layer F.Cu) (net 2) (tstamp D9))
   (segment (start 54.616801 55.461718) (end 54.958147 55.120372) (width 0.25) (layer F.Cu) (net 2))
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
   (segment (start 37.07366 59.91102) (end 37.07366 58.01102) (width 0.6) (layer B.Cu) (net 3))
   (segment (start 35.71702 54.97322) (end 36.42314 55.67934) (width 0.6) (layer B.Cu) (net 3))
   (segment (start 34.90492 54.97322) (end 35.71702 54.97322) (width 0.6) (layer B.Cu) (net 3))
@@ -3201,12 +3150,6 @@
   (segment (start 45.4279 60.01258) (end 44.02074 58.60542) (width 0.6) (layer F.Cu) (net 33))
   (segment (start 51.23702 64.68608) (end 51.08702 64.53608) (width 0.25) (layer B.Cu) (net 33))
   (segment (start 51.32588 64.36096) (end 51.03114 64.6557) (width 0.25) (layer B.Cu) (net 33))
-<<<<<<< HEAD
-  (segment (start 52.67278 64.49314) (end 52.721 64.54136) (width 0.25) (layer B.Cu) (net 33))
-  (segment (start 51.0159 64.49314) (end 52.67278 64.49314) (width 0.6) (layer B.Cu) (net 33))
-  (segment (start 49.85038 64.53608) (end 49.55042 64.83604) (width 0.25) (layer B.Cu) (net 33))
-  (segment (start 51.08702 64.53608) (end 49.85038 64.53608) (width 0.25) (layer B.Cu) (net 33))
-=======
   (segment (start 50.94282 63.56442) (end 50.03892 63.56442) (width 0.5) (layer F.Cu) (net 33))
   (segment (start 50.03892 63.56442) (end 47.1551 60.6806) (width 0.5) (layer F.Cu) (net 33))
   (segment (start 50.16754 65.3415) (end 51.0159 64.49314) (width 0.25) (layer B.Cu) (net 33))
@@ -3215,7 +3158,6 @@
   (segment (start 45.4279 60.01258) (end 46.48708 60.01258) (width 0.6) (layer F.Cu) (net 33))
   (segment (start 51.16826 64.6455) (end 51.0159 64.49314) (width 0.25) (layer B.Cu) (net 33))
   (segment (start 52.7845 64.6455) (end 51.16826 64.6455) (width 0.7) (layer B.Cu) (net 33))
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
   (segment (start 54.18074 55.11038) (end 55.45582 53.8353) (width 0.25) (layer F.Cu) (net 34))
   (segment (start 53.04282 55.11038) (end 54.18074 55.11038) (width 0.25) (layer F.Cu) (net 34))
   (segment (start 51.77394 59.56442) (end 52.10302 59.23534) (width 0.25) (layer F.Cu) (net 34))
@@ -3241,17 +3183,6 @@
   (via (at 45.7581 63.50254) (size 1) (drill 0.4) (layers F.Cu B.Cu) (net 41))
   (segment (start 46.29282 64.03726) (end 46.29282 65.01442) (width 0.25) (layer F.Cu) (net 41))
   (segment (start 45.7581 63.50254) (end 46.29282 64.03726) (width 0.25) (layer F.Cu) (net 41))
-<<<<<<< HEAD
-  (segment (start 47.08154 64.83604) (end 47.97542 64.83604) (width 0.25) (layer B.Cu) (net 41))
-  (segment (start 45.7709 63.5254) (end 47.08154 64.83604) (width 0.25) (layer B.Cu) (net 41))
-  (via (at 47.27194 63.53302) (size 1) (drill 0.4) (layers F.Cu B.Cu) (net 42))
-  (segment (start 47.09282 63.71214) (end 47.09282 65.01442) (width 0.25) (layer F.Cu) (net 42))
-  (segment (start 47.27194 63.53302) (end 47.09282 63.71214) (width 0.25) (layer F.Cu) (net 42))
-  (segment (start 56.42092 64.19342) (end 53.9623 64.19342) (width 0.25) (layer B.Cu) (net 42))
-  (segment (start 47.407059 63.668139) (end 47.27194 63.53302) (width 0.25) (layer B.Cu) (net 42))
-  (segment (start 53.437019 63.668139) (end 47.407059 63.668139) (width 0.25) (layer B.Cu) (net 42))
-  (segment (start 53.9623 64.19342) (end 53.437019 63.668139) (width 0.25) (layer B.Cu) (net 42))
-=======
   (segment (start 47.17542 64.91986) (end 45.7581 63.50254) (width 0.25) (layer B.Cu) (net 41))
   (segment (start 48.222 65.3415) (end 48.044 65.3415) (width 0.25) (layer B.Cu) (net 41))
   (segment (start 49.53 64.0335) (end 48.222 65.3415) (width 0.25) (layer B.Cu) (net 41))
@@ -3275,7 +3206,6 @@
   (segment (start 50.09282 62.76442) (end 50.94282 62.76442) (width 0.25) (layer F.Cu) (net 43))
   (segment (start 49.53 62.2016) (end 50.09282 62.76442) (width 0.25) (layer F.Cu) (net 43))
   (segment (start 49.53 61.6585) (end 49.53 62.2016) (width 0.25) (layer F.Cu) (net 43))
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
 
   (zone (net 2) (net_name GND) (layer B.Cu) (tstamp 0) (hatch edge 0.508)
     (connect_pads yes (clearance 0.508))
@@ -3304,65 +3234,6 @@
         (xy 55.386222 62.081032) (xy 55.50592 62.044722) (xy 55.616234 61.985757) (xy 55.712925 61.906405) (xy 55.792277 61.809714)
         (xy 55.83174 61.735885) (xy 55.871203 61.809714) (xy 55.950555 61.906405) (xy 56.047246 61.985757) (xy 56.15756 62.044722)
         (xy 56.277258 62.081032) (xy 56.40174 62.093292) (xy 56.820449 62.093292) (xy 56.817148 62.12681) (xy 56.817148 63.03931)
-<<<<<<< HEAD
-        (xy 56.823304 63.10181) (xy 56.806828 63.096812) (xy 56.63967 63.080348) (xy 56.20217 63.080348) (xy 56.035012 63.096812)
-        (xy 55.874278 63.14557) (xy 55.726145 63.224749) (xy 55.596305 63.331305) (xy 55.512502 63.43342) (xy 54.277102 63.43342)
-        (xy 54.000822 63.157141) (xy 53.97702 63.128138) (xy 53.861295 63.033165) (xy 53.729266 62.962593) (xy 53.586005 62.919136)
-        (xy 53.474352 62.908139) (xy 53.474341 62.908139) (xy 53.437019 62.904463) (xy 53.399697 62.908139) (xy 48.276033 62.908139)
-        (xy 48.248231 62.856125) (xy 48.141675 62.726285) (xy 48.011835 62.619729) (xy 47.863702 62.54055) (xy 47.781887 62.515732)
-        (xy 47.603007 62.441637) (xy 47.383728 62.39802) (xy 47.160152 62.39802) (xy 46.940873 62.441637) (xy 46.734316 62.527196)
-        (xy 46.730055 62.530043) (xy 46.695418 62.54055) (xy 46.547285 62.619729) (xy 46.544863 62.621717) (xy 46.465675 62.556729)
-        (xy 46.317542 62.47755) (xy 46.156808 62.428792) (xy 46.123922 62.425553) (xy 46.089167 62.411157) (xy 45.869888 62.36754)
-        (xy 45.646312 62.36754) (xy 45.427033 62.411157) (xy 45.382999 62.429397) (xy 45.224258 62.47755) (xy 45.076125 62.556729)
-        (xy 44.946285 62.663285) (xy 44.839729 62.793125) (xy 44.76055 62.941258) (xy 44.754286 62.961908) (xy 44.752276 62.964916)
-        (xy 44.666717 63.171473) (xy 44.6231 63.390752) (xy 44.6231 63.614328) (xy 44.666717 63.833607) (xy 44.710967 63.940437)
-        (xy 44.711792 63.948808) (xy 44.76055 64.109542) (xy 44.839729 64.257675) (xy 44.946285 64.387515) (xy 45.076125 64.494071)
-        (xy 45.224258 64.57325) (xy 45.384992 64.622008) (xy 45.55215 64.638472) (xy 45.809171 64.638472) (xy 46.517741 65.347043)
-        (xy 46.541539 65.376041) (xy 46.657264 65.471014) (xy 46.789293 65.541586) (xy 46.932554 65.585043) (xy 47.044207 65.59604)
-        (xy 47.044217 65.59604) (xy 47.069006 65.598481) (xy 47.150805 65.698155) (xy 47.280645 65.804711) (xy 47.428778 65.88389)
-        (xy 47.589512 65.932648) (xy 47.75667 65.949112) (xy 48.19417 65.949112) (xy 48.361328 65.932648) (xy 48.522062 65.88389)
-        (xy 48.670195 65.804711) (xy 48.76292 65.728614) (xy 48.855645 65.804711) (xy 49.003778 65.88389) (xy 49.164512 65.932648)
-        (xy 49.33167 65.949112) (xy 49.76917 65.949112) (xy 49.936328 65.932648) (xy 50.097062 65.88389) (xy 50.245195 65.804711)
-        (xy 50.375035 65.698155) (xy 50.426838 65.635032) (xy 50.458735 65.644708) (xy 50.63077 65.661652) (xy 51.54327 65.661652)
-        (xy 51.715305 65.644708) (xy 51.880729 65.594527) (xy 52.013329 65.523651) (xy 52.02682 65.530862) (xy 52.146518 65.567172)
-        (xy 52.271 65.579432) (xy 53.171 65.579432) (xy 53.295482 65.567172) (xy 53.41518 65.530862) (xy 53.525494 65.471897)
-        (xy 53.622185 65.392545) (xy 53.632928 65.379455) (xy 53.632928 65.89136) (xy 53.645188 66.015842) (xy 53.681498 66.13554)
-        (xy 53.740463 66.245854) (xy 53.819815 66.342545) (xy 53.916506 66.421897) (xy 54.02682 66.480862) (xy 54.146518 66.517172)
-        (xy 54.271 66.529432) (xy 55.171 66.529432) (xy 55.295482 66.517172) (xy 55.41518 66.480862) (xy 55.517144 66.42636)
-        (xy 57.081974 66.42636) (xy 57.184655 66.457508) (xy 57.35669 66.474452) (xy 58.26919 66.474452) (xy 58.361981 66.465313)
-        (xy 58.361981 67.27738) (xy 44.980411 67.27738) (xy 45.037607 67.266003) (xy 45.244164 67.180444) (xy 45.43006 67.056232)
-        (xy 45.588152 66.89814) (xy 45.712364 66.712244) (xy 45.797923 66.505687) (xy 45.84154 66.286408) (xy 45.84154 66.062832)
-        (xy 45.797923 65.843553) (xy 45.712364 65.636996) (xy 45.588152 65.4511) (xy 45.43006 65.293008) (xy 45.244164 65.168796)
-        (xy 45.037607 65.083237) (xy 44.818328 65.03962) (xy 44.646341 65.03962) (xy 44.518603 64.911882) (xy 44.494801 64.882879)
-        (xy 44.379076 64.787906) (xy 44.247047 64.717334) (xy 44.103786 64.673877) (xy 43.992133 64.66288) (xy 43.992122 64.66288)
-        (xy 43.9548 64.659204) (xy 43.917478 64.66288) (xy 42.30362 64.66288) (xy 42.234211 64.533025) (xy 42.127655 64.403185)
-        (xy 41.997815 64.296629) (xy 41.849682 64.21745) (xy 41.688948 64.168692) (xy 41.52179 64.152228) (xy 41.08429 64.152228)
-        (xy 40.917132 64.168692) (xy 40.756398 64.21745) (xy 40.608265 64.296629) (xy 40.51554 64.372726) (xy 40.422815 64.296629)
-        (xy 40.274682 64.21745) (xy 40.113948 64.168692) (xy 39.94679 64.152228) (xy 39.50929 64.152228) (xy 39.488042 64.154321)
-        (xy 39.062852 63.729131) (xy 39.062852 63.31586) (xy 39.050592 63.191378) (xy 39.014282 63.07168) (xy 38.955317 62.961366)
-        (xy 38.875965 62.864675) (xy 38.779274 62.785323) (xy 38.66896 62.726358) (xy 38.549262 62.690048) (xy 38.42478 62.677788)
-        (xy 37.52478 62.677788) (xy 37.423877 62.687726) (xy 37.456744 62.670158) (xy 37.590372 62.560492) (xy 37.700038 62.426864)
-        (xy 37.781527 62.274409) (xy 37.831708 62.108985) (xy 37.848652 61.93695) (xy 37.848652 61.02445) (xy 37.831708 60.852415)
-        (xy 37.825597 60.832269) (xy 37.84784 60.825522) (xy 37.958154 60.766557) (xy 38.054845 60.687205) (xy 38.134197 60.590514)
-        (xy 38.17366 60.516685) (xy 38.213123 60.590514) (xy 38.292475 60.687205) (xy 38.389166 60.766557) (xy 38.49948 60.825522)
-        (xy 38.584519 60.851318) (xy 38.585106 60.852415) (xy 38.638686 60.952656) (xy 38.700824 61.02837) (xy 38.73366 61.068381)
-        (xy 38.762658 61.092179) (xy 39.428601 61.758122) (xy 39.452399 61.787121) (xy 39.568124 61.882094) (xy 39.700153 61.952666)
-        (xy 39.843414 61.996123) (xy 39.955067 62.00712) (xy 39.955077 62.00712) (xy 39.989239 62.010485) (xy 40.039505 62.071735)
-        (xy 40.169345 62.178291) (xy 40.317478 62.25747) (xy 40.478212 62.306228) (xy 40.64537 62.322692) (xy 41.15787 62.322692)
-        (xy 41.325028 62.306228) (xy 41.485762 62.25747) (xy 41.614376 62.188724) (xy 41.714478 62.24223) (xy 41.875212 62.290988)
-        (xy 42.04237 62.307452) (xy 42.55487 62.307452) (xy 42.722028 62.290988) (xy 42.882762 62.24223) (xy 42.987944 62.186009)
-        (xy 43.121638 62.25747) (xy 43.282372 62.306228) (xy 43.44953 62.322692) (xy 43.96203 62.322692) (xy 44.129188 62.306228)
-        (xy 44.289922 62.25747) (xy 44.438055 62.178291) (xy 44.567895 62.071735) (xy 44.674451 61.941895) (xy 44.75363 61.793762)
-        (xy 44.802388 61.633028) (xy 44.818852 61.46587) (xy 44.818852 61.02837) (xy 44.802388 60.861212) (xy 44.75363 60.700478)
-        (xy 44.674451 60.552345) (xy 44.598354 60.45962) (xy 44.674451 60.366895) (xy 44.75363 60.218762) (xy 44.802388 60.058028)
-        (xy 44.818852 59.89087) (xy 44.818852 59.45337) (xy 44.802388 59.286212) (xy 44.757139 59.137046) (xy 44.852665 59.020646)
-        (xy 44.934732 58.86711) (xy 44.985268 58.700514) (xy 45.002332 58.52726) (xy 45.002332 58.027106) (xy 45.09966 58.036692)
-        (xy 47.24966 58.036692) (xy 47.422914 58.019628) (xy 47.58951 57.969092) (xy 47.7393 57.889027) (xy 47.88909 57.969092)
-        (xy 48.055686 58.019628) (xy 48.22894 58.036692) (xy 50.37894 58.036692) (xy 50.552194 58.019628) (xy 50.71879 57.969092)
-        (xy 50.85334 57.897173) (xy 50.98789 57.969092) (xy 51.154486 58.019628) (xy 51.32774 58.036692) (xy 53.47774 58.036692)
-        (xy 53.650994 58.019628) (xy 53.81759 57.969092) (xy 53.971126 57.887025) (xy 54.105702 57.776582) (xy 54.216145 57.642006)
-        (xy 54.216752 57.64087)
-=======
         (xy 56.821768 63.086214) (xy 56.662592 63.101892) (xy 56.501858 63.15065) (xy 56.353725 63.229829) (xy 56.261 63.305926)
         (xy 56.168275 63.229829) (xy 56.020142 63.15065) (xy 55.859408 63.101892) (xy 55.69225 63.085428) (xy 55.431098 63.085428)
         (xy 55.367415 63.033165) (xy 55.235386 62.962593) (xy 55.092125 62.919136) (xy 54.980472 62.908139) (xy 54.980461 62.908139)
@@ -3423,7 +3294,6 @@
         (xy 50.71879 57.969092) (xy 50.85334 57.897173) (xy 50.98789 57.969092) (xy 51.154486 58.019628) (xy 51.32774 58.036692)
         (xy 53.47774 58.036692) (xy 53.650994 58.019628) (xy 53.81759 57.969092) (xy 53.971126 57.887025) (xy 54.105702 57.776582)
         (xy 54.216145 57.642006) (xy 54.216752 57.64087)
->>>>>>> 3ca9d40846f53fea28e3e0f8e3d46f65001e624f
       )
     )
     (filled_polygon
