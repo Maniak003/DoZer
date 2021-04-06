@@ -129,11 +129,11 @@ int main(void)
   counterCC = 0;
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_BG);
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_COMG);
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC2G);
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC1G);
-  HAL_TIM_Base_Stop_IT(&htim15);
+  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_BG);
+  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_COMG);
+  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC2G);
+  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC1G);
+  //HAL_TIM_Base_Stop_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED
   //HAL_TIM_OnePulse_Start_IT(&htim15, );
 
@@ -373,9 +373,9 @@ static void MX_TIM15_Init(void)
 
   /* USER CODE END TIM15_Init 1 */
   htim15.Instance = TIM15;
-  htim15.Init.Prescaler = 32000;
+  htim15.Init.Prescaler = 0;
   htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim15.Init.Period = 65535;
+  htim15.Init.Period = 500;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim15.Init.RepetitionCounter = 0;
   htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
