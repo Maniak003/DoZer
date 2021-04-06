@@ -128,9 +128,11 @@ int main(void)
   oldTimeAll = oldTime;
   counterCC = 0;
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // очищаем флаг
+  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flag
+  //__HAL_TIM_GET_FLAG(&htim15, TIM_DIER_TDE); // Flag value
   HAL_TIM_Base_Stop_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED
+  //HAL_TIM_OnePulse_Start_IT(&htim15, );
 
   while (1)
   {
@@ -394,7 +396,6 @@ static void MX_TIM15_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM15_Init 2 */
-
   /* USER CODE END TIM15_Init 2 */
 
 }
