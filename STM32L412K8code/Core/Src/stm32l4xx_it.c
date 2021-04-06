@@ -234,22 +234,14 @@ void ADC1_2_IRQHandler(void)
 void TIM1_BRK_TIM15_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-	/*
-	 	HAL_TIM_STATE_RESET 	Peripheral not yet initialized or disabled
-		HAL_TIM_STATE_READY 	Peripheral Initialized and ready for use
-		HAL_TIM_STATE_BUSY 		An internal process is ongoing
-		HAL_TIM_STATE_TIMEOUT 	Timeout state
-		HAL_TIM_STATE_ERROR		Reception process is ongoing
-	 */
-	if (__HAL_TIM_GET_FLAG(&htim15, TIM_SR_UIF)) {
-		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
-	}
 	//HAL_GPIO_TogglePin(GPIOB, LED_PIN);
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
   HAL_TIM_IRQHandler(&htim15);
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-
+	if (__HAL_TIM_GET_FLAG(&htim15, TIM_SR_UIF) != RESET) {
+		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
+	}
   /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
 }
 

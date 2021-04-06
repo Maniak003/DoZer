@@ -128,7 +128,7 @@ int main(void)
   oldTimeAll = oldTime;
   counterCC = 0;
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flag
+  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_BG);
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_COMG);
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC2G);
@@ -263,7 +263,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_7;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_8;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {

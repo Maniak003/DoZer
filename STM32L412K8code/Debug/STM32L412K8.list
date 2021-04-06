@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00020010  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00012994  00000000  00000000  00020040  2**0
+ 12 .debug_info   000129ae  00000000  00000000  00020040  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_abbrev 00001f1d  00000000  00000000  000329d4  2**0
+ 13 .debug_abbrev 00001f26  00000000  00000000  000329ee  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_aranges 000011c0  00000000  00000000  000348f8  2**3
+ 14 .debug_aranges 000011c0  00000000  00000000  00034918  2**3
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_ranges 000010c8  00000000  00000000  00035ab8  2**3
+ 15 .debug_ranges 000010c8  00000000  00000000  00035ad8  2**3
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_macro  0001c33d  00000000  00000000  00036b80  2**0
+ 16 .debug_macro  0001c33d  00000000  00000000  00036ba0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   0000d170  00000000  00000000  00052ebd  2**0
+ 17 .debug_line   0000d16e  00000000  00000000  00052edd  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000bcce9  00000000  00000000  0006002d  2**0
+ 18 .debug_str    000bccea  00000000  00000000  0006004b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  0011cd16  2**0
+ 19 .comment      0000007b  00000000  00000000  0011cd35  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004ca4  00000000  00000000  0011cd94  2**2
+ 20 .debug_frame  00004ca4  00000000  00000000  0011cdb0  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -436,7 +436,7 @@ int main(void)
  800051c:	2108      	movs	r1, #8
  800051e:	488e      	ldr	r0, [pc, #568]	; (8000758 <main+0x28c>)
  8000520:	f002 fd26 	bl	8002f70 <HAL_GPIO_WritePin>
-  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flag
+  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
  8000524:	4b8d      	ldr	r3, [pc, #564]	; (800075c <main+0x290>)
  8000526:	681b      	ldr	r3, [r3, #0]
  8000528:	f06f 0201 	mvn.w	r2, #1
@@ -811,8 +811,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.MSICalibrationValue = 0;
  80007c2:	2300      	movs	r3, #0
  80007c4:	66fb      	str	r3, [r7, #108]	; 0x6c
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_7;
- 80007c6:	2370      	movs	r3, #112	; 0x70
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_8;
+ 80007c6:	2380      	movs	r3, #128	; 0x80
  80007c8:	673b      	str	r3, [r7, #112]	; 0x70
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
  80007ca:	2300      	movs	r3, #0
@@ -1954,32 +1954,27 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 {
  8000dcc:	b580      	push	{r7, lr}
  8000dce:	af00      	add	r7, sp, #0
-		HAL_TIM_STATE_READY 	Peripheral Initialized and ready for use
-		HAL_TIM_STATE_BUSY 		An internal process is ongoing
-		HAL_TIM_STATE_TIMEOUT 	Timeout state
-		HAL_TIM_STATE_ERROR		Reception process is ongoing
-	 */
-	if (__HAL_TIM_GET_FLAG(&htim15, TIM_SR_UIF)) {
- 8000dd0:	4b08      	ldr	r3, [pc, #32]	; (8000df4 <TIM1_BRK_TIM15_IRQHandler+0x28>)
- 8000dd2:	681b      	ldr	r3, [r3, #0]
- 8000dd4:	691b      	ldr	r3, [r3, #16]
- 8000dd6:	f003 0301 	and.w	r3, r3, #1
- 8000dda:	2b01      	cmp	r3, #1
- 8000ddc:	d104      	bne.n	8000de8 <TIM1_BRK_TIM15_IRQHandler+0x1c>
-		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
- 8000dde:	2200      	movs	r2, #0
- 8000de0:	2108      	movs	r1, #8
- 8000de2:	4805      	ldr	r0, [pc, #20]	; (8000df8 <TIM1_BRK_TIM15_IRQHandler+0x2c>)
- 8000de4:	f002 f8c4 	bl	8002f70 <HAL_GPIO_WritePin>
-	}
+  /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
 	//HAL_GPIO_TogglePin(GPIOB, LED_PIN);
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
   HAL_TIM_IRQHandler(&htim15);
- 8000de8:	4802      	ldr	r0, [pc, #8]	; (8000df4 <TIM1_BRK_TIM15_IRQHandler+0x28>)
- 8000dea:	f003 fa62 	bl	80042b2 <HAL_TIM_IRQHandler>
+ 8000dd0:	4808      	ldr	r0, [pc, #32]	; (8000df4 <TIM1_BRK_TIM15_IRQHandler+0x28>)
+ 8000dd2:	f003 fa6e 	bl	80042b2 <HAL_TIM_IRQHandler>
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
-
+	if (__HAL_TIM_GET_FLAG(&htim15, TIM_SR_UIF) != RESET) {
+ 8000dd6:	4b07      	ldr	r3, [pc, #28]	; (8000df4 <TIM1_BRK_TIM15_IRQHandler+0x28>)
+ 8000dd8:	681b      	ldr	r3, [r3, #0]
+ 8000dda:	691b      	ldr	r3, [r3, #16]
+ 8000ddc:	f003 0301 	and.w	r3, r3, #1
+ 8000de0:	2b01      	cmp	r3, #1
+ 8000de2:	d104      	bne.n	8000dee <TIM1_BRK_TIM15_IRQHandler+0x22>
+		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
+ 8000de4:	2200      	movs	r2, #0
+ 8000de6:	2108      	movs	r1, #8
+ 8000de8:	4803      	ldr	r0, [pc, #12]	; (8000df8 <TIM1_BRK_TIM15_IRQHandler+0x2c>)
+ 8000dea:	f002 f8c1 	bl	8002f70 <HAL_GPIO_WritePin>
+	}
   /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
 }
  8000dee:	bf00      	nop
