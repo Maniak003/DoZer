@@ -208,7 +208,7 @@ void ADC1_2_IRQHandler(void)
 	  adcResult = HAL_ADC_GetValue(&hadc1);
 	  if (adcResult > 0) {
 		  adcResult = adcResult & 0x0FFF;
-		  adcResult = adcResult >> 2;
+		  //adcResult = adcResult >> 2;
 		  adcResult = adcResult + 4; // Reserved additional parameter in send buffer ( 4 bytes )
 		  if (spectrData[adcResult] < 0xFFFF) // Check overflow in channel.
 			  spectrData[adcResult]++;
@@ -217,7 +217,7 @@ void ADC1_2_IRQHandler(void)
 		#ifdef LED_PULSE_ENABLE
 		  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 		  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // очищаем флаг
-		  //HAL_TIM_Base_Stop_IT(&htim15);
+		  HAL_TIM_Base_Stop_IT(&htim15);
 		  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
 		#endif
 	  }
@@ -235,10 +235,7 @@ void ADC1_2_IRQHandler(void)
 void TIM1_BRK_TIM15_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
-	//HAL_GPIO_TogglePin(GPIOB, LED_PIN);
-	//if (__HAL_TIM_GET_FLAG(&htim15, TIM_SR_UIF) != RESET) {
-		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
-	//}
+	HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
   HAL_TIM_IRQHandler(&htim15);
