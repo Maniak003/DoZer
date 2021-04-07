@@ -204,26 +204,27 @@ void SysTick_Handler(void)
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
-
+	if( __HAL_ADC_GET_FLAG(&hadc1, EOC_SINGLE_CONV) != RESET) {
+	  adcResult = HAL_ADC_GetValue(&hadc1);
+	  if (adcResult > 0) {
+		  adcResult = adcResult & 0x0FFF;
+		  adcResult = adcResult >> 2;
+		  adcResult = adcResult + 4; // Reserved additional parameter in send buffer ( 4 bytes )
+		  if (spectrData[adcResult] < 0xFFFF) // Check overflow in channel.
+			  spectrData[adcResult]++;
+		  counterCC++;
+		  counterALL++;
+		#ifdef LED_PULSE_ENABLE
+		  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
+		  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // очищаем флаг
+		  //HAL_TIM_Base_Stop_IT(&htim15);
+		  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+		#endif
+	  }
+	}
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
-  adcResult = HAL_ADC_GetValue(&hadc1);
-  if (adcResult > 0) {
-	  adcResult = adcResult & 0x0FFF;
-	  adcResult = adcResult >> 2;
-	  adcResult = adcResult + 4; // Reserved additional parameter in send buffer ( 4 bytes )
-	  if (spectrData[adcResult] < 0xFFFF) // Check overflow in channel.
-		  spectrData[adcResult]++;
-	  counterCC++;
-	  counterALL++;
-	#ifdef LED_PULSE_ENABLE
-	  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-	  __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // очищаем флаг
-	  HAL_TIM_Base_Stop_IT(&htim15);
-	  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
-	#endif
-  }
 
   /* USER CODE END ADC1_2_IRQn 1 */
 }
