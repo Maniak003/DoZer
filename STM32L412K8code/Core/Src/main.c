@@ -108,6 +108,12 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
+  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_OVRIE);
+  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSIE);
+  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSMPIE);
+  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_ADRDYIE);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CR_);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CFGR_EXTEN);
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   //HAL_ADCEx_Calibration_Start(&hadc1);
 

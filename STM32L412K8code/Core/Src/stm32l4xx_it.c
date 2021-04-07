@@ -204,7 +204,7 @@ void SysTick_Handler(void)
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
-	if( __HAL_ADC_GET_FLAG(&hadc1, EOC_SINGLE_CONV) != RESET) {
+	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
 	  adcResult = HAL_ADC_GetValue(&hadc1);
 	  if (adcResult > 0) {
 		  adcResult = adcResult & 0x0FFF;
