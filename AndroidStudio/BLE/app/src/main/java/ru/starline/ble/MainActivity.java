@@ -77,6 +77,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import static java.lang.Math.round;
+
 
 public class MainActivity extends AppCompatActivity {
     public View myView;
@@ -290,9 +292,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         //private String MAC = "20:07:12:18:74:9E";
         //private String MAC = "20:06:03:20:02:A9";
         //private String MAC = "20:06:03:20:02:B3";
-        //private String MAC = "20:06:12:09:74:3E"; // F103
+        private String MAC = "20:06:12:09:74:3E"; // F103
         //private String MAC = "A4:C1:38:05:49:8E";
-        private String MAC = "20:06:11:11:66:CD"; // L412
+        //private String MAC = "20:06:11:11:66:CD"; // L412
         public BluetoothDevice device;
         private BluetoothGattCharacteristic readCharacteristic, writeCharacteristic;
         private boolean canceled;
@@ -806,7 +808,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         tmpTime2 = tmpTime2 + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                         dataStr = "Date: " + nowStr + " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
                                 + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed() + " GPS last update: " + timeStr
-                                + " Measurement time: " + Math.round(tmpTime2);
+                                + " Measurement time: " + round(tmpTime2);
                         outputStream.write(dataStr.getBytes());
                         outputStream.close();
                     } else {
@@ -830,15 +832,14 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
             Date now = calendar.getTime();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'_'HHmmss");
             fileName = simpleDateFormat.format(now);
-            Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(),"Saved.", Toast.LENGTH_SHORT);
             try {
-                File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
+                File direct = new File(Environment.getExternalStorageDirectory() + "/DoZer");
                 if(!direct.exists()) {
                     if(direct.mkdir()); // Создаем каталог если его нет;
                 }
                 /*
                  * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
-                 * Обращение идёт, как и было сказано выше к внешнему накопителю
                  */
                 File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".xml");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
@@ -859,14 +860,14 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                             locationStr = " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
                                     + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed();
                         } else {
-                            Toast.makeText(getBaseContext(), "Ошибка получения координат.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "GPS error.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(getBaseContext(), "Ошибка создания LocationManager.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Error create LocationManager.", Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), "Ошибка получения и записи координат." + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "GPS write error." + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
 
                 simpleDateFormat = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SZZZZZ");
@@ -902,7 +903,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<BackgroundSpectrumFile />\n" +
                         "<StartTime>" + startTime + "</StartTime>\n" +
                         "<EndTime>" + endTime + "</EndTime>\n" +
-                        "<PresetTime>" + Math.round(tmpTime) + "</PresetTime>\n" +
+                        "<PresetTime>" + round(tmpTime) + "</PresetTime>\n" +
                         "<EnergySpectrum>\n" +
                         "<NumberOfChannels>1024</NumberOfChannels>\n" +
                         "<ChannelPitch>0.0221</ChannelPitch>\n" +
@@ -914,9 +915,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<Coefficient>0</Coefficient>\n" +
                         "</Coefficients>\n" +
                         "</EnergyCalibration>\n" +
-                        "<ValidPulseCount>" + Math.round(pulseSumm) + "</ValidPulseCount>\n" +
-                        "<TotalPulseCount>" + Math.round(pulseSumm) + "</TotalPulseCount>\n" +
-                        "<MeasurementTime>" + Math.round(tmpTime2) + "</MeasurementTime>\n" +
+                        "<ValidPulseCount>" + round(pulseSumm) + "</ValidPulseCount>\n" +
+                        "<TotalPulseCount>" + round(pulseSumm) + "</TotalPulseCount>\n" +
+                        "<MeasurementTime>" + round(tmpTime2) + "</MeasurementTime>\n" +
                         "<NumberOfSamples>0</NumberOfSamples>\n" +
                         "<Spectrum>\n";
                 outputStream.write(dataStr.getBytes());
@@ -924,7 +925,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 for (int i = 8; i < maxCanal; i++) {
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = "<DataPoint>" + String.format("%.0f", tmpVal) + "</DataPoint>\n";
-                    outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
+                    outputStream.write(dataStr.getBytes());                            // Write to file
                 }
                 dataStr = (String) "</Spectrum>\n" +
                         "</EnergySpectrum>\n" +
@@ -1009,7 +1010,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll1 = countsAll1 + tmpVal;
                 if ( i < maxCanal) {
-                    float X = Math.round((i) / 2) * penSize - 2;
+                    float X = round((i) / 2) * penSize - 2;
                     // В линейном представлении
                     canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
                     // В логарифмическом представлении
@@ -1035,7 +1036,7 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                 mastab = 0;
 
                 // Смещение графика поиска на одну позицию.
-                tmpFindData = Math.round((countsAll - oldCounts) / interval);
+                tmpFindData = round((countsAll - oldCounts) / interval);
                 if (tmpFindData > 0) {
                     for (int i = findDataSize - 2; i >= 0; i--) {
                         if (mastab < findData[i])
@@ -1066,27 +1067,27 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
 
                     // Вывод статистики
                     float acps = 0;
-                    X = WSize - 470;
+                    X = WSize - 510;
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
-                    canvas.drawText("total: " + Math.round(countsAll) + " cps: " + String.format("%.0f", findData[0]), X, 40, pText);
-                    canvas.drawText("time: " + String.format("%.0f", tmpTime) + " avg: " + String.format("%.2f", acps), X, 80, pText);
+                    canvas.drawText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]), X, 40, pText);
+                    canvas.drawText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300/Math.sqrt(countsAll)) + "%)", X, 80, pText);
                     /* Текущее значение */
                     if (findData[0] < Trh1) {
-                        canvas.drawText("Now: " + String.format("%.1f", findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR1);
+                        canvas.drawText(String.format("Now: %.1f ur/H", findData[0] * koeffR), X, 250, pTextR1);
                     } else if ( findData[0] < Trh2 ) {
-                        canvas.drawText("Now: " + String.format("%.1f",findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR2);
+                        canvas.drawText(String.format("Now: %.1f ur/H",findData[0] * koeffR), X, 250, pTextR2);
                     } else {
-                        canvas.drawText("Now: " + String.format("%.1f",findData[0] * koeffR) + " uR/h", X - 50, 250, pTextR3);
+                        canvas.drawText(String.format("Now: %.1f ur/H",findData[0] * koeffR), X, 250, pTextR3);
                     }
                     /* Среднее значение */
                     if (acps < Trh1) {
-                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR1);
+                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR1);
                     } else if (acps < Trh2) {
-                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR2);
+                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR2);
                     } else {
-                        canvas.drawText("Avg: " + String.format("%.2f", acps * koeffR) + " uR/h", X - 50, 310, pTextR3);
+                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR3);
 
                     }
                     oldCounts = countsAll;
