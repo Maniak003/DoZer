@@ -108,14 +108,13 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
-  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_OVRIE);
-  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSIE);
-  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSMPIE);
-  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_ADRDYIE);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_OVRIE);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSIE);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSMPIE);
+  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_ADRDYIE);
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CR_);
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CFGR_EXTEN);
-  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-  //HAL_ADCEx_Calibration_Start(&hadc1);
+  //HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
   /* USER CODE END 2 */
 
@@ -318,7 +317,7 @@ static void MX_ADC1_Init(void)
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_10B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
@@ -348,13 +347,14 @@ static void MX_ADC1_Init(void)
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.OffsetNumber = ADC_OFFSET_1;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
   /* USER CODE END ADC1_Init 2 */
 

@@ -1,12 +1,14 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_16
 ADC1.ExternalTrigConvEdge=ADC_EXTERNALTRIGCONVEDGE_RISING
-ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,Resolution,LowPowerAutoWait,ExternalTrigConvEdge,master
+ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,OffsetNumber-0\#ChannelRegularConversion,NbrOfConversionFlag,Resolution,LowPowerAutoWait,ExternalTrigConvEdge,master,Overrun,NbrOfConversion
 ADC1.LowPowerAutoWait=ENABLE
+ADC1.NbrOfConversion=1
 ADC1.NbrOfConversionFlag=1
-ADC1.OffsetNumber-0\#ChannelRegularConversion=ADC_OFFSET_NONE
+ADC1.OffsetNumber-0\#ChannelRegularConversion=ADC_OFFSET_1
+ADC1.Overrun=ADC_OVR_DATA_PRESERVED
 ADC1.Rank-0\#ChannelRegularConversion=1
-ADC1.Resolution=ADC_RESOLUTION_10B
+ADC1.Resolution=ADC_RESOLUTION_12B
 ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_2CYCLES_5
 ADC1.master=1
 File.Version=6
