@@ -53,7 +53,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 char counterPP[20];
-_Bool initFlag = 1, sleepFlag = 1;
+_Bool initFlag = 1, sleepFlag = 1, initUART = 1;
 uint32_t counterCC = 0, counterALL = 0, sleepDelay;
 uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
@@ -196,6 +196,12 @@ int main(void)
 	#ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: connect   ", Font_6x8, 0x01);
 	#endif
+
+		  if (initUART) {
+			  HAL_UART_Init(&huart1);
+			  initUART = 0;
+		  }
+
 		  // Control from BT
 		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
 			  if ( btCommand[0] == 'C' ) { // Clear all measurement.
@@ -248,6 +254,8 @@ int main(void)
 			  HAL_UART_Transmit(&huart1, "AT+SLEEP\r\n", 10, 1000);
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+			  HAL_UART_DeInit(&huart1);
+			  initUART = 1;
 		  }
 	  }
 	  HAL_Delay(500);
