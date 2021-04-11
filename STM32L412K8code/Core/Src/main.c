@@ -196,7 +196,7 @@ int main(void)
 	#ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: connect   ", Font_6x8, 0x01);
 	#endif
-
+		  /* Init uart after sleep */
 		  if (initUART) {
 			  HAL_UART_Init(&huart1);
 			  initUART = 0;
@@ -249,9 +249,9 @@ int main(void)
 		  // BT sleep control
 		  if (sleepFlag && (HAL_GetTick() - sleepDelay > SLEEPDALAY)) {
 			  sleepFlag = 0;
-			  HAL_UART_Transmit(&huart1, "AT+SLEEP\n", 9, 1000);
+			  HAL_UART_Transmit(&huart1, "AT+SLEEP\n", 9, 1000);    //For JDY-10
 			  HAL_Delay(200);
-			  HAL_UART_Transmit(&huart1, "AT+SLEEP\r\n", 10, 1000);
+			  HAL_UART_Transmit(&huart1, "AT+SLEEP\r\n", 10, 1000); //For JDY-19
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
 			  HAL_UART_DeInit(&huart1);
