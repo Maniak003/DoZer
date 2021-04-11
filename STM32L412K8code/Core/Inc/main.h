@@ -20,7 +20,8 @@
 //#define DISPLAY_ENABLE
 #define INIT_TIME  2000
 #define TRANSMIT_DALAY 20
-#define LED_PULSE_ENABLE
+#define SLEEPDALAY 1000
+//#define LED_PULSE_ENABLE
 #define LED_PIN GPIO_PIN_3
 #define ANALOG_INPUT
 /* USER CODE END Header */
@@ -49,7 +50,7 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 char counterPP[20];
-uint32_t counterCC, counterALL;
+uint32_t counterCC, counterALL, sleepDelay;
 uint16_t adcResult;
 uint16_t spectrData[2050];
 uint16_t spectrCRC;

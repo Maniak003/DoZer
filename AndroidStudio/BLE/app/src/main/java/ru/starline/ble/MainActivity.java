@@ -1079,7 +1079,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         acps = (float) (countsAll / tmpTime);
                     }
                     canvas.drawText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]), X, 40, pText);
-                    canvas.drawText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300/Math.sqrt(countsAll)) + "%)", X, 80, pText);
+                    if (countsAll == 0) {
+                        canvas.drawText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)", X, 80, pText);
+                    } else {
+                        canvas.drawText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)", X, 80, pText);
+                    }
                     /* Текущее значение */
                     if (findData[0] < Trh1) {
                         canvas.drawText(String.format("Now: %.1f ur/H", findData[0] * koeffR), X, 250, pTextR1);

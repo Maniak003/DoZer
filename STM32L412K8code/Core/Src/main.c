@@ -53,8 +53,8 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 char counterPP[20];
-_Bool initFlag = 1;
-uint32_t counterCC = 0, counterALL = 0;
+_Bool initFlag = 1, sleepFlag = 1;
+uint32_t counterCC = 0, counterALL = 0, sleepDelay;
 uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
 uint16_t spectrCRC;
@@ -131,6 +131,7 @@ int main(void)
   uint32_t initDelay, oldTimeAll, oldTime = HAL_GetTick();
   initDelay = oldTime;
   oldTimeAll = oldTime;
+  sleepFlag = oldTime;
   counterCC = 0;
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
@@ -191,7 +192,7 @@ int main(void)
 	#ifdef DISPLAY_ENABLE
 	  ssd1306_SetCursor(0, 24);
 	#endif
-	  if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1 ) {
+	  if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1 ) { // BT State active ?
 	#ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: connect   ", Font_6x8, 0x01);
 	#endif
@@ -232,11 +233,22 @@ int main(void)
 		  highSpectr = (spectrCRC & 0xFF00) >> 8;
 		  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
 		  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+		  sleepDelay = HAL_GetTick();
+		  sleepFlag = 1;
 	  } else {
 	#ifdef DISPLAY_ENABLE
 		  HAL_Delay(500);
 		  ssd1306_WriteString("BT: disconnect", Font_6x8, 0x01);
 	#endif
+		  // BT sleep control
+		  if (sleepFlag && (HAL_GetTick() - sleepDelay > SLEEPDALAY)) {
+			  sleepFlag = 0;
+			  HAL_UART_Transmit(&huart1, "AT+SLEEP\n", 9, 1000);
+			  HAL_Delay(200);
+			  HAL_UART_Transmit(&huart1, "AT+SLEEP\r\n", 10, 1000);
+			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
+			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+		  }
 	  }
 	  HAL_Delay(500);
     /* USER CODE END WHILE */
@@ -279,7 +291,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV8;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV16;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
