@@ -1017,11 +1017,11 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     // В логарифмическом представлении
                     canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
                     // В линейном представлении
-                    if ( i == 25 | i == 41 | i == 73 | i == 137 | i == 265 | i == 521) {
-                        canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, pm);
-                    } else {
+                    //if ( i == 25 | i == 41 | i == 73 | i == 137 | i == 265 | i == 521) {
+                    //    canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, pm);
+                    //} else {
                         canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
-                    }
+                    //}
                 }
             }
             // Output total counts and cps.
