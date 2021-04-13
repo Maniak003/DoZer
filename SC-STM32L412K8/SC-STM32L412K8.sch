@@ -95,8 +95,6 @@ Wire Wire Line
 Wire Wire Line
 	7300 5600 7300 5700
 Connection ~ 7300 5600
-Wire Wire Line
-	7400 3800 7300 3800
 $Comp
 L Device:L L4
 U 1 1 6037B2E7
@@ -141,7 +139,6 @@ F 3 "~" H 8100 3900 50  0001 C CNN
 	1    8100 3900
 	1    0    0    -1  
 $EndComp
-Connection ~ 7300 3800
 Wire Wire Line
 	7950 4050 8100 4050
 $Comp
@@ -657,7 +654,7 @@ Wire Wire Line
 	7950 3950 7950 3750
 Connection ~ 7300 3400
 Wire Wire Line
-	7300 3400 7300 3800
+	7300 3400 7300 3750
 Wire Wire Line
 	7300 3400 7500 3400
 Wire Wire Line
@@ -1291,4 +1288,11 @@ Connection ~ 5600 1450
 Wire Wire Line
 	5250 1450 5200 1450
 Connection ~ 5200 1450
+Wire Wire Line
+	7400 3800 7400 3750
+Wire Wire Line
+	7400 3750 7300 3750
+Connection ~ 7300 3750
+Wire Wire Line
+	7300 3750 7300 3800
 $EndSCHEMATC

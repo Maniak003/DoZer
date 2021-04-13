@@ -292,9 +292,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
         //private String MAC = "20:07:12:18:74:9E";
         //private String MAC = "20:06:03:20:02:A9";
         //private String MAC = "20:06:03:20:02:B3";
-        //private String MAC = "20:06:12:09:74:3E"; // F103
+        private String MAC = "20:06:12:09:74:3E"; // F103
         //private String MAC = "A4:C1:38:05:49:8E";
-        private String MAC = "20:06:11:11:66:CD"; // L412
+        //private String MAC = "20:06:11:11:66:CD"; // L412
         public BluetoothDevice device;
         private BluetoothGattCharacteristic readCharacteristic, writeCharacteristic;
         private boolean canceled;
