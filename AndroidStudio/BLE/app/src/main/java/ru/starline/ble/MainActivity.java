@@ -910,9 +910,9 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                         "<EnergyCalibration>\n" +
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
                         "<Coefficients>\n" +
-                        "<Coefficient>0</Coefficient>\n" +
-                        "<Coefficient>3.11965811965812</Coefficient>\n" +
-                        "<Coefficient>0</Coefficient>\n" +
+                        "<Coefficient>6.03265776105158</Coefficient>\n" +
+                        "<Coefficient>1.99778118743629</Coefficient>\n" +
+                        "<Coefficient>0.0025257686806495</Coefficient>\n" +
                         "</Coefficients>\n" +
                         "</EnergyCalibration>\n" +
                         "<ValidPulseCount>" + round(pulseSumm) + "</ValidPulseCount>\n" +
@@ -1086,19 +1086,19 @@ Unknown characteristic (00002A19-0000-1000-8000-00805F9B34FB)
                     }
                     /* Текущее значение */
                     if (findData[0] < Trh1) {
-                        canvas.drawText(String.format("Now: %.1f ur/H", findData[0] * koeffR), X, 250, pTextR1);
+                        canvas.drawText(String.format("Now: %.1f uR/h", findData[0] * koeffR), X, 250, pTextR1);
                     } else if ( findData[0] < Trh2 ) {
-                        canvas.drawText(String.format("Now: %.1f ur/H",findData[0] * koeffR), X, 250, pTextR2);
+                        canvas.drawText(String.format("Now: %.1f uR/h",findData[0] * koeffR), X, 250, pTextR2);
                     } else {
-                        canvas.drawText(String.format("Now: %.1f ur/H",findData[0] * koeffR), X, 250, pTextR3);
+                        canvas.drawText(String.format("Now: %.1f uR/h",findData[0] * koeffR), X, 250, pTextR3);
                     }
                     /* Среднее значение */
                     if (acps < Trh1) {
-                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR1);
+                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR1);
                     } else if (acps < Trh2) {
-                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR2);
+                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR2);
                     } else {
-                        canvas.drawText(String.format("Avg: %.2f ur/H", acps * koeffR), X, 310, pTextR3);
+                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR3);
 
                     }
                     oldCounts = countsAll;
