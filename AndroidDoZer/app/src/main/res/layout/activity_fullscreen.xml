@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:theme="@style/ThemeOverlay.DoZer.FullscreenContainer"
+    tools:context=".FullscreenActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <ImageView
+        android:id="@+id/mainImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right|end"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/SaveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F8F5F5"
+            android:backgroundTint="@color/button_color"
+            android:foregroundTint="#7BBA59"
+            android:text="@string/SaveBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            android:textSize="14sp"
+            app:rippleColor="#FFFFFF"
+            app:strokeColor="#79A34E" />
+
+        <Button
+            android:id="@+id/clearBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
+            android:text="@string/clearBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            app:rippleColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/gistoBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
+            android:text="@string/gistogramBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            app:rippleColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/setupBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
+            android:text="@string/setupBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            app:rippleColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/logBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
+            android:text="@string/logBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            app:rippleColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/exitBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_color"
+            android:text="@string/exitBtn"
+            android:textAllCaps="false"
+            android:textColor="@color/button_text"
+            app:rippleColor="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+</FrameLayout>
