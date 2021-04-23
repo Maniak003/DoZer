@@ -39,6 +39,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -57,17 +59,18 @@ import java.util.UUID;
 import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity {
-    //public View myView;
     public DrawAll DA;
-    public ImageView mainImage;
+    public ImageView mainImage, historyDoze;
+    public LinearLayout statisticLayoout;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
     public BluetoothGatt gatt;
+    public TextView textStatistic1, textStatistic2, textStatistic3, textStatistic4;
     public boolean connected = false;
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096];
-    public int findDataSize = 512, maxCanal = 2055;
+    public int findDataSize = 210, maxCanal = 2055;
     public float[] findData = new float[findDataSize];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
@@ -77,7 +80,6 @@ public class FullscreenActivity extends AppCompatActivity {
     public float curentTime, tmpTime, countsAll1;
     public float tmpFindData, Trh1 = 40, Trh2 = 100;
     public float koeffR = (float) 0.5310015898;
-
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -116,19 +118,20 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DA = new DrawAll();
-        //setContentView(new DrawView(this));
         setContentView(R.layout.activity_fullscreen);
         mContentView = findViewById(R.id.mainLayout);
         mainImage = findViewById(R.id.mainImage);
+        historyDoze = findViewById(R.id.historyDose);
+        textStatistic1 = findViewById(R.id.textStatistic1);
+        textStatistic2 = findViewById(R.id.textStatistic2);
+        textStatistic3 = findViewById(R.id.textStatistic3);
+        textStatistic4 = findViewById(R.id.textStatistic4);
+        statisticLayoout = findViewById(R.id.staticLayout);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         selectTypeScreen();
         BT = new getBluetooth();
         BT.initLeDevice();
         tmFull.startTimer();
-
-        HSize = mainImage.getHeight();
-        WSize = mainImage.getWidth();
-        Log.d("DoZer", "H: " + HSize + " W: " + WSize);
 
         // Exit button
         final Button exitBtn = findViewById(R.id.exitBtn);
@@ -148,7 +151,6 @@ public class FullscreenActivity extends AppCompatActivity {
         if (gistoBtn != null) {
             gistoBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    DA.redraw();
                     selectTypeScreen();
                 }
             });
@@ -209,7 +211,7 @@ public class FullscreenActivity extends AppCompatActivity {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 20000);
+            timer.schedule(mTimerTask, 10000, 20000);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -391,9 +393,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     connected = false;
-                    DA.redraw();
-                    //myView.invalidate();
-                    //DA.redraw();
+                    DA.connectIndicator();
                     writePending = false;
                     Log.i(TAG, "Disconnect.");
                 }
@@ -437,7 +437,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     } else {
                         connected = true;
                         //myView.invalidate();
-                        DA.redraw();
+                        DA.connectIndicator();
                         Log.d(TAG, "Write descriptor Ok.");
                     }
                 }
@@ -699,25 +699,42 @@ public class FullscreenActivity extends AppCompatActivity {
     */
     public class DrawAll {
         double countsAll, interval;
-        //char ; /* Unsigned short. Долбаная Java */
         float maxPoint, mastab, tmpVal, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         private Paint p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
-        public Bitmap bitmap;
-        public Canvas mainCanvas;
+        public Bitmap bitmap, bitmap2;
+        public Canvas mainCanvas, historyCanvas;
+        public int WSizeHist, HSizeHist;
         public void redraw() {
             //
             // Layout size
             //
-            HSize = mainImage.getHeight();
-            WSize = mainImage.getWidth();
-            bitmap = Bitmap.createBitmap(WSize , HSize, Bitmap.Config.ARGB_8888);
-            mainCanvas = new Canvas(bitmap);
+            if (mainCanvas == null) {
+                HSize = mainImage.getHeight();
+                WSize = mainImage.getWidth();
+                bitmap = Bitmap.createBitmap(WSize, HSize, Bitmap.Config.ARGB_8888);
+                mainCanvas = new Canvas(bitmap);
+            } else if (historyCanvas == null) {
+                WSizeHist = 210;
+                HSizeHist = 50;
+                Log.d(TAG, " W: " + WSizeHist + " H: " + HSizeHist);
+                bitmap2 = Bitmap.createBitmap(WSizeHist, HSizeHist, Bitmap.Config.ARGB_8888);
+                historyCanvas = new Canvas(bitmap2);
+            } else {
+                //
+                //  Draw histogram
+                //
+                writeHistogram(mainCanvas, historyCanvas);
+                //connectIndicator();
 
-            //
-            //  Draw histogram
-            //
-            writeHistogram(mainCanvas);
+                //
+                //  Update image
+                //
+                mainImage.setImageBitmap(bitmap);
+                historyDoze.setImageBitmap(bitmap2);
+            }
+        }
 
+        public void connectIndicator() {
             //
             //  Connect indicator
             //
@@ -727,14 +744,12 @@ public class FullscreenActivity extends AppCompatActivity {
                 pInd.setColor(Color.argb(255, 255, 0, 0));
 
             }
-            mainCanvas.drawCircle(20, 20, 5, pInd);
-
-            //
-            //  Update image
-            //
-            mainImage.setImageBitmap(bitmap);
+            if ( mainCanvas != null) {
+                mainCanvas.drawCircle(20, 20, 5, pInd);
+            }
         }
-        public void writeHistogram(Canvas canvas) {
+
+        public void writeHistogram(Canvas canvas, Canvas histCanvas) {
             //
             //  Вычисление масштабирования для линейного и логарифмического представления.
             //
@@ -794,6 +809,7 @@ public class FullscreenActivity extends AppCompatActivity {
              */
             countsAll = 0;
             countsAll1 = 0;
+            canvas.drawColor(0xFF000000);
             for (int i = 8; i < 2080; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll1 = countsAll1 + tmpVal;
@@ -809,6 +825,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     //}
                 }
             }
+
             // Output total counts and cps.
             countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
             countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
@@ -819,10 +836,7 @@ public class FullscreenActivity extends AppCompatActivity {
             if (oldCounts <= 0 ) {
                 oldCounts = countsAll;
                 curentTime = tmpTime;
-                //curentTime = System.currentTimeMillis() / 1000;
             } else {
-                //interval = System.currentTimeMillis() / 1000 - curentTime;
-                //curentTime = System.currentTimeMillis() / 1000;
                 interval = tmpTime - curentTime;
                 curentTime = tmpTime;
                 mastab = 0;
@@ -838,93 +852,69 @@ public class FullscreenActivity extends AppCompatActivity {
                     findData[0] = tmpFindData;
                     if (mastab < findData[0])
                         mastab = findData[0];
-                    mastab = hsizeFindData / mastab;
+                    mastab = HSizeHist / mastab;
 
                     // Перерисовка графика поиска
                     float X, Y;
+                    histCanvas.drawColor(0xFF000000);
                     for (int i = 0; i < findDataSize - 1; i++) {
-                        X = (WSize - 20) - i * pen3Size;
-                        Y = 190 - findData[i] * mastab;
-                        if (190 - Y < 1) {
-                            Y = 189;
+                        X = WSizeHist - i * pen3Size;
+                        Y = 50 - findData[i] * mastab;
+                        if (50 - Y < 1) {
+                            Y = 49;
                         }
                         if (findData[i] < Trh1) {
-                            canvas.drawLine(X, Y, X, 190, pFindData);
+                            histCanvas.drawLine(X, Y, X, 50, pFindData);
                         } else if (findData[i] < Trh2) {
-                            canvas.drawLine(X, Y, X, 190, pFindData1);
+                            histCanvas.drawLine(X, Y, X, 50, pFindData1);
                         } else {
-                            canvas.drawLine(X, Y, X, 190, pFindData2);
+                            histCanvas.drawLine(X, Y, X, 50, pFindData2);
                         }
                     }
 
                     // Вывод статистики
                     float acps = 0;
-                    X = WSize - 510;
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
-                    canvas.drawText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]), X, 40, pText);
+                    textStatistic1.setText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]));
                     if (countsAll == 0) {
-                        canvas.drawText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)", X, 80, pText);
+                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps));
                     } else {
-                        canvas.drawText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)", X, 80, pText);
+                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)");
                     }
                     /* Текущее значение */
                     if (findData[0] < Trh1) {
-                        canvas.drawText(String.format("Now: %.1f uR/h", findData[0] * koeffR), X, 250, pTextR1);
+                        textStatistic3.setTextColor(0xFF00FF00);
                     } else if ( findData[0] < Trh2 ) {
-                        canvas.drawText(String.format("Now: %.1f uR/h",findData[0] * koeffR), X, 250, pTextR2);
+                        textStatistic3.setTextColor(0xFFFFFF00);
                     } else {
-                        canvas.drawText(String.format("Now: %.1f uR/h",findData[0] * koeffR), X, 250, pTextR3);
+                        textStatistic3.setTextColor(0xFFFF0000);
                     }
+                    textStatistic3.setText(String.format("Now: %.1f uR/h", findData[0] * koeffR));
+
                     /* Среднее значение */
                     if (acps < Trh1) {
-                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR1);
+                        textStatistic4.setTextColor(0xFF00FF00);
                     } else if (acps < Trh2) {
-                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR2);
+                        textStatistic4.setTextColor(0xFFFFFF00);
                     } else {
-                        canvas.drawText(String.format("Avg: %.2f uR/h", acps * koeffR), X, 310, pTextR3);
-
+                        textStatistic3.setTextColor(0xFFFF0000);
                     }
+                    textStatistic4.setText(String.format(" Avg: %.2f uR/h", acps * koeffR));
+
                     oldCounts = countsAll;
                 } else {
                     oldCounts = countsAll;
-                    //curentTime = System.currentTimeMillis() / 1000;
                     curentTime = tmpTime;
                 }
             }
         }
     }
 
-/*
-    public class DrawView extends View {
-        public DrawView(Context context) {
-            super(context);
-        }
-        public DrawView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-        public DrawView(Context context, AttributeSet attrs, int defStyle) {
-            super(context, attrs, defStyle);
-        }
-        @Override
-        protected void onDraw(Canvas canvas) {
-            Log.d(TAG, "+++++++++++++++++++++++++++onDraw DrawView.+++++++++++++++++++++++++++++++");
-            HSize = canvas.getHeight();
-            WSize = canvas.getWidth();
-            DH.writeHistogram(canvas);
-            if ( connected ) {
-               DH.connectIndicator(canvas, 0);
-            } else {
-                oldCounts = 0;
-                DH.connectIndicator(canvas, 1);
-            }
-        }
-    }
-*/
 
     class drawHistogram {
-        double countsAll, interval;
+        //double countsAll, interval;
         //char ; // Unsigned short. Долбаная Java
         float maxPoint, mastab, tmpVal, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         //private Paint p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();

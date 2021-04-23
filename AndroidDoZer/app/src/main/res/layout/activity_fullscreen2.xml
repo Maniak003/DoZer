@@ -18,43 +18,328 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="clip_horizontal"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="104dp"
+            android:layout_width="182dp"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/textView3"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:text="MAC" />
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:contextClickable="false"
+                android:duplicateParentState="false"
+                android:editable="false"
+                android:text="MAC address" />
+
+            <EditText
+                android:id="@+id/editTextTextPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="20:06:11:11:66:CD" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text=" Level1" />
+
+                <TextView
+                    android:id="@+id/textView19"
+                    android:layout_width="49dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="S" />
+
+                <TextView
+                    android:id="@+id/textView18"
+                    android:layout_width="45dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="V" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextNumberDecimal12"
+                    android:layout_width="113dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:text="30" />
+
+                <CheckBox
+                    android:id="@+id/checkBox2"
+                    android:layout_width="44dp"
+                    android:layout_height="33dp"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="44dp"
+                    android:layout_height="33dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Level2" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="47dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextNumberDecimal2"
+                    android:layout_width="107dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:text="60" />
+
+                <CheckBox
+                    android:id="@+id/checkBox3"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/checkBox4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Level3" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextNumber"
+                    android:layout_width="106dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:text="100" />
+
+                <CheckBox
+                    android:id="@+id/checkBox6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/checkBox5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="uR/h on 1 pulse" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="0.5310015898" />
+
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="209dp"
+            android:layout_width="223dp"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/editTextNumberDecimal"
+            <TextView
+                android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal" />
+                android:text="Correct: Ax^2 + Bx + C" />
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A" />
 
             <EditText
-                android:id="@+id/editTextNumberDecimal2"
+                android:id="@+id/editTextNumberDecimal5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal"
+                android:text="0.0025257686806495" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="B" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="1.99778118743629" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="C" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="6.03265776105158" />
+
+            <TextView
+                android:id="@+id/textView17"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Resolution" />
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButton"
+                    android:layout_width="73dp"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="1024" />
+
+                <RadioButton
+                    android:id="@+id/radioButton2"
+                    android:layout_width="73dp"
+                    android:layout_height="wrap_content"
+                    android:text="2048" />
+
+                <RadioButton
+                    android:id="@+id/radioButton3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4096" />
+            </RadioGroup>
+
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="211dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Energ-comp: Ax^3+Bx^2+Cx+D" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="B" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="C" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="D" />
+
+            <EditText
+                android:id="@+id/editTextNumberDecimal11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="1" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:gravity="left"
             android:orientation="vertical">
 
             <Button

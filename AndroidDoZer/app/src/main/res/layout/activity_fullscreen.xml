@@ -19,75 +19,126 @@
         android:layout_height="match_parent" />
 
     <LinearLayout
-        android:id="@+id/buttonLayout"
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="right|end"
-        android:orientation="vertical">
+        android:gravity="right"
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/SaveBtn"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/statisticLayoout"
+            android:layout_width="215dp"
             android:layout_height="wrap_content"
-            android:background="#F8F5F5"
-            android:backgroundTint="@color/button_color"
-            android:foregroundTint="#7BBA59"
-            android:text="@string/SaveBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            android:textSize="14sp"
-            app:rippleColor="#FFFFFF"
-            app:strokeColor="#79A34E" />
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/clearBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_color"
-            android:text="@string/clearBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            app:rippleColor="#FFFFFF" />
+            <TextView
+                android:id="@+id/textStatistic1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center" />
 
-        <Button
-            android:id="@+id/gistoBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_color"
-            android:text="@string/gistogramBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            app:rippleColor="#FFFFFF" />
+            <TextView
+                android:id="@+id/textStatistic2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center" />
 
-        <Button
-            android:id="@+id/setupBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_color"
-            android:text="@string/setupBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            app:rippleColor="#FFFFFF" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/logBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_color"
-            android:text="@string/logBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            app:rippleColor="#FFFFFF" />
+                <TextView
+                    android:id="@+id/textStatistic3"
+                    android:layout_width="105dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd" />
 
-        <Button
-            android:id="@+id/exitBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_color"
-            android:text="@string/exitBtn"
-            android:textAllCaps="false"
-            android:textColor="@color/button_text"
-            app:rippleColor="#FFFFFF" />
+                <TextView
+                    android:id="@+id/textStatistic4"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="textStart" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/historyDose"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|end"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/SaveBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F8F5F5"
+                android:backgroundTint="@color/button_color"
+                android:foregroundTint="#7BBA59"
+                android:text="@string/SaveBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                android:textSize="14sp"
+                app:rippleColor="#FFFFFF"
+                app:strokeColor="#79A34E" />
+
+            <Button
+                android:id="@+id/clearBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/clearBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/gistoBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/gistogramBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/setupBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/setupBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/logBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/logBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/exitBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/exitBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- This FrameLayout insets its children based on system windows using
