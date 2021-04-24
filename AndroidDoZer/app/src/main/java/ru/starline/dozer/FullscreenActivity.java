@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,10 +32,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -44,14 +42,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -60,8 +61,8 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity {
     public DrawAll DA;
+    public Props PP;
     public ImageView mainImage, historyDoze;
-    public LinearLayout statisticLayoout;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -80,6 +81,13 @@ public class FullscreenActivity extends AppCompatActivity {
     public float curentTime, tmpTime, countsAll1;
     public float tmpFindData, Trh1 = 40, Trh2 = 100;
     public float koeffR = (float) 0.5310015898;
+    //public String MAC = "20:07:12:18:74:9E";
+    //public String MAC = "20:06:03:20:02:A9";
+    //public String MAC = "20:06:03:20:02:B3";
+    //public String MAC = "20:06:12:09:74:3E"; // F103
+    //public String MAC = "A4:C1:38:05:49:8E";
+    public String MAC = "20:06:11:11:66:CD"; // L412
+
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -113,11 +121,31 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    //@SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DA = new DrawAll();
+
+        //
+        //  Read configuration
+        //
+        PP = new Props();
+        try {
+            MAC = PP.readProp("MAC");
+            Log.d("DoZer", "MAC: " + MAC);
+            if (MAC == null) {
+                System.exit(1);
+            }
+            String kR = PP.readProp("koefR");
+            PP.writeProp("koefR", "0.5310015898");
+            PP.writeProp("MAC", "20:06:11:11:66:CD");
+            if (kR != null) {
+                koeffR = Float.parseFloat(kR);
+            }
+            Log.d("DoZer", "koefR:" + koeffR);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_fullscreen);
         mContentView = findViewById(R.id.mainLayout);
         mainImage = findViewById(R.id.mainImage);
@@ -126,7 +154,6 @@ public class FullscreenActivity extends AppCompatActivity {
         textStatistic2 = findViewById(R.id.textStatistic2);
         textStatistic3 = findViewById(R.id.textStatistic3);
         textStatistic4 = findViewById(R.id.textStatistic4);
-        statisticLayoout = findViewById(R.id.staticLayout);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         selectTypeScreen();
         BT = new getBluetooth();
@@ -211,7 +238,7 @@ public class FullscreenActivity extends AppCompatActivity {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 10000, 20000);
+            timer.schedule(mTimerTask, 5000, 5000);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -242,6 +269,26 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onRestart();
         Log.d(TAG, "onRestart.");
         formatLayout();
+    }
+
+    public class Props {
+        public  String readProp(String key) throws IOException {
+            Log.d("DoZer", "---------------------------------------");
+            Properties prop = new Properties();
+            FileInputStream fileInputStream;
+            fileInputStream = new FileInputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
+            prop.load(fileInputStream);
+            return prop.getProperty(key);
+        }
+
+        public void writeProp(String key, String val) throws IOException {
+            Properties prop = new Properties();
+            FileOutputStream fileOutputStream;
+            fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
+            if (prop.setProperty(key, val) != null ) {
+                prop.store(fileOutputStream, null);
+            }
+        }
     }
 
     class scanLE {
@@ -306,12 +353,6 @@ public class FullscreenActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         public BluetoothAdapter bluetooth;
         private BluetoothSocket btSocket = null;
-        //private String MAC = "20:07:12:18:74:9E";
-        //private String MAC = "20:06:03:20:02:A9";
-        //private String MAC = "20:06:03:20:02:B3";
-        //private String MAC = "20:06:12:09:74:3E"; // F103
-        //private String MAC = "A4:C1:38:05:49:8E";
-        private String MAC = "20:06:11:11:66:CD"; // L412
         public BluetoothDevice device;
         private BluetoothGattCharacteristic readCharacteristic, writeCharacteristic;
         private boolean canceled;
@@ -393,7 +434,9 @@ public class FullscreenActivity extends AppCompatActivity {
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     connected = false;
-                    DA.connectIndicator();
+                    if ( DA != null) {
+                        DA.connectIndicator();
+                    }
                     writePending = false;
                     Log.i(TAG, "Disconnect.");
                 }
@@ -437,7 +480,9 @@ public class FullscreenActivity extends AppCompatActivity {
                     } else {
                         connected = true;
                         //myView.invalidate();
-                        DA.connectIndicator();
+                        if (DA != null) {
+                            DA.connectIndicator();
+                        }
                         Log.d(TAG, "Write descriptor Ok.");
                     }
                 }
@@ -559,7 +604,9 @@ public class FullscreenActivity extends AppCompatActivity {
                                             //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                                             //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
                                             //myView.invalidate();    // Redraw screen.
-                                            DA.redraw();
+                                            if ( DA != null ) {
+                                                DA.redraw();
+                                            }
                                         }
                                     }
                             }
@@ -704,6 +751,7 @@ public class FullscreenActivity extends AppCompatActivity {
         public Bitmap bitmap, bitmap2;
         public Canvas mainCanvas, historyCanvas;
         public int WSizeHist, HSizeHist;
+
         public void redraw() {
             //
             // Layout size
@@ -713,26 +761,29 @@ public class FullscreenActivity extends AppCompatActivity {
                 WSize = mainImage.getWidth();
                 bitmap = Bitmap.createBitmap(WSize, HSize, Bitmap.Config.ARGB_8888);
                 mainCanvas = new Canvas(bitmap);
-            } else if (historyCanvas == null) {
+                Log.d(TAG, " WSize: " + WSize + " HSize: " + HSize);
+            }
+            if (historyCanvas == null) {
                 WSizeHist = 210;
                 HSizeHist = 50;
-                Log.d(TAG, " W: " + WSizeHist + " H: " + HSizeHist);
+                Log.d(TAG, " WSizeHist: " + WSizeHist + " HSizeHist: " + HSizeHist);
                 bitmap2 = Bitmap.createBitmap(WSizeHist, HSizeHist, Bitmap.Config.ARGB_8888);
                 historyCanvas = new Canvas(bitmap2);
-            } else {
-                //
-                //  Draw histogram
-                //
-                writeHistogram(mainCanvas, historyCanvas);
-                //connectIndicator();
-
-                //
-                //  Update image
-                //
-                mainImage.setImageBitmap(bitmap);
-                historyDoze.setImageBitmap(bitmap2);
             }
-        }
+            if (mainCanvas != null &&  historyCanvas != null) {
+                    //
+                    //  Draw histogram
+                    //
+                    writeHistogram(mainCanvas, historyCanvas);
+                    //connectIndicator();
+
+                    //
+                    //  Update image
+                    //
+                    mainImage.setImageBitmap(bitmap);
+                    historyDoze.setImageBitmap(bitmap2);
+                }
+            }
 
         public void connectIndicator() {
             //
@@ -845,8 +896,9 @@ public class FullscreenActivity extends AppCompatActivity {
                 tmpFindData = round((countsAll - oldCounts) / interval);
                 if (tmpFindData > 0) {
                     for (int i = findDataSize - 2; i >= 0; i--) {
-                        if (mastab < findData[i])
+                        if (mastab < findData[i]) {
                             mastab = findData[i];
+                        }
                         findData[i + 1] = findData[i];
                     }
                     findData[0] = tmpFindData;
@@ -859,16 +911,16 @@ public class FullscreenActivity extends AppCompatActivity {
                     histCanvas.drawColor(0xFF000000);
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = WSizeHist - i * pen3Size;
-                        Y = 50 - findData[i] * mastab;
-                        if (50 - Y < 1) {
-                            Y = 49;
+                        Y = HSizeHist - findData[i] * mastab;
+                        if (HSizeHist - Y < 1) {
+                            Y = HSizeHist - 1;
                         }
                         if (findData[i] < Trh1) {
-                            histCanvas.drawLine(X, Y, X, 50, pFindData);
+                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData);
                         } else if (findData[i] < Trh2) {
-                            histCanvas.drawLine(X, Y, X, 50, pFindData1);
+                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData1);
                         } else {
-                            histCanvas.drawLine(X, Y, X, 50, pFindData2);
+                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData2);
                         }
                     }
 
