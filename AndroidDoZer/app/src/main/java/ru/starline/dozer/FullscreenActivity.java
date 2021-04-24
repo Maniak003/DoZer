@@ -80,13 +80,13 @@ public class FullscreenActivity extends AppCompatActivity {
     public int startFlag = 0, bufferIndex = 0;
     public float curentTime, tmpTime, countsAll1;
     public float tmpFindData, Trh1 = 40, Trh2 = 100;
-    public float koeffR = (float) 0.5310015898;
+    public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
     //public String MAC = "20:06:03:20:02:A9";
     //public String MAC = "20:06:03:20:02:B3";
     //public String MAC = "20:06:12:09:74:3E"; // F103
     //public String MAC = "A4:C1:38:05:49:8E";
-    public String MAC = "20:06:11:11:66:CD"; // L412
+    public String defMAC = "20:06:11:11:66:CD", MAC = ""; // L412
 
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
@@ -131,18 +131,17 @@ public class FullscreenActivity extends AppCompatActivity {
         //
         PP = new Props();
         try {
-            MAC = PP.readProp("MAC");
+            //PP.writeProp();
+            MAC = PP.readProp("MAC").toString().toUpperCase();
             Log.d("DoZer", "MAC: " + MAC);
             if (MAC == null) {
-                System.exit(1);
+                MAC = defMAC;
             }
             String kR = PP.readProp("koefR");
-            PP.writeProp("koefR", "0.5310015898");
-            PP.writeProp("MAC", "20:06:11:11:66:CD");
-            if (kR != null) {
-                koeffR = Float.parseFloat(kR);
+            if (kR != null && ! kR.isEmpty()) {
+                koeffR = Double.parseDouble(kR);
             }
-            Log.d("DoZer", "koefR:" + koeffR);
+            Log.d("DoZer", "koefR: " + koeffR);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -273,7 +272,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
     public class Props {
         public  String readProp(String key) throws IOException {
-            Log.d("DoZer", "---------------------------------------");
             Properties prop = new Properties();
             FileInputStream fileInputStream;
             fileInputStream = new FileInputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
@@ -281,13 +279,39 @@ public class FullscreenActivity extends AppCompatActivity {
             return prop.getProperty(key);
         }
 
-        public void writeProp(String key, String val) throws IOException {
+        public void writeProp() throws IOException {
             Properties prop = new Properties();
             FileOutputStream fileOutputStream;
             fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
-            if (prop.setProperty(key, val) != null ) {
-                prop.store(fileOutputStream, null);
-            }
+            prop.setProperty("MAC", "20:06:11:11:66:CD");
+            prop.setProperty("koefR", "0.5310015898");
+
+            prop.setProperty("Level1", "30");
+            prop.setProperty("Level1_S", "1");
+            prop.setProperty("Level1_V", "1");
+
+            prop.setProperty("Level2", "60");
+            prop.setProperty("Level2_S", "1");
+            prop.setProperty("Level2_V", "1");
+
+            prop.setProperty("Level3", "100");
+            prop.setProperty("Level3_S", "1");
+            prop.setProperty("Level3_V", "1");
+
+            prop.setProperty("LED", "1");
+            prop.setProperty("Sound", "1");
+
+            prop.setProperty("Correct_A", "0.0025257686806495");
+            prop.setProperty("Correct_B", "1.99778118743629");
+            prop.setProperty("Correct_C", "6.03265776105158");
+
+            prop.setProperty("Energi_A", "0");
+            prop.setProperty("Energi_B", "0");
+            prop.setProperty("Energi_C", "0");
+            prop.setProperty("Energi_D", "1");
+
+            prop.setProperty("Resolution", "1");
+            prop.store(fileOutputStream, null);
         }
     }
 
