@@ -872,7 +872,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 // Calculate Energy over channel.
                 oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
                 // Calculate index specter array
-                int i = (int) Math.floor(X / penSize ) * 2;
+                int i = (int) Math.floor(X / penSize ) * 2 + 4;
                 // Get specter data
                 tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
