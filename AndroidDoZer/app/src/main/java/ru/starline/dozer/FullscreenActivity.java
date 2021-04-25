@@ -28,11 +28,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -57,12 +60,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import static java.lang.Math.log10;
 import static java.lang.Math.round;
 
-public class FullscreenActivity extends AppCompatActivity {
+public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA;
     public Props PP;
-    public ImageView mainImage, historyDoze;
+    public ImageView mainImage, historyDoze, cursorImage;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -80,6 +84,7 @@ public class FullscreenActivity extends AppCompatActivity {
     public int startFlag = 0, bufferIndex = 0;
     public float curentTime, tmpTime, countsAll1;
     public float tmpFindData, Trh1 = 40, Trh2 = 100;
+    public double correctA, correctB, correctC;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
     //public String MAC = "20:06:03:20:02:A9";
@@ -132,15 +137,36 @@ public class FullscreenActivity extends AppCompatActivity {
         PP = new Props();
         try {
             //PP.writeProp();
-            MAC = PP.readProp("MAC").toString().toUpperCase();
+            MAC = PP.readProp("MAC").toUpperCase();
             Log.d("DoZer", "MAC: " + MAC);
             if (MAC == null) {
                 MAC = defMAC;
             }
+            // For calculate radiation for pulses
             String kR = PP.readProp("koefR");
             if (kR != null && ! kR.isEmpty()) {
                 koeffR = Double.parseDouble(kR);
             }
+            // Correction coefficient
+            kR = PP.readProp("Correct_A");
+            if (kR != null && ! kR.isEmpty()) {
+                correctA = Double.parseDouble(kR);
+            } else {
+                correctA = 0;
+            }
+            kR = PP.readProp("Correct_B");
+            if (kR != null && ! kR.isEmpty()) {
+                correctB = Double.parseDouble(kR);
+            } else {
+                correctB = 1;
+            }
+            kR = PP.readProp("Correct_C");
+            if (kR != null && ! kR.isEmpty()) {
+                correctC = Double.parseDouble(kR);
+            } else {
+                correctC = 0;
+            }
+
             Log.d("DoZer", "koefR: " + koeffR);
         } catch (IOException e) {
             e.printStackTrace();
@@ -149,6 +175,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mContentView = findViewById(R.id.mainLayout);
         mainImage = findViewById(R.id.mainImage);
         historyDoze = findViewById(R.id.historyDose);
+        cursorImage = findViewById(R.id.cursorImage);
         textStatistic1 = findViewById(R.id.textStatistic1);
         textStatistic2 = findViewById(R.id.textStatistic2);
         textStatistic3 = findViewById(R.id.textStatistic3);
@@ -158,6 +185,20 @@ public class FullscreenActivity extends AppCompatActivity {
         BT = new getBluetooth();
         BT.initLeDevice();
         tmFull.startTimer();
+
+        mainImage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    DA.drawCursor(x, y);
+                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    DA.drawCursor(x, y);
+                }
+                return true;
+            }
+        });
 
         // Exit button
         final Button exitBtn = findViewById(R.id.exitBtn);
@@ -769,11 +810,11 @@ public class FullscreenActivity extends AppCompatActivity {
             Вызывается при перерисовке.
     */
     public class DrawAll {
-        double countsAll, interval;
-        float maxPoint, mastab, tmpVal, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
-        private Paint p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
-        public Bitmap bitmap, bitmap2;
-        public Canvas mainCanvas, historyCanvas;
+        double countsAll, interval, oldValX;
+        float oldX = -1 , oldY = -1, maxPoint, mastab, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
+        public Bitmap bitmap, bitmap2, bitmap3;
+        public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
 
         public void redraw() {
@@ -808,6 +849,45 @@ public class FullscreenActivity extends AppCompatActivity {
                     historyDoze.setImageBitmap(bitmap2);
                 }
             }
+        public void drawCursor(float X, float Y) {
+            if (cursorCanvas == null) {
+                HSize = mainImage.getHeight();
+                WSize = mainImage.getWidth();
+                bitmap3 = Bitmap.createBitmap(WSize, HSize, Bitmap.Config.ARGB_8888);
+                cursorCanvas = new Canvas(bitmap3);
+                empt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+                curs.setColor(Color.argb(255, 0, 255, 0));
+            } else {
+                if (oldX > 0) {
+                    cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt);
+                    cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
+                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
+                    cursorCanvas.save();
+                    cursorCanvas.rotate((float) 90, oldX, HSize - 35);
+                    cursorCanvas.drawText("" + round(oldValX), oldX, HSize - 35, empt);
+                    cursorCanvas.restore();
+                }
+                oldX = X;
+                oldY = Y;
+                // Calculate Energy over channel.
+                oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
+                // Calculate index specter array
+                int i = (int) Math.floor(X / penSize ) * 2;
+                // Get specter data
+                tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
+                if (X > 0 & Y > 0) {
+                    cursorCanvas.drawLine(X, oldY, X, HSize, curs);
+                    cursorCanvas.drawLine(0, oldY, X, oldY, curs);
+                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
+                    cursorCanvas.save();
+                    cursorCanvas.rotate((float) 90, X, HSize - 35);
+                    cursorCanvas.drawText("" + round(oldValX), X, HSize - 35, curs);
+                    cursorCanvas.restore();
+                    cursorImage.setImageBitmap(bitmap3);
+                }
+            }
+        }
 
         public void connectIndicator() {
             //
@@ -893,11 +973,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     // В логарифмическом представлении
                     canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
                     // В линейном представлении
-                    //if ( i == 25 | i == 41 | i == 73 | i == 137 | i == 265 | i == 521) {
-                    //    canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, pm);
-                    //} else {
                     canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
-                    //}
                 }
             }
 
@@ -990,10 +1066,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
 
     class drawHistogram {
-        //double countsAll, interval;
-        //char ; // Unsigned short. Долбаная Java
-        float maxPoint, mastab, tmpVal, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
-        //private Paint p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
+        float tmpVal;
 
         // Обнуление данных в приборе
         public void resetAll() throws IOException {
