@@ -160,7 +160,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             if (kR != null && ! kR.isEmpty()) {
                 koeffR = Double.parseDouble(kR);
             }
-            // Correction coefficient
+            // Correction coefficients
             kR = PP.readProp("Correct_A");
             if (kR != null && ! kR.isEmpty()) {
                 correctA = Double.parseDouble(kR);
