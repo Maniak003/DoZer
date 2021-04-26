@@ -70,7 +70,8 @@ import static java.lang.Math.round;
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA;
     public Props PP;
-    public ImageView mainImage, historyDoze, cursorImage, connIndicator;
+    public ImageView mainImage, historyDoze, cursorImage;
+    public Button connIndicator;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -95,7 +96,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     //public String MAC = "20:06:03:20:02:B3";
     //public String MAC = "20:06:12:09:74:3E"; // F103
     //public String MAC = "A4:C1:38:05:49:8E";
-    public String defMAC = "20:06:11:11:66:CD", MAC = ""; // L412
+    public String defMAC = "20:06:11:11:66:AA", MAC = ""; // L412
 
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
@@ -143,18 +144,21 @@ public class FullscreenActivity extends AppCompatActivity  {
 
     @SuppressLint("ClickableViewAccessibility")
     public void initApplication() {
-        DA = new DrawAll();
         //
         //  Read configuration
         //
         PP = new Props();
         try {
-            //PP.writeProp();
-            MAC = PP.readProp("MAC").toUpperCase();
-            Log.d("DoZer", "MAC: " + MAC);
+            MAC = PP.readProp("MAC");
             if (MAC == null) {
                 MAC = defMAC;
+
+                if (MAC == null) {
+                }
+            } else {
+                MAC = PP.readProp("MAC").toUpperCase();
             }
+            Log.d("DoZer", "MAC: " + MAC);
             // For calculate radiation for pulses
             String kR = PP.readProp("koefR");
             if (kR != null && ! kR.isEmpty()) {
@@ -184,18 +188,6 @@ public class FullscreenActivity extends AppCompatActivity  {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        setContentView(R.layout.activity_fullscreen);
-        mContentView = findViewById(R.id.mainLayout);
-        mainImage = findViewById(R.id.mainImage);
-        historyDoze = findViewById(R.id.historyDose);
-        cursorImage = findViewById(R.id.cursorImage);
-        connIndicator = findViewById(R.id.connectIndicator);
-        textStatistic1 = findViewById(R.id.textStatistic1);
-        textStatistic2 = findViewById(R.id.textStatistic2);
-        textStatistic3 = findViewById(R.id.textStatistic3);
-        textStatistic4 = findViewById(R.id.textStatistic4);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        selectTypeScreen();
         BT = new getBluetooth();
         BT.initLeDevice();
         tmFull.startTimer();
@@ -255,7 +247,8 @@ public class FullscreenActivity extends AppCompatActivity  {
         if (clearBtn != null) {
             clearBtn.setOnClickListener(v -> {
                 try {
-                    DH.resetAll();
+                    DA.resetAll();
+                    DA.hideCursor();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -270,8 +263,21 @@ public class FullscreenActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DA = new DrawAll();
+        setContentView(R.layout.activity_fullscreen);
+        mContentView = findViewById(R.id.mainLayout);
+        mainImage = findViewById(R.id.mainImage);
+        historyDoze = findViewById(R.id.historyDose);
+        cursorImage = findViewById(R.id.cursorImage);
+        connIndicator = findViewById(R.id.connectIndicator);
+        textStatistic1 = findViewById(R.id.textStatistic1);
+        textStatistic2 = findViewById(R.id.textStatistic2);
+        textStatistic3 = findViewById(R.id.textStatistic3);
+        textStatistic4 = findViewById(R.id.textStatistic4);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        selectTypeScreen();
+        // Check permission for write storage.
         int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             initApplication();
         } else {
@@ -326,46 +332,21 @@ public class FullscreenActivity extends AppCompatActivity  {
 
     public class Props {
         public  String readProp(String key) throws IOException {
+            String fname = Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties";
+            File cfgFile = new File(fname);
+            if(!cfgFile.exists()) {
+                cfgFile.createNewFile(); // Create config file if not exist
+            }
             Properties prop = new Properties();
             FileInputStream fileInputStream;
-            fileInputStream = new FileInputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
-            prop.load(fileInputStream);
+            fileInputStream = new FileInputStream(fname);
+            Log.d(TAG, "fd: " + fileInputStream.getFD().toString());
+            if (fileInputStream != null) {
+                prop.load(fileInputStream);
+            } else {
+                Log.d(TAG, "file not found.");
+            }
             return prop.getProperty(key);
-        }
-
-        public void writeProp() throws IOException {
-            Properties prop = new Properties();
-            FileOutputStream fileOutputStream;
-            fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
-            prop.setProperty("MAC", "20:06:11:11:66:CD");
-            prop.setProperty("koefR", "0.5310015898");
-
-            prop.setProperty("Level1", "30");
-            prop.setProperty("Level1_S", "1");
-            prop.setProperty("Level1_V", "1");
-
-            prop.setProperty("Level2", "60");
-            prop.setProperty("Level2_S", "1");
-            prop.setProperty("Level2_V", "1");
-
-            prop.setProperty("Level3", "100");
-            prop.setProperty("Level3_S", "1");
-            prop.setProperty("Level3_V", "1");
-
-            prop.setProperty("LED", "1");
-            prop.setProperty("Sound", "1");
-
-            prop.setProperty("Correct_A", "0.0025257686806495");
-            prop.setProperty("Correct_B", "1.99778118743629");
-            prop.setProperty("Correct_C", "6.03265776105158");
-
-            prop.setProperty("Energi_A", "0");
-            prop.setProperty("Energi_B", "0");
-            prop.setProperty("Energi_C", "0");
-            prop.setProperty("Energi_D", "1");
-
-            prop.setProperty("Resolution", "1");
-            prop.store(fileOutputStream, null);
         }
     }
 
@@ -865,6 +846,19 @@ public class FullscreenActivity extends AppCompatActivity  {
                     historyDoze.setImageBitmap(bitmap2);
                 }
             }
+
+         public void hideCursor() {
+             if (oldX > 0) {
+                 cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
+                 cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
+                 cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
+                 cursorCanvas.save();
+                 cursorCanvas.rotate((float) 90, oldX, HSize - textVShift);
+                 cursorCanvas.drawText("" + round(oldValX), oldX, HSize - textVShift, empt);
+                 cursorCanvas.restore();
+             }
+         }
+
         public void drawCursor(float X, float Y) {
             if (cursorCanvas == null) {
                 HSize = mainImage.getHeight();
@@ -876,15 +870,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 curs.setColor(Color.argb(255, 0, 255, 0));
                 curs.setTextSize(20.0f);
             } else {
-                if (oldX > 0) {
-                    cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
-                    cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, oldX, HSize - textVShift);
-                    cursorCanvas.drawText("" + round(oldValX), oldX, HSize - textVShift, empt);
-                    cursorCanvas.restore();
-                }
+                hideCursor();
                 oldX = X;
                 oldY = Y;
                 // Calculate Energy over channel.
@@ -907,6 +893,17 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
         }
 
+        // Обнуление данных в приборе
+        public void resetAll() throws IOException {
+            for ( int i = 0; i < findDataSize; i++) {
+                findData[i] = 0;
+            }
+            byte[] sndData = new byte[1];
+            sndData[0] = 'C';
+            BT.write(sndData);
+        }
+
+
         public void connectIndicator() {
             //
             //  Connect indicator
@@ -915,6 +912,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             if (connected) {
                 connIndicator.setBackgroundColor(Color.argb(255, 0, 255, 0));
             } else {
+                hideCursor();
                 connIndicator.setBackgroundColor(Color.argb(255, 255, 0, 0));
             }
         }
@@ -944,29 +942,24 @@ public class FullscreenActivity extends AppCompatActivity  {
             //
             // Фон
             canvas.drawColor(Color.argb(255, 0, 0, 0));
+
             // Линейная гистограмма
             p.setColor(Color.argb(200, 40, 40, 255));
             p.setStrokeWidth(penSize);
+
             // For markers
             pm.setColor(Color.argb(200, 255, 40, 40));
             pm.setStrokeWidth(penSize);
+
             // Логарифмическая гистограмма
             pLog.setColor(Color.argb(100, 40, 60, 255));
             pLog.setStrokeWidth(penSize);
+
             // Текст статистики
             pText.setColor(Color.argb(100, 255, 40, 255));
             pText.setStrokeWidth(penSize);
             pText.setTextSize(10.0f);
-            // Текст значений в мкР/ч
-            //pTextR1.setColor(Color.argb(100, 40, 255, 40));
-            //pTextR1.setStrokeWidth(penSize);
-            //pTextR1.setTextSize(60.0f);
-            //pTextR2.setColor(Color.argb(100, 255, 255, 40));
-            //pTextR2.setStrokeWidth(penSize);
-            //pTextR2.setTextSize(60.0f);
-            //pTextR3.setColor(Color.argb(100, 255, 40, 40));
-            //pTextR3.setStrokeWidth(penSize);
-            //pTextR3.setTextSize(60.0f);
+
             // График дла поиска
             pFindData.setColor(Color.argb(200, 40, 255, 40));
             pFindData.setStrokeWidth(pen3Size);
@@ -1082,16 +1075,6 @@ public class FullscreenActivity extends AppCompatActivity  {
 
     class drawHistogram {
         float tmpVal;
-
-        // Обнуление данных в приборе
-        public void resetAll() throws IOException {
-            for ( int i = 0; i < findDataSize; i++) {
-                findData[i] = 0;
-            }
-            byte[] sndData = new byte[1];
-            sndData[0] = 'C';
-            BT.write(sndData);
-        }
 
         //  Сохранение гистограммы CSV format
         public void saveHistogram() {

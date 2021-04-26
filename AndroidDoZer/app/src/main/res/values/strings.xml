@@ -7,7 +7,7 @@
     <string name="setupBtn">Setup</string>
     <string name="exitBtn">Exit</string>
     <string name="logBtn">Log</string>
-    <string name="title_activity_fullscreen2">FullscreenActivity</string>
+    <string name="title_activity_fullscreen2">Setup</string>
     <string name="saveSetupBtn">Save</string>
     <string name="cancelBtn">Cancel</string>
 </resources>
