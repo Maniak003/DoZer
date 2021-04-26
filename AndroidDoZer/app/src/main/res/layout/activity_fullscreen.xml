@@ -35,6 +35,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/connectIndicator"
+                    android:layout_width="8dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#FF0101" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/textStatistic1"
                 android:layout_width="match_parent"

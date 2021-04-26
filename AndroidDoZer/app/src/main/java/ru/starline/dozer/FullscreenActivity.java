@@ -1,9 +1,13 @@
 package ru.starline.dozer;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -66,7 +70,11 @@ import static java.lang.Math.round;
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA;
     public Props PP;
+<<<<<<< HEAD
     public ImageView mainImage, historyDoze, cursorImage;
+=======
+    public ImageView mainImage, historyDoze, cursorImage, connIndicator;
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -125,12 +133,21 @@ public class FullscreenActivity extends AppCompatActivity  {
             histogramFlag = 1;
         }
     }
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        DA = new DrawAll();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initApplication();
+                } else {
+                    System.exit(1);
+                }
+        }
+    }
 
+    @SuppressLint("ClickableViewAccessibility")
+    public void initApplication() {
+        DA = new DrawAll();
         //
         //  Read configuration
         //
@@ -146,6 +163,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             String kR = PP.readProp("koefR");
             if (kR != null && ! kR.isEmpty()) {
                 koeffR = Double.parseDouble(kR);
+<<<<<<< HEAD
             }
             // Correction coefficient
             kR = PP.readProp("Correct_A");
@@ -166,6 +184,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             } else {
                 correctC = 0;
             }
+=======
+            }
+            // Correction coefficient
+            kR = PP.readProp("Correct_A");
+            if (kR != null && ! kR.isEmpty()) {
+                correctA = Double.parseDouble(kR);
+            } else {
+                correctA = 0;
+            }
+            kR = PP.readProp("Correct_B");
+            if (kR != null && ! kR.isEmpty()) {
+                correctB = Double.parseDouble(kR);
+            } else {
+                correctB = 1;
+            }
+            kR = PP.readProp("Correct_C");
+            if (kR != null && ! kR.isEmpty()) {
+                correctC = Double.parseDouble(kR);
+            } else {
+                correctC = 0;
+            }
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
 
             Log.d("DoZer", "koefR: " + koeffR);
         } catch (IOException e) {
@@ -176,6 +216,10 @@ public class FullscreenActivity extends AppCompatActivity  {
         mainImage = findViewById(R.id.mainImage);
         historyDoze = findViewById(R.id.historyDose);
         cursorImage = findViewById(R.id.cursorImage);
+<<<<<<< HEAD
+=======
+        connIndicator = findViewById(R.id.connectIndicator);
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
         textStatistic1 = findViewById(R.id.textStatistic1);
         textStatistic2 = findViewById(R.id.textStatistic2);
         textStatistic3 = findViewById(R.id.textStatistic3);
@@ -186,6 +230,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         BT.initLeDevice();
         tmFull.startTimer();
 
+<<<<<<< HEAD
         mainImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -198,16 +243,25 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 return true;
             }
+=======
+        mainImage.setOnTouchListener((v, event) -> {
+            float x = event.getX();
+            float y = event.getY();
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                DA.drawCursor(x, y);
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                DA.drawCursor(x, y);
+            }
+            return true;
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
         });
 
         // Exit button
         final Button exitBtn = findViewById(R.id.exitBtn);
         if (exitBtn != null) {
-            exitBtn.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    Log.d("DoZer", "Pressed exit.");
-                    System.exit(0);
-                }
+            exitBtn.setOnClickListener(v -> {
+                Log.d("DoZer", "Pressed exit.");
+                System.exit(0);
             });
         } else {
             Log.d("DoZer", "exitBtn not found");
@@ -228,11 +282,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Setup button
         final Button setupBtn = findViewById(R.id.setupBtn);
         if (setupBtn != null) {
-            setupBtn.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    setupActivity();
-                }
-            });
+            setupBtn.setOnClickListener(v -> setupActivity());
         } else {
             Log.d("DoZer", "gistoBtn not found");
         }
@@ -240,11 +290,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Save button
         final Button saveBtn = findViewById(R.id.SaveBtn);
         if (saveBtn != null) {
-            saveBtn.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    DH.saveHistogramXML();
-                }
-            });
+            saveBtn.setOnClickListener(v -> DH.saveHistogramXML());
         } else {
             Log.d("DoZer", "saveBtn not found");
         }
@@ -252,25 +298,37 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Clear button
         final Button clearBtn = findViewById(R.id.clearBtn);
         if (clearBtn != null) {
-            clearBtn.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    try {
-                        DH.resetAll();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            clearBtn.setOnClickListener(v -> {
+                try {
+                    DH.resetAll();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
         } else {
             Log.d("DoZer", "clearBtn not found");
         }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
         formatLayout();
     }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            initApplication();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+        }
+    }
+
+    //@Override
+    //protected void onPostCreate(Bundle savedInstanceState) {
+    //    super.onPostCreate(savedInstanceState);
+        //formatLayout();
+    //}
     /*
         Timer check BT connect
     */
@@ -501,6 +559,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     connected = false;
                     if ( DA != null) {
                         DA.connectIndicator();
+                        //Log.i(TAG, "Change connect indicator");
                     }
                     writePending = false;
                     Log.i(TAG, "Disconnect.");
@@ -547,6 +606,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                         //myView.invalidate();
                         if (DA != null) {
                             DA.connectIndicator();
+                            //Log.i(TAG, "Change connect indicator");
                         }
                         Log.d(TAG, "Write descriptor Ok.");
                     }
@@ -816,6 +876,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         public Bitmap bitmap, bitmap2, bitmap3;
         public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
+        private int textVShift = 45;
 
         public void redraw() {
             //
@@ -856,6 +917,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 bitmap3 = Bitmap.createBitmap(WSize, HSize, Bitmap.Config.ARGB_8888);
                 cursorCanvas = new Canvas(bitmap3);
                 empt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+<<<<<<< HEAD
                 curs.setColor(Color.argb(255, 0, 255, 0));
             } else {
                 if (oldX > 0) {
@@ -865,6 +927,19 @@ public class FullscreenActivity extends AppCompatActivity  {
                     cursorCanvas.save();
                     cursorCanvas.rotate((float) 90, oldX, HSize - 35);
                     cursorCanvas.drawText("" + round(oldValX), oldX, HSize - 35, empt);
+=======
+                empt.setTextSize(20.0f);
+                curs.setColor(Color.argb(255, 0, 255, 0));
+                curs.setTextSize(20.0f);
+            } else {
+                if (oldX > 0) {
+                    cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
+                    cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
+                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
+                    cursorCanvas.save();
+                    cursorCanvas.rotate((float) 90, oldX, HSize - textVShift);
+                    cursorCanvas.drawText("" + round(oldValX), oldX, HSize - textVShift, empt);
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
                     cursorCanvas.restore();
                 }
                 oldX = X;
@@ -877,12 +952,21 @@ public class FullscreenActivity extends AppCompatActivity  {
                 tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
                 if (X > 0 & Y > 0) {
+<<<<<<< HEAD
                     cursorCanvas.drawLine(X, oldY, X, HSize, curs);
                     cursorCanvas.drawLine(0, oldY, X, oldY, curs);
                     cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
                     cursorCanvas.save();
                     cursorCanvas.rotate((float) 90, X, HSize - 35);
                     cursorCanvas.drawText("" + round(oldValX), X, HSize - 35, curs);
+=======
+                    cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
+                    cursorCanvas.drawLine(0, oldY, X, oldY, curs); // Horizontal line
+                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
+                    cursorCanvas.save();
+                    cursorCanvas.rotate((float) 90, X, HSize - textVShift);
+                    cursorCanvas.drawText("" + round(oldValX), X, HSize - textVShift, curs);
+>>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
                     cursorCanvas.restore();
                     cursorImage.setImageBitmap(bitmap3);
                 }
@@ -893,14 +977,11 @@ public class FullscreenActivity extends AppCompatActivity  {
             //
             //  Connect indicator
             //
+            Log.i(TAG, "Change connect indicator");
             if (connected) {
-                pInd.setColor(Color.argb(255, 0, 255, 0));
+                connIndicator.setBackgroundColor(Color.argb(255, 0, 255, 0));
             } else {
-                pInd.setColor(Color.argb(255, 255, 0, 0));
-
-            }
-            if ( mainCanvas != null) {
-                mainCanvas.drawCircle(20, 20, 5, pInd);
+                connIndicator.setBackgroundColor(Color.argb(255, 255, 0, 0));
             }
         }
 
@@ -941,17 +1022,17 @@ public class FullscreenActivity extends AppCompatActivity  {
             // Текст статистики
             pText.setColor(Color.argb(100, 255, 40, 255));
             pText.setStrokeWidth(penSize);
-            pText.setTextSize(35.0f);
+            pText.setTextSize(10.0f);
             // Текст значений в мкР/ч
-            pTextR1.setColor(Color.argb(100, 40, 255, 40));
-            pTextR1.setStrokeWidth(penSize);
-            pTextR1.setTextSize(60.0f);
-            pTextR2.setColor(Color.argb(100, 255, 255, 40));
-            pTextR2.setStrokeWidth(penSize);
-            pTextR2.setTextSize(60.0f);
-            pTextR3.setColor(Color.argb(100, 255, 40, 40));
-            pTextR3.setStrokeWidth(penSize);
-            pTextR3.setTextSize(60.0f);
+            //pTextR1.setColor(Color.argb(100, 40, 255, 40));
+            //pTextR1.setStrokeWidth(penSize);
+            //pTextR1.setTextSize(60.0f);
+            //pTextR2.setColor(Color.argb(100, 255, 255, 40));
+            //pTextR2.setStrokeWidth(penSize);
+            //pTextR2.setTextSize(60.0f);
+            //pTextR3.setColor(Color.argb(100, 255, 40, 40));
+            //pTextR3.setStrokeWidth(penSize);
+            //pTextR3.setTextSize(60.0f);
             // График дла поиска
             pFindData.setColor(Color.argb(200, 40, 255, 40));
             pFindData.setStrokeWidth(pen3Size);
