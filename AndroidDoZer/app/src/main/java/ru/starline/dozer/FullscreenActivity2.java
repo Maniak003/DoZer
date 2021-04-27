@@ -138,6 +138,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
         }
         // Read parameters from config file.
         try {
+            Log.d("DoZer", "Read parameters.");
             editTextMAC.setText(PP.readProp("MAC"));
             editTextKoefR.setText(PP.readProp("koefR"));
             editTextLevel1.setText(PP.readProp("Level1"));
@@ -194,7 +195,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d("Dozer", "Error message: " + e.getMessage());
         }
     }
 
@@ -205,17 +206,18 @@ public class FullscreenActivity2 extends AppCompatActivity {
     }
     public class Props {
         public  String readProp(String key) throws IOException {
+            String fname = "device.properties";
             Properties prop = new Properties();
-            FileInputStream fileInputStream;
-            fileInputStream = new FileInputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
-            prop.load(fileInputStream);
+            FileInputStream fis = null;
+            fis = openFileInput(fname);
+            prop.load(fis);
             return prop.getProperty(key);
         }
 
         public void writeProp() throws IOException {
             Properties prop = new Properties();
             FileOutputStream fileOutputStream;
-            fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties");
+            fileOutputStream = openFileOutput("device.properties", MODE_PRIVATE);
 
             prop.setProperty("MAC", editTextMAC.getText().toString());
             prop.setProperty("koefR", editTextKoefR.getText().toString());

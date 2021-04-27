@@ -148,44 +148,39 @@ public class FullscreenActivity extends AppCompatActivity  {
         //  Read configuration
         //
         PP = new Props();
-        try {
-            MAC = PP.readProp("MAC");
-            if (MAC == null) {
-                MAC = defMAC;
-            } else {
-                MAC = PP.readProp("MAC").toUpperCase();
-            }
-
-            Log.d("DoZer", "MAC: " + MAC);
-            // For calculate radiation for pulses
-            String kR = PP.readProp("koefR");
-            if (kR != null && ! kR.isEmpty()) {
-                koeffR = Double.parseDouble(kR);
-            }
-            // Correction coefficients
-            kR = PP.readProp("Correct_A");
-            if (kR != null && ! kR.isEmpty()) {
-                correctA = Double.parseDouble(kR);
-            } else {
-                correctA = 0;
-            }
-            kR = PP.readProp("Correct_B");
-            if (kR != null && ! kR.isEmpty()) {
-                correctB = Double.parseDouble(kR);
-            } else {
-                correctB = 1;
-            }
-            kR = PP.readProp("Correct_C");
-            if (kR != null && ! kR.isEmpty()) {
-                correctC = Double.parseDouble(kR);
-            } else {
-                correctC = 0;
-            }
-
-            Log.d("DoZer", "koefR: " + koeffR);
-        } catch (IOException e) {
-            e.printStackTrace();
+        MAC = PP.readProp("MAC");
+        if (MAC == null) {
+            MAC = defMAC;
+        } else {
+            MAC = MAC.toUpperCase();
         }
+
+        // For calculate radiation for pulses
+        String kR = PP.readProp("koefR");
+        if (kR != null && ! kR.isEmpty()) {
+            koeffR = Double.parseDouble(kR);
+        }
+        // Correction coefficients
+        kR = PP.readProp("Correct_A");
+        if (kR != null && ! kR.isEmpty()) {
+            correctA = Double.parseDouble(kR);
+        } else {
+            correctA = 0;
+        }
+        kR = PP.readProp("Correct_B");
+        if (kR != null && ! kR.isEmpty()) {
+            correctB = Double.parseDouble(kR);
+        } else {
+            correctB = 1;
+        }
+        kR = PP.readProp("Correct_C");
+        if (kR != null && ! kR.isEmpty()) {
+            correctC = Double.parseDouble(kR);
+        } else {
+            correctC = 0;
+        }
+
+        Log.d("DoZer", "koefR: " + koeffR);
         Log.d("DoZer", "MAC: " + MAC);
         if (MAC.isEmpty()) {
             MAC = defMAC;
@@ -204,6 +199,33 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
             return true;
         });
+
+        // Log button
+        final Button logBtn = findViewById(R.id.logBtn);
+        if (logBtn != null) {
+            logBtn.setOnClickListener(v -> {
+                Log.d("DoZer", "Pressed Log.");
+                Log.d(TAG, "Path: " + android.os.Environment.getExternalStorageDirectory().toString());
+                try {
+                    File myFile = new File("dozer.txt");
+                    Log.d(TAG, "Absolute path: " + myFile.getAbsolutePath());
+                    myFile.createNewFile();                                         // Создается файл, если он не был создан
+                } catch (IOException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                /*
+                FileOutputStream fos = null;
+                try {
+                    fos = openFileOutput("dozer.txt", MODE_PRIVATE);
+                } catch (IOException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                 */
+            });
+        } else {
+            Log.d("DoZer", "exitBtn not found");
+        }
 
         // Exit button
         final Button exitBtn = findViewById(R.id.exitBtn);
@@ -333,30 +355,29 @@ public class FullscreenActivity extends AppCompatActivity  {
     }
 
     public class Props {
-        public  String readProp(String key) throws IOException {
-            String dname = Environment.getExternalStorageDirectory().toString() + "/DoZer";
-            File direct = new File(dname);
-            if ( ! direct.exists()) {
-                Log.d(TAG, "Dir not found.");
-                if (direct.mkdir() ) {
-                    Log.d(TAG, "Create success.");
-                } else {
-                    Log.d(TAG, "Create failed.");
-                }
-            }
-            String fname = Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties";
-            File cfgFile = new File(fname);
-            if(!cfgFile.exists()) {
-                cfgFile.createNewFile(); // Create config file if not exist
-            }
+        public  String readProp(String key) {
+            String fname = "device.properties";
             Properties prop = new Properties();
-            FileInputStream fileInputStream;
-            fileInputStream = new FileInputStream(fname);
-            Log.d(TAG, "fd: " + fileInputStream.getFD().toString());
-            if (fileInputStream != null) {
-                prop.load(fileInputStream);
-            } else {
-                Log.d(TAG, "file not found.");
+            FileInputStream fis = null;
+            try {
+                fis = openFileInput(fname);
+                if (fis != null) {
+                    prop.load(fis);
+                } else {
+                    Log.d(TAG, "file not found.");
+                }
+            } catch (IOException e) {
+                Log.d(TAG, "Error message: " + e.getMessage());
+            }
+            if (fis == null ) {  // Create config file if not exist.
+                FileOutputStream fos = null;
+                try {
+                    fos = openFileOutput(fname, MODE_PRIVATE);
+                    prop.setProperty("MAC", defMAC);
+                    prop.store(fos, null);
+                } catch (IOException e) {
+                    Log.d(TAG, "Error message: " + e.getMessage());
+                }
             }
             return prop.getProperty(key);
         }
