@@ -96,7 +96,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     //public String MAC = "20:06:03:20:02:B3";
     //public String MAC = "20:06:12:09:74:3E"; // F103
     //public String MAC = "A4:C1:38:05:49:8E";
-    public String defMAC = "20:06:11:11:66:AA", MAC = ""; // L412
+    public String defMAC = "20:06:11:11:66:CD", MAC = ""; // L412
 
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
@@ -152,12 +152,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             MAC = PP.readProp("MAC");
             if (MAC == null) {
                 MAC = defMAC;
-
-                if (MAC == null) {
-                }
             } else {
                 MAC = PP.readProp("MAC").toUpperCase();
             }
+
             Log.d("DoZer", "MAC: " + MAC);
             // For calculate radiation for pulses
             String kR = PP.readProp("koefR");
@@ -187,6 +185,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             Log.d("DoZer", "koefR: " + koeffR);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        Log.d("DoZer", "MAC: " + MAC);
+        if (MAC.isEmpty()) {
+            MAC = defMAC;
         }
         BT = new getBluetooth();
         BT.initLeDevice();
@@ -332,6 +334,16 @@ public class FullscreenActivity extends AppCompatActivity  {
 
     public class Props {
         public  String readProp(String key) throws IOException {
+            String dname = Environment.getExternalStorageDirectory().toString() + "/DoZer";
+            File direct = new File(dname);
+            if ( ! direct.exists()) {
+                Log.d(TAG, "Dir not found.");
+                if (direct.mkdir() ) {
+                    Log.d(TAG, "Create success.");
+                } else {
+                    Log.d(TAG, "Create failed.");
+                }
+            }
             String fname = Environment.getExternalStorageDirectory().toString() + "/DoZer/device.properties";
             File cfgFile = new File(fname);
             if(!cfgFile.exists()) {
@@ -442,13 +454,18 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         public void destroyDevice() {
-            gatt.disconnect();
-            gatt.close();
-            if (delegate != null)
-                delegate.disconnect();
-            delegate = null;
-            device = null;
-            writeBuffer.clear();
+            if (gatt == null) {
+                //Toast.makeText(getBaseContext(), "BlueTooth disabled ?.", Toast.LENGTH_LONG).show();
+                System.exit(1);
+            } else {
+                gatt.disconnect();
+                gatt.close();
+                if (delegate != null)
+                    delegate.disconnect();
+                delegate = null;
+                device = null;
+                writeBuffer.clear();
+            }
         }
         /*
                 Настройка BLE.
@@ -459,6 +476,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             bluetooth = BluetoothAdapter.getDefaultAdapter();
             if  ( ! bluetooth.isEnabled()) {
                 Log.d(TAG, "Bluetooth disabled. Exit.");
+                Toast.makeText(getBaseContext(), "BlueTooth disable ? \nProgram terminated.", Toast.LENGTH_LONG).show();
                 return;
             }
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
@@ -874,7 +892,11 @@ public class FullscreenActivity extends AppCompatActivity  {
                 oldX = X;
                 oldY = Y;
                 // Calculate Energy over channel.
-                oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
+                if ( correctB == 0) {
+                    oldValX = (double) X / penSize;
+                } else {
+                    oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
+                }
                 // Calculate index specter array
                 int i = (int) Math.floor(X / penSize ) * 2 + 4;
                 // Get specter data
