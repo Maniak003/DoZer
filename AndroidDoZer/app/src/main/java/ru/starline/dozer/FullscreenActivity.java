@@ -1004,11 +1004,11 @@ public class FullscreenActivity extends AppCompatActivity  {
             pText.setTextSize(10.0f);
 
             // График дла поиска
-            pFindData.setColor(Color.argb(200, 40, 255, 40));
+            pFindData.setColor(Color.argb(200, 40, 255, 40)); // Normal
             pFindData.setStrokeWidth(pen3Size);
-            pFindData1.setColor(Color.argb(200, 255, 255, 40));
+            pFindData1.setColor(Color.argb(200, 255, 255, 40)); // Warning
             pFindData1.setStrokeWidth(pen3Size);
-            pFindData2.setColor(Color.argb(200, 255, 40, 40));
+            pFindData2.setColor(Color.argb(200, 255, 40, 40)); // Alarm
             pFindData2.setStrokeWidth(pen3Size);
             /*
                     Прорисовка гистограмм
@@ -1194,7 +1194,6 @@ public class FullscreenActivity extends AppCompatActivity  {
             } catch (Exception e) {
                 Toast.makeText(getBaseContext(), "Ошибка получения и записи координат." + e.getMessage(), Toast.LENGTH_LONG).show();
             }
-
         }
 
         //  Save histogram in XML BqMonitor format
@@ -1215,12 +1214,25 @@ public class FullscreenActivity extends AppCompatActivity  {
             try {
                 File SDPath = Environment.getExternalStorageDirectory();
                 File direct = new File(SDPath.getAbsolutePath() + "/DoZer");
+                Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
                 if(!direct.exists()) {
-                    if(direct.mkdir()); // Создаем каталог если его нет;
+                    if(direct.mkdir()) {  // Создаем каталог если его нет;
+                        Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+                    } else {
+                        Log.d(TAG, "Create dir error.");
+                        Toast.makeText(getBaseContext(), "Directory create error. ", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                 }
                 File myFile = new File( SDPath.getAbsolutePath() + "/DoZer/" + fileName + ".xml");
-                myFile.createNewFile();                                         // Создается файл, если он не был создан
-                FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
+                if (myFile.createNewFile()) {  // Create new file if not exist
+                    Log.d(TAG, "File create Ok.");
+                } else {
+                    Toast.makeText(getBaseContext(), "File create error. ", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Create file error.");
+                    return;
+                }
+                FileOutputStream outputStream = new FileOutputStream(myFile);   // Create stream
 
                 float tmpTime2 = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
                 tmpTime2 = tmpTime2 + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
@@ -1322,7 +1334,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
                 outputStream.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
             }
             toast.show();
