@@ -68,7 +68,7 @@ import static java.lang.Math.log10;
 import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
-    public DrawAll DA;
+    public DrawAll DA = new DrawAll();
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator;
@@ -134,11 +134,13 @@ public class FullscreenActivity extends AppCompatActivity  {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1:
+            case 2:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     initApplication();
                 } else {
                     System.exit(1);
                 }
+                break;
         }
     }
 
@@ -287,7 +289,6 @@ public class FullscreenActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DA = new DrawAll();
         setContentView(R.layout.activity_fullscreen);
         mContentView = findViewById(R.id.mainLayout);
         mainImage = findViewById(R.id.mainImage);
@@ -301,11 +302,13 @@ public class FullscreenActivity extends AppCompatActivity  {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         selectTypeScreen();
         // Check permission for write storage.
-        int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+        int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if ((permissionStatus1 == PackageManager.PERMISSION_GRANTED) && (permissionStatus2 == PackageManager.PERMISSION_GRANTED)) {
             initApplication();
         } else {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},2);
         }
     }
 
