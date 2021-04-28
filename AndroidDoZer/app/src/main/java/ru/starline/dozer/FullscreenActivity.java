@@ -1119,23 +1119,24 @@ public class FullscreenActivity extends AppCompatActivity  {
     class drawHistogram {
         float tmpVal;
 
-        //  Сохранение гистограммы CSV format
+        //  Save histogram in CSV format
         public void saveHistogram() {
             String dataStr = null, fileName;
             Calendar calendar = Calendar.getInstance();
             Date now = calendar.getTime();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("'DoZer_'yyyy-MM-dd'_'HH:mm:ss");
             fileName = simpleDateFormat.format(now);
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                Log.d(TAG, "SD-storage not available: " + Environment.getExternalStorageState());
+                Toast.makeText(getBaseContext(), "SD-storage not available: " + Environment.getExternalStorageState() , Toast.LENGTH_LONG).show();
+                return;
+            }
             Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
             try {
                 File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
                 if(!direct.exists()) {
                     if(direct.mkdir()); // Создаем каталог если его нет;
                 }
-                //
-                // Создается объект файла, при этом путь к файлу находиться методом класcа Environment
-                // Обращение идёт, как и было сказано выше к внешнему накопителю
-                //
                 File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".csv");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
@@ -1196,7 +1197,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
         }
 
-        //  Сохранение гистограммы XML BqMonitor format
+        //  Save histogram in XML BqMonitor format
         public void saveHistogramXML() {
             String dataStr, fileName, startTime, endTime;
             double sTime;
@@ -1205,15 +1206,19 @@ public class FullscreenActivity extends AppCompatActivity  {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'_'HHmmss");
             fileName = simpleDateFormat.format(now);
             Toast toast = Toast.makeText(getApplicationContext(),"Saved.", Toast.LENGTH_SHORT);
+            // Check mount devices
+            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                Log.d(TAG, "SD-storage not available: " + Environment.getExternalStorageState());
+                Toast.makeText(getBaseContext(), "SD-storage not available: " + Environment.getExternalStorageState() , Toast.LENGTH_LONG).show();
+                return;
+            }
             try {
-                File direct = new File(Environment.getExternalStorageDirectory() + "/DoZer");
+                File SDPath = Environment.getExternalStorageDirectory();
+                File direct = new File(SDPath.getAbsolutePath() + "/DoZer");
                 if(!direct.exists()) {
                     if(direct.mkdir()); // Создаем каталог если его нет;
                 }
-                /*
-                 * Создается объект файла, при этом путь к файлу находиться методом класcа Environment
-                 */
-                File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".xml");
+                File myFile = new File( SDPath.getAbsolutePath() + "/DoZer/" + fileName + ".xml");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
 
@@ -1222,12 +1227,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                 double pulseSumm = 0;
                 String locationStr = " Unknown.";
              /*
-                Определение GPS координат
+                Get GPS location
              */
                 try {
                     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     if (lm != null) {
-                        @SuppressLint("MissingPermission") Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        @SuppressLint("MissingPermission")
+                        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         if (loc != null) {
                             locationStr = " Lat: " + loc.getLatitude() + " Lng: " + loc.getLongitude()
                                     + " Alt: " + loc.getAltitude() + " Speed: " + loc.getSpeed();
@@ -1281,10 +1287,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                         "<ChannelPitch>0.0221</ChannelPitch>\n" +
                         "<EnergyCalibration>\n" +
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
-                        "<Coefficients>\n" +
-                        "<Coefficient>6.03265776105158</Coefficient>\n" +
-                        "<Coefficient>1.99778118743629</Coefficient>\n" +
-                        "<Coefficient>0.0025257686806495</Coefficient>\n" +
+                        "<Coefficients>\n" +  //correctA
+                        //"<Coefficient>6.03265776105158</Coefficient>\n" +
+                        //"<Coefficient>1.99778118743629</Coefficient>\n" +
+                        //"<Coefficient>0.0025257686806495</Coefficient>\n" +
+                        "<Coefficient>" + correctC + "</Coefficient>\n" +
+                        "<Coefficient>" + correctB + "</Coefficient>\n" +
+                        "<Coefficient>" + correctA + "</Coefficient>\n" +
                         "</Coefficients>\n" +
                         "</EnergyCalibration>\n" +
                         "<ValidPulseCount>" + round(pulseSumm) + "</ValidPulseCount>\n" +
