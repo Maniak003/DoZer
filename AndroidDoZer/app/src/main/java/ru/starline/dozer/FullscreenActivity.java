@@ -115,11 +115,13 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
+    // Run setup activity
     public void setupActivity() {
         Intent intent = new Intent(this, FullscreenActivity2.class);
         startActivity(intent);
     }
 
+    // Change main screen
     public void selectTypeScreen() {
         final Button gistoBtn = findViewById(R.id.gistoBtn);
         if ( histogramFlag == 1) {
@@ -130,17 +132,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             histogramFlag = 1;
         }
     }
+
+    // Callback request permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-            case 2:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 200) {
+            if (permissions.length > 0 && grantResults.length > 0) {
+                boolean flg = true;
+                for (int ii = 0; ii < grantResults.length; ii++) {
+                    if (grantResults[ii] != PackageManager.PERMISSION_GRANTED) {
+                        flg = false;
+                    }
+                }
+                if (flg) {
                     initApplication();
                 } else {
-                    System.exit(1);
+                    finish();
                 }
-                break;
+            } else {
+                finish();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -215,15 +228,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                 } catch (IOException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                /*
-                FileOutputStream fos = null;
-                try {
-                    fos = openFileOutput("dozer.txt", MODE_PRIVATE);
-                } catch (IOException e) {
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-
-                 */
             });
         } else {
             Log.d("DoZer", "exitBtn not found");
@@ -307,8 +311,10 @@ public class FullscreenActivity extends AppCompatActivity  {
         if ((permissionStatus1 == PackageManager.PERMISSION_GRANTED) && (permissionStatus2 == PackageManager.PERMISSION_GRANTED)) {
             initApplication();
         } else {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},2);
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            },200);
         }
     }
 
@@ -1085,7 +1091,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     }
                     textStatistic1.setText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]));
                     if (countsAll == 0) {
-                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps));
+                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (100%)", tmpTime, acps));
                     } else {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)");
                     }
