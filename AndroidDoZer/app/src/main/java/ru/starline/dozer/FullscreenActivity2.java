@@ -53,6 +53,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public RadioButton radioButtonResolution1;
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
+    public Intent intent;
 
     private View mContentView;
 
@@ -194,6 +195,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
                     radioButtonResolution1.setChecked(true);
                 }
             }
+            intent = new Intent(this, FullscreenActivity.class);
         } catch (IOException e) {
             Log.d("Dozer", "Error message: " + e.getMessage());
         }

@@ -69,6 +69,7 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
+    public  scanLE sLE = new scanLE();
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator;
@@ -219,6 +220,8 @@ public class FullscreenActivity extends AppCompatActivity  {
         final Button logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
             logBtn.setOnClickListener(v -> {
+                sLE.scnLE();
+                /*
                 Log.d("DoZer", "Pressed Log.");
                 Log.d(TAG, "Path: " + android.os.Environment.getExternalStorageDirectory().toString());
                 try {
@@ -228,6 +231,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 } catch (IOException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                */
             });
         } else {
             Log.d("DoZer", "exitBtn not found");
@@ -330,7 +334,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 5000);
+            timer.schedule(mTimerTask, 5000, 50000);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -360,6 +364,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "onRestart.");
+
         formatLayout();
     }
 
@@ -421,6 +426,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     .setReportDelay(0L)
                     .build();
 
+            filters = null;
             if(scanner !=null) {
                 scanner.startScan(filters, scanSettings, scanCallback);
                 Log.d(TAG, "Scan started.");
@@ -435,7 +441,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 BluetoothDevice device = result.getDevice();
-                Log.d(TAG, "---------------------scan finished-----------------");
+                if ( device.getAddress().equals("20:06:11:11:66:CD")) {
+                    Log.d(TAG, "---------------------scan finished-----------------");
+                    Log.d(TAG, "Dev: " + device.getName() + " Addr: " + device.getAddress());
+                }
             }
 
             @Override
@@ -486,7 +495,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         public void destroyDevice() {
             if (gatt == null) {
                 //Toast.makeText(getBaseContext(), "BlueTooth disabled ?.", Toast.LENGTH_LONG).show();
-                System.exit(1);
+                finish();
             } else {
                 gatt.disconnect();
                 gatt.close();
