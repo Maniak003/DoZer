@@ -69,7 +69,6 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
-    public  scanLE sLE = new scanLE();
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator;
@@ -220,7 +219,6 @@ public class FullscreenActivity extends AppCompatActivity  {
         final Button logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
             logBtn.setOnClickListener(v -> {
-                sLE.scnLE();
                 /*
                 Log.d("DoZer", "Pressed Log.");
                 Log.d(TAG, "Path: " + android.os.Environment.getExternalStorageDirectory().toString());
@@ -397,67 +395,6 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    class scanLE {
-        public void scnLE() {
-            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            BluetoothLeScanner scanner = adapter.getBluetoothLeScanner();
-
-            //String[] peripheralAddresses = new String[]{"20:06:12:09:74:3E"};
-            //List<ScanFilter> filters = new ArrayList<>();
-            //for (String address : peripheralAddresses) {
-            //    ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(address).build();
-            //    filters.add(filter);
-            //}
-            String[] names = new String[]{"DoZer"};
-            List<ScanFilter> filters = null;
-            if (names != null) {
-                filters = new ArrayList<>();
-                for (String name : names) {
-                    ScanFilter filter = new ScanFilter.Builder().setDeviceName(name).build();
-                    filters.add(filter);
-                }
-            }
-
-            ScanSettings scanSettings = new ScanSettings.Builder()
-                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                    .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                    .setReportDelay(0L)
-                    .build();
-
-            filters = null;
-            if(scanner !=null) {
-                scanner.startScan(filters, scanSettings, scanCallback);
-                Log.d(TAG, "Scan started.");
-            }  else
-
-            {
-                Log.e(TAG, "could not get scanner object");
-            }
-        }
-
-        private final ScanCallback scanCallback = new ScanCallback() {
-            @Override
-            public void onScanResult(int callbackType, ScanResult result) {
-                BluetoothDevice device = result.getDevice();
-                if ( device.getAddress().equals("20:06:11:11:66:CD")) {
-                    Log.d(TAG, "---------------------scan finished-----------------");
-                    Log.d(TAG, "Dev: " + device.getName() + " Addr: " + device.getAddress());
-                }
-            }
-
-            @Override
-            public void onBatchScanResults(List<ScanResult> results) {
-                Log.d(TAG, "---------------------scan result-----------------");
-            }
-
-            @Override
-            public void onScanFailed(int errorCode) {
-                Log.d(TAG, "---------------------scan failed-----------------");
-            }
-        };
-    }
 
     class getBluetooth {
         Context context = getApplicationContext();
