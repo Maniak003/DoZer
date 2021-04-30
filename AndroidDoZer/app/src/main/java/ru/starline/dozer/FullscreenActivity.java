@@ -291,7 +291,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         } else {
             Log.d("DoZer", "clearBtn not found");
         }
-        
+
         // Handler for redraw in main context
         h = new Handler(Looper.getMainLooper()) {
             @Override
@@ -344,7 +344,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 50000);
+            timer.schedule(mTimerTask, 5000, 5000);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -394,7 +394,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 Log.d(TAG, "Error message: " + e.getMessage());
             }
             if (fis == null ) {  // Create config file if not exist.
-                FileOutputStream fos = null;
+                FileOutputStream fos;
                 try {
                     fos = openFileOutput(fname, MODE_PRIVATE);
                     prop.setProperty("MAC", defMAC);
@@ -411,10 +411,10 @@ public class FullscreenActivity extends AppCompatActivity  {
     class getBluetooth {
         Context context = getApplicationContext();
         public BluetoothAdapter bluetooth;
-        private BluetoothSocket btSocket = null;
+        //private final BluetoothSocket btSocket = null;
         public BluetoothDevice device;
         private BluetoothGattCharacteristic readCharacteristic, writeCharacteristic;
-        private boolean canceled;
+        //private boolean canceled = false;
         private static final int MAX_MTU = 512; // BLE standard does not limit, some BLE 4.2 devices support 251, various source say that Android has max 512
         private int payloadSize = DEFAULT_MTU - 3;
         private static final int DEFAULT_MTU = 23;
@@ -468,9 +468,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                 return;
             }
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
-            Log.d(TAG, "Статус: " + bluetooth.getState());
+            Log.d(TAG, "Status: " + bluetooth.getState());
             if ( device == null ) {
-                Log.i(TAG, "Device: " + TAG + " not connected.");
+                Log.i(TAG, "Device: " + MAC + " not connected.");
                 return;
             } else {
                 Log.i(TAG, "Try gatt connect.");
@@ -512,8 +512,8 @@ public class FullscreenActivity extends AppCompatActivity  {
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
                 Log.d(TAG, "servicesDiscovered, status " + status);
-                if (canceled)
-                    return;
+                //if ( canceled)
+                //    return;
                 //connectCharacteristics1(gatt);
                 boolean sync = true;
                 writePending = false;
@@ -537,8 +537,8 @@ public class FullscreenActivity extends AppCompatActivity  {
             @Override
             public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
                 delegate.onDescriptorWrite(gatt, descriptor, status);
-                if(canceled)
-                    return;
+                //if( canceled)
+                //    return;
                 if(descriptor.getCharacteristic() == readCharacteristic) {
                     Log.d(TAG,"writing read characteristic descriptor finished, status=" + status);
                     if (status != BluetoothGatt.GATT_SUCCESS) {
@@ -556,14 +556,14 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
             @Override
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                if (canceled || !connected || writeCharacteristic == null)
+                if ( /*canceled ||*/ !connected || writeCharacteristic == null)
                     return;
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     return;
                 }
                 delegate.onCharacteristicWrite(gatt, characteristic, status);
-                if (canceled)
-                    return;
+                //if ( canceled)
+                //    return;
                 if (characteristic == writeCharacteristic) { // NOPMD - test object identity
                     //Log.d(TAG, "write finished, status=" + status);
                     writeNext();
@@ -619,11 +619,11 @@ public class FullscreenActivity extends AppCompatActivity  {
              */
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                if(canceled)
-                    return;
+                //if( canceled)
+                //    return;
                 delegate.onCharacteristicChanged(gatt, characteristic);
-                if(canceled)
-                    return;
+                //if( canceled)
+                //    return;
                 if(characteristic == readCharacteristic) { // NOPMD - test object identity
                     byte[] data = readCharacteristic.getValue();
                     /*
@@ -676,6 +676,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 Thread t = new Thread(new Runnable() {
                                                     public void run() {
                                                         h.sendEmptyMessage(1);
+                                                        //DA.redraw();
                                                     }
                                                 });
                                                 t.start();
@@ -752,7 +753,7 @@ public class FullscreenActivity extends AppCompatActivity  {
          *  Передача данных
          */
         void write(byte[] data) throws IOException {
-            if(canceled || !connected || writeCharacteristic == null)
+            if( /*canceled ||*/ !connected || writeCharacteristic == null)
                 throw new IOException("not connected");
             byte[] data0;
             synchronized (writeBuffer) {
@@ -911,14 +912,16 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
         }
 
-        // Обнуление данных в приборе
+        // Reset statistic
         public void resetAll() throws IOException {
             for ( int i = 0; i < findDataSize; i++) {
                 findData[i] = 0;
             }
-            byte[] sndData = new byte[1];
-            sndData[0] = 'C';
-            BT.write(sndData);
+            if (connected) {
+                byte[] sndData = new byte[1];
+                sndData[0] = 'C';
+                BT.write(sndData);
+            }
         }
 
 
@@ -1022,13 +1025,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                 tmpFindData = round((countsAll - oldCounts) / interval);
                 if (tmpFindData > 0) {
                     for (int i = findDataSize - 2; i >= 0; i--) {
-                        if (mastab < findData[i]) {
+                        if (mastab < findData[i]) { // Max data
                             mastab = findData[i];
                         }
                         findData[i + 1] = findData[i];
                     }
                     findData[0] = tmpFindData;
-                    if (mastab < findData[0])
+                    if (mastab < findData[0]) // Max data
                         mastab = findData[0];
                     mastab = HSizeHist / mastab;
 
@@ -1036,7 +1039,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     float X, Y;
                     histCanvas.drawColor(0xFF000000);
                     for (int i = 0; i < findDataSize - 1; i++) {
-                        X = WSizeHist - i * pen3Size;
+                        X = WSizeHist - i * pen3Size - 1;
                         Y = HSizeHist - findData[i] * mastab;
                         if (HSizeHist - Y < 1) {
                             Y = HSizeHist - 1;
@@ -1057,7 +1060,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     }
                     textStatistic1.setText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]));
                     if (countsAll == 0) {
-                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (100%)", tmpTime, acps));
+                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)");
                     } else {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)");
                     }
