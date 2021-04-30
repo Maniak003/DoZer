@@ -43,17 +43,11 @@
 
                 <EditText
                     android:id="@+id/editTextMAC"
-                    android:layout_width="148dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:inputType="text" />
 
-                <Button
-                    android:id="@+id/scanBLEBTN"
-                    android:layout_width="29dp"
-                    android:layout_height="33dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/button_color" />
             </LinearLayout>
 
             <LinearLayout
@@ -366,6 +360,15 @@
             android:layout_height="match_parent"
             android:gravity="left"
             android:orientation="vertical">
+
+            <Button
+                android:id="@+id/scanBLEBTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/scanBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text" />
 
             <Button
                 android:id="@+id/cancelBtn"

@@ -672,7 +672,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         };
 
         /*
-                Этими парамертрами корректно инициализируется JDY-23, JDY-10
+                Parameters for JDY-23, JDY-10, JDY-19
          */
         private class Cc245XDelegate extends DeviceDelegate {
             //@Override
@@ -725,7 +725,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                         startActivityForResult(enableBtIntent, RESULT_OK);
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Нет поддержки Bluetooth BLE.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Bluetooth BLE not support", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -875,18 +875,20 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 // Calculate index specter array
                 int i = (int) Math.floor(X / penSize ) * 2 + 4;
-                // Get specter data
-                tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
-                if (X > 0 & Y > 0) {
-                    cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
-                    cursorCanvas.drawLine(0, oldY, X, oldY, curs); // Horizontal line
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, X, HSize - textVShift);
-                    cursorCanvas.drawText("" + round(oldValX), X, HSize - textVShift, curs);
-                    cursorCanvas.restore();
-                    cursorImage.setImageBitmap(bitmap3);
+                if ( i > 1 ) {
+                    // Get specter data
+                    tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                    oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
+                    if (X > 0 && oldY > 0) {
+                        cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
+                        cursorCanvas.drawLine(0, oldY, X, oldY, curs); // Horizontal line
+                        cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
+                        cursorCanvas.save();
+                        cursorCanvas.rotate((float) 90, X, HSize - textVShift);
+                        cursorCanvas.drawText("" + round(oldValX), X, HSize - textVShift, curs);
+                        cursorCanvas.restore();
+                        cursorImage.setImageBitmap(bitmap3);
+                    }
                 }
             }
         }
