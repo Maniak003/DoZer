@@ -38,6 +38,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -69,6 +71,7 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
+    public Handler h;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator;
@@ -157,7 +160,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "HandlerLeak"})
     public void initApplication() {
         //
         //  Read configuration
@@ -288,6 +291,15 @@ public class FullscreenActivity extends AppCompatActivity  {
         } else {
             Log.d("DoZer", "clearBtn not found");
         }
+        
+        // Handler for redraw in main context
+        h = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                // Redraw screen
+                DA.redraw();
+            }
+        };
         formatLayout();
     }
 
@@ -660,7 +672,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                                             //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
                                             //myView.invalidate();    // Redraw screen.
                                             if ( DA != null ) {
-                                                DA.redraw();
+                                                // Redraw in thread
+                                                Thread t = new Thread(new Runnable() {
+                                                    public void run() {
+                                                        h.sendEmptyMessage(1);
+                                                    }
+                                                });
+                                                t.start();
                                             }
                                         }
                                     }
