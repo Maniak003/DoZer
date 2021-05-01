@@ -73,16 +73,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
     public Handler h;
     public Props PP;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    public ImageView mainImage, historyDoze, cursorImage;
-=======
-    public ImageView mainImage, historyDoze, cursorImage, connIndicator;
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
-=======
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator;
->>>>>>> bb4d6bbfdf6fc08b3df0473623ab71ff2c11c9de
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -174,69 +166,12 @@ public class FullscreenActivity extends AppCompatActivity  {
         //  Read configuration
         //
         PP = new Props();
-<<<<<<< HEAD
-        try {
-            //PP.writeProp();
-            MAC = PP.readProp("MAC").toUpperCase();
-            Log.d("DoZer", "MAC: " + MAC);
-            if (MAC == null) {
-                MAC = defMAC;
-            }
-            // For calculate radiation for pulses
-            String kR = PP.readProp("koefR");
-            if (kR != null && ! kR.isEmpty()) {
-                koeffR = Double.parseDouble(kR);
-<<<<<<< HEAD
-            }
-            // Correction coefficients
-            kR = PP.readProp("Correct_A");
-            if (kR != null && ! kR.isEmpty()) {
-                correctA = Double.parseDouble(kR);
-            } else {
-                correctA = 0;
-            }
-            kR = PP.readProp("Correct_B");
-            if (kR != null && ! kR.isEmpty()) {
-                correctB = Double.parseDouble(kR);
-            } else {
-                correctB = 1;
-            }
-            kR = PP.readProp("Correct_C");
-            if (kR != null && ! kR.isEmpty()) {
-                correctC = Double.parseDouble(kR);
-            } else {
-                correctC = 0;
-            }
-=======
-            }
-            // Correction coefficient
-            kR = PP.readProp("Correct_A");
-            if (kR != null && ! kR.isEmpty()) {
-                correctA = Double.parseDouble(kR);
-            } else {
-                correctA = 0;
-            }
-            kR = PP.readProp("Correct_B");
-            if (kR != null && ! kR.isEmpty()) {
-                correctB = Double.parseDouble(kR);
-            } else {
-                correctB = 1;
-            }
-            kR = PP.readProp("Correct_C");
-            if (kR != null && ! kR.isEmpty()) {
-                correctC = Double.parseDouble(kR);
-            } else {
-                correctC = 0;
-            }
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
-=======
         MAC = PP.readProp("MAC");
         if (MAC == null) {
             MAC = defMAC;
         } else {
             MAC = MAC.toUpperCase();
         }
->>>>>>> bb4d6bbfdf6fc08b3df0473623ab71ff2c11c9de
 
         // For calculate radiation for pulses
         String kR = PP.readProp("koefR");
@@ -268,42 +203,10 @@ public class FullscreenActivity extends AppCompatActivity  {
         if (MAC.isEmpty()) {
             MAC = defMAC;
         }
-<<<<<<< HEAD
-        setContentView(R.layout.activity_fullscreen);
-        mContentView = findViewById(R.id.mainLayout);
-        mainImage = findViewById(R.id.mainImage);
-        historyDoze = findViewById(R.id.historyDose);
-        cursorImage = findViewById(R.id.cursorImage);
-<<<<<<< HEAD
-=======
-        connIndicator = findViewById(R.id.connectIndicator);
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
-        textStatistic1 = findViewById(R.id.textStatistic1);
-        textStatistic2 = findViewById(R.id.textStatistic2);
-        textStatistic3 = findViewById(R.id.textStatistic3);
-        textStatistic4 = findViewById(R.id.textStatistic4);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        selectTypeScreen();
-=======
->>>>>>> bb4d6bbfdf6fc08b3df0473623ab71ff2c11c9de
         BT = new getBluetooth();
         BT.initLeDevice();
         tmFull.startTimer();
 
-<<<<<<< HEAD
-        mainImage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                float x = event.getX();
-                float y = event.getY();
-                if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    DA.drawCursor(x, y);
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    DA.drawCursor(x, y);
-                }
-                return true;
-            }
-=======
         mainImage.setOnTouchListener((v, event) -> {
             float x = event.getX();
             float y = event.getY();
@@ -313,7 +216,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                 DA.drawCursor(x, y);
             }
             return true;
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
         });
 
         // Log button
@@ -977,35 +879,11 @@ public class FullscreenActivity extends AppCompatActivity  {
                 bitmap3 = Bitmap.createBitmap(WSize, HSize, Bitmap.Config.ARGB_8888);
                 cursorCanvas = new Canvas(bitmap3);
                 empt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-<<<<<<< HEAD
-                curs.setColor(Color.argb(255, 0, 255, 0));
-            } else {
-                if (oldX > 0) {
-                    cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt);
-                    cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, oldX, HSize - 35);
-                    cursorCanvas.drawText("" + round(oldValX), oldX, HSize - 35, empt);
-=======
                 empt.setTextSize(20.0f);
                 curs.setColor(Color.argb(255, 0, 255, 0));
                 curs.setTextSize(20.0f);
             } else {
-<<<<<<< HEAD
-                if (oldX > 0) {
-                    cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
-                    cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, oldX, HSize - textVShift);
-                    cursorCanvas.drawText("" + round(oldValX), oldX, HSize - textVShift, empt);
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
-                    cursorCanvas.restore();
-                }
-=======
                 hideCursor();
->>>>>>> bb4d6bbfdf6fc08b3df0473623ab71ff2c11c9de
                 oldX = X;
                 oldY = Y;
                 // Calculate Energy over channel.
@@ -1016,29 +894,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 // Calculate index specter array
                 int i = (int) Math.floor(X / penSize ) * 2 + 4;
-<<<<<<< HEAD
-                // Get specter data
-                tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
-                if (X > 0 & Y > 0) {
-<<<<<<< HEAD
-                    cursorCanvas.drawLine(X, oldY, X, HSize, curs);
-                    cursorCanvas.drawLine(0, oldY, X, oldY, curs);
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, X, HSize - 35);
-                    cursorCanvas.drawText("" + round(oldValX), X, HSize - 35, curs);
-=======
-                    cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
-                    cursorCanvas.drawLine(0, oldY, X, oldY, curs); // Horizontal line
-                    cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
-                    cursorCanvas.save();
-                    cursorCanvas.rotate((float) 90, X, HSize - textVShift);
-                    cursorCanvas.drawText("" + round(oldValX), X, HSize - textVShift, curs);
->>>>>>> 1c9540c7782622f4902319cb75ece8562c758ea8
-                    cursorCanvas.restore();
-                    cursorImage.setImageBitmap(bitmap3);
-=======
                 if ( i > 1 ) {
                     // Get specter data
                     tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
@@ -1053,7 +908,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                         cursorCanvas.restore();
                         cursorImage.setImageBitmap(bitmap3);
                     }
->>>>>>> bb4d6bbfdf6fc08b3df0473623ab71ff2c11c9de
                 }
             }
         }
