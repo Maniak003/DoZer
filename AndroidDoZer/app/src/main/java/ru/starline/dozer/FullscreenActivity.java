@@ -332,11 +332,11 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    //@Override
-    //protected void onPostCreate(Bundle savedInstanceState) {
-    //    super.onPostCreate(savedInstanceState);
-        //formatLayout();
-    //}
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        formatLayout();
+    }
     /*
         Timer check BT connect
     */
@@ -821,7 +821,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     public class DrawAll {
         double countsAll, interval, oldValX;
         float oldX = -1 , oldY = -1, maxPoint, mastab, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
-        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
+        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
+                emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
         public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
@@ -942,6 +943,8 @@ public class FullscreenActivity extends AppCompatActivity  {
             //
             //  Вычисление масштабирования для линейного и логарифмического представления.
             //
+            // Фон
+            canvas.drawColor(Color.argb(255, 0, 0, 0));
             mastab = 1;
             mastabLog = 1;
             maxPoint = 1;
@@ -961,11 +964,8 @@ public class FullscreenActivity extends AppCompatActivity  {
             //
             //  Отрисовка графика с учетом масштаба.
             //
-            // Фон
-            canvas.drawColor(Color.argb(255, 0, 0, 0));
-
             // Линейная гистограмма
-            p.setColor(Color.argb(200, 40, 40, 255));
+            p.setColor(Color.argb(255, 40, 40, 255));
             p.setStrokeWidth(penSize);
 
             // For markers
@@ -988,12 +988,14 @@ public class FullscreenActivity extends AppCompatActivity  {
             pFindData1.setStrokeWidth(pen3Size);
             pFindData2.setColor(Color.argb(200, 255, 40, 40)); // Alarm
             pFindData2.setStrokeWidth(pen3Size);
+            emptFindData.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            //emptFindData.setColor(Color.argb(0, 0, 0, 0)); // Black
             /*
                     Прорисовка гистограмм
              */
             countsAll = 0;
             countsAll1 = 0;
-            canvas.drawColor(0xFF000000);
+            //canvas.drawColor(0xFF000000);
             for (int i = 8; i < 2080; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll1 = countsAll1 + tmpVal;
@@ -1037,20 +1039,25 @@ public class FullscreenActivity extends AppCompatActivity  {
 
                     // Перерисовка графика поиска
                     float X, Y;
-                    histCanvas.drawColor(0xFF000000);
+                    //histCanvas.drawColor(0xff000000);
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = WSizeHist - i * pen3Size - 1;
-                        Y = HSizeHist - findData[i] * mastab;
+                        Y = HSizeHist - findData[i] * mastab + 1;
                         if (HSizeHist - Y < 1) {
                             Y = HSizeHist - 1;
                         }
-                        if (findData[i] < Trh1) {
-                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData);
-                        } else if (findData[i] < Trh2) {
-                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData1);
-                        } else {
-                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData2);
-                        }
+                        // Clear old data
+                        histCanvas.drawLine(X, 1, X, HSizeHist, emptFindData);
+                        // Draw new line
+                        //if ( findData[i] > 0) {
+                            if (findData[i] < Trh1) {
+                                histCanvas.drawLine(X, Y, X, HSizeHist, pFindData);
+                            } else if (findData[i] < Trh2) {
+                                histCanvas.drawLine(X, Y, X, HSizeHist, pFindData1);
+                            } else {
+                                histCanvas.drawLine(X, Y, X, HSizeHist, pFindData2);
+                            }
+                        //}
                     }
 
                     // Вывод статистики

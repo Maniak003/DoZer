@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
+    android:backgroundTint="#000000"
+    android:foregroundTint="#000000"
     android:theme="@style/ThemeOverlay.DoZer.FullscreenContainer"
     tools:context=".FullscreenActivity">
 
@@ -16,7 +18,9 @@
     <ImageView
         android:id="@+id/mainImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="#00000000"
+        android:backgroundTint="#00000000" />
 
     <ImageView
         android:id="@+id/cursorImage"
@@ -26,6 +30,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#00000000"
+        android:backgroundTint="#00000000"
+        android:foregroundTint="#000000"
         android:gravity="right"
         android:orientation="horizontal">
 
@@ -33,6 +40,8 @@
             android:id="@+id/statisticLayoout"
             android:layout_width="215dp"
             android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:backgroundTint="#00000000"
             android:orientation="vertical">
 
             <TextView
@@ -69,7 +78,15 @@
             <ImageView
                 android:id="@+id/historyDose"
                 android:layout_width="match_parent"
-                android:layout_height="50dp" />
+                android:layout_height="50dp"
+                android:adjustViewBounds="false"
+                android:background="#00000000"
+                android:backgroundTint="#00000000"
+                android:backgroundTintMode="screen"
+                android:defaultFocusHighlightEnabled="false"
+                android:focusableInTouchMode="false"
+                android:focusedByDefault="false"
+                android:foregroundTint="#000000" />
         </LinearLayout>
 
         <LinearLayout

@@ -173,57 +173,91 @@ public class FullscreenActivity2 extends AppCompatActivity {
         }
         // Read parameters from config file.
         try {
+            String tmpData;
             Log.d("DoZer", "Read parameters.");
-            editTextMAC.setText(PP.readProp("MAC"));
-            editTextKoefR.setText(PP.readProp("koefR"));
+            // Read MAC from config
+            tmpData = PP.readProp("MAC");
+            if (tmpData == null) {
+                editTextMAC.setText("20:06:11:11:66:CD");
+            } else {
+                editTextMAC.setText(tmpData);
+            }
+            // Read uR/h on 1 pulse from config
+            tmpData = PP.readProp("koefR");
+            if (tmpData == null) {
+                editTextKoefR.setText("0.5310015898"); // For original DoZer NaI(Tl) 10x40 + FC60035
+            } else {
+                editTextKoefR.setText(tmpData);
+            }
             editTextLevel1.setText(PP.readProp("Level1"));
             editTextLevel2.setText(PP.readProp("Level2"));
             editTextLevel3.setText(PP.readProp("Level3"));
-            editTextCorrect_A.setText(PP.readProp("Correct_A"));
-            editTextCorrect_B.setText(PP.readProp("Correct_B"));
-            editTextCorrect_C.setText(PP.readProp("Correct_C"));
+            // Correction data
+            tmpData = PP.readProp("Correct_A");
+            if (tmpData == null) {
+                editTextCorrect_A.setText("0.0025257686806495"); // For original DoZer NaI(Tl) 10x40 + FC60035
+            } else {
+                editTextCorrect_A.setText(tmpData);
+            }
+            tmpData = PP.readProp("Correct_B");
+            if (tmpData == null) {
+                editTextCorrect_B.setText("1.99778118743629"); // For original DoZer NaI(Tl) 10x40 + FC60035
+            } else {
+                editTextCorrect_B.setText(tmpData);
+            }
+            tmpData = PP.readProp("Correct_C");
+            if (tmpData == null) {
+                editTextCorrect_C.setText("6.03265776105158"); // For original DoZer NaI(Tl) 10x40 + FC60035
+            } else {
+                editTextCorrect_C.setText(tmpData);
+            }
+
             editTextEnergi_A.setText(PP.readProp("Energi_A"));
             editTextEnergi_B.setText(PP.readProp("Energi_B"));
             editTextEnergi_C.setText(PP.readProp("Energi_C"));
-            editTextEnergi_D.setText(PP.readProp("Energi_D"));
-            String tmpStr;
-            tmpStr = PP.readProp("Level1_S");
-            if (tmpStr != null) {
-                checkBoxLevel1_S.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Energi_D");
+            if (tmpData == null) {
+                editTextEnergi_D.setText("1");
+            } else {
+                editTextEnergi_D.setText(tmpData);
             }
-            tmpStr = PP.readProp("Level1_V");
-            if (tmpStr != null) {
-                checkBoxLevel1_V.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level1_S");
+            if (tmpData != null) {
+                checkBoxLevel1_S.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Level2_S");
-            if (tmpStr != null) {
-                checkBoxLevel2_S.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level1_V");
+            if (tmpData != null) {
+                checkBoxLevel1_V.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Level2_V");
-            if (tmpStr != null) {
-                checkBoxLevel2_V.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level2_S");
+            if (tmpData != null) {
+                checkBoxLevel2_S.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Level3_S");
-            if (tmpStr != null) {
-                checkBoxLevel3_S.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level2_V");
+            if (tmpData != null) {
+                checkBoxLevel2_V.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Level3_V");
-            if (tmpStr != null) {
-                checkBoxLevel3_V.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level3_S");
+            if (tmpData != null) {
+                checkBoxLevel3_S.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("LED");
-            if (tmpStr != null) {
-                checkBoxLed.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("Level3_V");
+            if (tmpData != null) {
+                checkBoxLevel3_V.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Sound");
-            if (tmpStr != null) {
-                checkBoxSound.setChecked(tmpStr.equals("1"));
+            tmpData = PP.readProp("LED");
+            if (tmpData != null) {
+                checkBoxLed.setChecked(tmpData.equals("1"));
             }
-            tmpStr = PP.readProp("Resolution");
-            if (tmpStr != null) {
-                if (tmpStr.equals("3")) {
+            tmpData = PP.readProp("Sound");
+            if (tmpData != null) {
+                checkBoxSound.setChecked(tmpData.equals("1"));
+            }
+            tmpData = PP.readProp("Resolution");
+            if (tmpData != null) {
+                if (tmpData.equals("3")) {
                     radioButtonResolution3.setChecked(true);
-                } else if (tmpStr.equals("2")) {
+                } else if (tmpData.equals("2")) {
                     radioButtonResolution2.setChecked(true);
                 } else {
                     radioButtonResolution1.setChecked(true);
