@@ -36,12 +36,19 @@
                 android:editable="false"
                 android:text="MAC address" />
 
-            <EditText
-                android:id="@+id/editTextMAC"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="text" />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextMAC"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="text" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,48 +57,48 @@
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="110dp"
+                    android:layout_width="105dp"
                     android:layout_height="wrap_content"
                     android:text=" Level1" />
 
-                <TextView
-                    android:id="@+id/textView19"
-                    android:layout_width="49dp"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="S" />
+                    app:srcCompat="@android:drawable/ic_lock_silent_mode_off" />
 
-                <TextView
-                    android:id="@+id/textView18"
-                    android:layout_width="45dp"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="V" />
+                    app:srcCompat="@mipmap/icons_vidro_wt_foreground" />
+
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="38dp"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/editTextLevel1"
-                    android:layout_width="113dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_width="107dp"
+                    android:layout_height="match_parent"
                     android:ems="10"
                     android:inputType="numberDecimal" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel1_S"
-                    android:layout_width="44dp"
-                    android:layout_height="33dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel1_V"
-                    android:layout_width="44dp"
-                    android:layout_height="33dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -103,7 +110,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="47dp"
+                android:layout_height="38dp"
                 android:orientation="horizontal">
 
                 <EditText
@@ -115,14 +122,14 @@
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel2_S"
-                    android:layout_width="44dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel2_V"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -134,26 +141,26 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="38dp"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/editTextLevel3"
-                    android:layout_width="106dp"
+                    android:layout_width="107dp"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:inputType="number" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel3_S"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel3_V"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -353,6 +360,15 @@
             android:layout_height="match_parent"
             android:gravity="left"
             android:orientation="vertical">
+
+            <Button
+                android:id="@+id/scanBLEBTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_color"
+                android:text="@string/scanBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text" />
 
             <Button
                 android:id="@+id/cancelBtn"
