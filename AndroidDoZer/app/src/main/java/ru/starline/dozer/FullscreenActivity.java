@@ -269,7 +269,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             Log.d("DoZer", "gistoBtn not found");
         }
 
-        // Save button
+        // Save button to BqMonitor format
         final Button saveBtn = findViewById(R.id.SaveBtn);
         if (saveBtn != null) {
             saveBtn.setOnClickListener(v -> DH.saveHistogramXML());
