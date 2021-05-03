@@ -57,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
 extern TIM_HandleTypeDef htim15;
 /* USER CODE BEGIN EV */
 
@@ -204,12 +205,13 @@ void SysTick_Handler(void)
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
+	uint16_t batResult;
 	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
 	  adcResult = HAL_ADC_GetValue(&hadc1);
 	  if (adcResult > 0) {
 		  adcResult = adcResult & 0x0FFF;
 		  adcResult = adcResult >> 2;
-		  adcResult = adcResult + 4; // Reserved additional parameter in send buffer ( 8 bytes )
+		  adcResult = adcResult + 6; // Reserved additional parameter in send buffer ( 12 bytes )
 		  if (spectrData[adcResult] < 0xFFFF) // Check overflow in channel.
 			  spectrData[adcResult]++;
 		  counterCC++;
@@ -221,8 +223,17 @@ void ADC1_2_IRQHandler(void)
 		#endif
 	  }
 	}
+	// Battery voltage.
+	if( __HAL_ADC_GET_FLAG(&hadc2, ADC_ISR_EOC) != RESET) {
+		HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);
+		batResult = HAL_ADC_GetValue(&hadc2);
+		if ( batResult > 0 ) {
+			spectrData[4] = (spectrData[4] & 0xFF00) | (batResult & 0x00FF);
+		}
+	}
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
+  HAL_ADC_IRQHandler(&hadc2);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
 
   /* USER CODE END ADC1_2_IRQn 1 */

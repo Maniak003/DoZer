@@ -23,6 +23,7 @@
 #define SLEEPDALAY 1000
 //#define LED_PULSE_ENABLE
 #define LED_PIN GPIO_PIN_3
+#define COM_PIN GPIO_PIN_6
 #define ANALOG_INPUT
 /* USER CODE END Header */
 

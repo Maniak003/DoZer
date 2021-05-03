@@ -83,7 +83,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public boolean connected = false;
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096];
-    public int findDataSize = 210, maxCanal = 2055;
+    public int findDataSize = 210, firstCanal = 12, maxCanal = 2055;
     public float[] findData = new float[findDataSize];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
@@ -656,13 +656,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                                     }
                                     break;
                                 default:   // Start sequence found, data load.
-                                    if (bufferIndex < 2080) {
+                                    if (bufferIndex < 2084) {
                                         specrtCRC = specrtCRC + (char) (data[i2] & 0xFF);   // CRC
                                     }
                                     spectrData[bufferIndex++] = (byte) (data[i2] & 0xFF);
-                                    if (bufferIndex == 2082) {     //Transmission complete.
+                                    if (bufferIndex == 2086) {     //Transmission complete.
                                         startFlag = 0;
-                                        double tmpCRC = (char) (spectrData[2080] << 8 | (spectrData[2081] & 0xFF));
+                                        double tmpCRC = (char) (spectrData[2084] << 8 | (spectrData[2085] & 0xFF));
                                         specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Facking Java
                                         //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                         if (tmpCRC == specrtCRC) { // Update if CRC correct.
@@ -820,7 +820,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     */
     public class DrawAll {
         double countsAll, interval, oldValX;
-        float oldX = -1 , oldY = -1, maxPoint, mastab, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, mastab, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
@@ -895,7 +895,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 // Calculate index specter array
                 int i = (int) Math.floor(X / penSize ) * 2 + 4;
-                if ( i > 1 ) {
+                if ( i > 11 ) {
                     // Get specter data
                     tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
@@ -949,7 +949,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             mastabLog = 1;
             maxPoint = 1;
             maxPointLog = 0;
-            for (int i = 8; i < maxCanal; i++) {
+            for (int i = firstCanal; i < maxCanal; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
                 if (tmpVal > maxPoint) {
                     maxPoint = tmpVal;
@@ -996,7 +996,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             countsAll = 0;
             countsAll1 = 0;
             //canvas.drawColor(0xFF000000);
-            for (int i = 8; i < 2080; i++) {
+            for (int i = firstCanal; i < 2084; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                 countsAll1 = countsAll1 + tmpVal;
                 if ( i < maxCanal) {
@@ -1011,6 +1011,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             // Output total counts and cps.
             countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
             countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
+            batVoltage = (char) (spectrData[9] & 0xff);
             tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
             tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
             //Log.i(TAG, "tmpTime : " + tmpTime + ", curentTime : " + curentTime + ", countsAll: " + countsAll + ", countsAll - oldCounts: " + (countsAll - oldCounts) + ", countsAll1: " + countsAll1);
@@ -1065,11 +1066,15 @@ public class FullscreenActivity extends AppCompatActivity  {
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
-                    textStatistic1.setText(String.format("total: %.0f cps: %.0f", countsAll, findData[0]));
+                    float batCapacity =  (float) ((batVoltage - 192) * 1.7);
+                    if (batCapacity > 100) {
+                        batCapacity = 100;
+                    }
+                    textStatistic1.setText(String.format("%.0f%% total: %.0f cps: %.0f", batCapacity, countsAll, findData[0]));
                     if (countsAll == 0) {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)");
                     } else {
-                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f", tmpTime, acps, 300 / Math.sqrt(countsAll)) + "%)");
+                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f%%)", tmpTime, acps, 300 / Math.sqrt(countsAll)));
                     }
                     /* Текущее значение */
                     if (findData[0] < Trh1) {
