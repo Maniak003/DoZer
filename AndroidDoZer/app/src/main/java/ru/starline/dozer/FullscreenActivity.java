@@ -1092,7 +1092,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     } else if (acps < Trh2) {
                         textStatistic4.setTextColor(0xFFFFFF00);
                     } else {
-                        textStatistic3.setTextColor(0xFFFF0000);
+                        textStatistic4                                                   .setTextColor(0xFFFF0000);
                     }
                     textStatistic4.setText(String.format(" Avg: %.2f uR/h", acps * koeffR));
 
