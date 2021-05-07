@@ -915,12 +915,19 @@ public class FullscreenActivity extends AppCompatActivity  {
 
         // Reset statistic
         public void resetAll() throws IOException {
+            int CS = 0;
             for ( int i = 0; i < findDataSize; i++) {
                 findData[i] = 0;
             }
             if (connected) {
-                byte[] sndData = new byte[1];
-                sndData[0] = 'C';
+                                //0123456789
+                byte[] sndData = "<S>1......".getBytes();
+                for (int i = 0; i < 8; i++) {
+                    CS = CS + (char) (sndData[i] & 0xFF);
+                }
+                // Check summ
+                sndData[8] = (byte) (CS & 0xFF);
+                sndData[9] = (byte) ((CS >> 8) & 0xFF);
                 BT.write(sndData);
             }
         }
@@ -1069,6 +1076,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                     float batCapacity =  (float) ((batVoltage - 192) * 1.7);
                     if (batCapacity > 100) {
                         batCapacity = 100;
+                    } else if (batCapacity < 0) {
+                        batCapacity = 0;
                     }
                     textStatistic1.setText(String.format("%.0f%% total: %.0f cps: %.0f", batCapacity, countsAll, findData[0]));
                     if (countsAll == 0) {

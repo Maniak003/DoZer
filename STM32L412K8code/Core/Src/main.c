@@ -48,9 +48,12 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim15;
+TIM_HandleTypeDef htim16;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 char counterPP[20];
@@ -65,10 +68,13 @@ uint16_t spectrCRC;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -76,6 +82,23 @@ static void MX_ADC2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+/*
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart1)
+	{
+		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
+		HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+
+		__HAL_UART_DISABLE_IT(&huart1, UART_IT_IDLE);
+		//rx_buff_len = BUFSIZE - huart->RxXferCount;
+		HAL_UART_AbortReceive(&huart1);
+		__HAL_UART_CLEAR_IDLEFLAG(&huart1);
+		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+		HAL_UART_Receive_IT(&huart1, (uint8_t*) btCommand, sizeCommand);
+	}
+}
+*/
 /* USER CODE END 0 */
 
 /**
@@ -106,10 +129,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
   MX_TIM15_Init();
   MX_ADC2_Init();
+  MX_TIM2_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_OVRIE);
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSIE);
@@ -118,13 +144,12 @@ int main(void)
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CR_);
   //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CFGR_EXTEN);
   //HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   int j = 0;
-  uint8_t btCommand[10];
+  uint8_t btCommand[sizeCommand];
   uint8_t prefix[3] = {'<', 'B', '>'};
   uint8_t lowSpectr, highSpectr;
   #ifdef DISPLAY_ENABLE
@@ -139,16 +164,15 @@ int main(void)
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
   HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET); // Com pin disable
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
-  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_BG);
-  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_COMG);
-  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC2G);
-  //__HAL_TIM_CLEAR_FLAG(&htim15, TIM_EGR_CC1G);
-  //HAL_TIM_Base_Stop_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED
-  //HAL_TIM_OnePulse_Start_IT(&htim15, );
+
+  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+  __HAL_TIM_CLEAR_FLAG(&htim16, TIM_SR_UIF); // Clear flags
+  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 
   while (1)
   {
+	  //HAL_TIM_Base_Start(&htim2);
 	#ifdef DISPLAY_ENABLE
 	  sprintf(counterPP, "CPS:%lu CNT:%lu", counterCC / ((HAL_GetTick() - oldTime) / 1000), counterALL);
 	  counterCC = 0;
@@ -203,9 +227,30 @@ int main(void)
 		  /* Init uart after sleep */
 		  if (initUART) {
 			  HAL_UART_Init(&huart1);
+			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
 			  initUART = 0;
 		  }
-
+		  if (hdma_usart1_rx.State == HAL_DMA_STATE_READY) {
+			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
+			  if (btCommand[0] == '<' && btCommand[1] == 'S' && btCommand[2] == '>') {
+				  uint16_t CS = 0;
+				  for (int i = 0; i < 8; i++) {
+					  CS = CS + btCommand[i];
+				  }
+				  if (((CS & 0xFF) == btCommand[8]) && (((CS >> 8) & 0xFF) == btCommand[9])) {
+					  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+					  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+					  if (btCommand[3] == '1')  { // Clear statistics
+						  for (int i = 0; i < 2050; i++) {
+							  spectrData[i] = 0;
+						  }
+						  oldTimeAll = HAL_GetTick();
+						  counterALL = 0;
+					  }
+				  }
+			  }
+		  }
+/*
 		  // Control from BT
 		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
 			  if ( btCommand[0] == 'C' ) { // Clear all measurement.
@@ -216,7 +261,7 @@ int main(void)
 				  counterALL = 0;
 			  }
 		  }
-
+*/
 		  j = 0;
 		  // Transmit data over BT.
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
@@ -255,9 +300,9 @@ int main(void)
 		  // BT sleep control
 		  if (sleepFlag && (HAL_GetTick() - sleepDelay > SLEEPDALAY)) {
 			  sleepFlag = 0;
-			  HAL_UART_Transmit(&huart1, "AT+SLEEP\n", 9, 1000);    //For JDY-10
+			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\n", 9, 1000);    //For JDY-10
 			  HAL_Delay(200);
-			  HAL_UART_Transmit(&huart1, "AT+SLEEP\r\n", 10, 1000); //For JDY-19
+			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\r\n", 10, 1000); //For JDY-19
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
 			  HAL_UART_DeInit(&huart1);
@@ -428,10 +473,10 @@ static void MX_ADC2_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
+  sConfig.Offset = 3;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -439,6 +484,66 @@ static void MX_ADC2_Init(void)
   /* USER CODE BEGIN ADC2_Init 2 */
 
   /* USER CODE END ADC2_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 32;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OC_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_TIM_ENABLE_OCxPRELOAD(&htim2, TIM_CHANNEL_4);
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
 
 }
 
@@ -492,6 +597,42 @@ static void MX_TIM15_Init(void)
 }
 
 /**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 1;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 60000;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OnePulse_Init(&htim16, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -524,6 +665,22 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 

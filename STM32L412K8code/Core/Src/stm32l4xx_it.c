@@ -59,8 +59,9 @@
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern TIM_HandleTypeDef htim15;
+extern TIM_HandleTypeDef htim16;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE BEGIN EV */
-
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -200,6 +201,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel5 global interrupt.
+  */
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart1_rx);
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
   * @brief This function handles ADC1 and ADC2 interrupts.
   */
 void ADC1_2_IRQHandler(void)
@@ -218,7 +233,6 @@ void ADC1_2_IRQHandler(void)
 		  counterALL++;
 		#ifdef LED_PULSE_ENABLE
 		  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-		  //HAL_TIM_Base_Stop_IT(&htim15);
 		  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
 		#endif
 	  }
@@ -246,12 +260,28 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 0 */
 	HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_RESET); // LED off.
+	//HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
 
   /* USER CODE END TIM1_BRK_TIM15_IRQn 0 */
   HAL_TIM_IRQHandler(&htim15);
   /* USER CODE BEGIN TIM1_BRK_TIM15_IRQn 1 */
   HAL_TIM_Base_Stop_IT(&htim15);
   /* USER CODE END TIM1_BRK_TIM15_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+  */
+void TIM1_UP_TIM16_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+
+  /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim16);
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+  HAL_TIM_Base_Stop_IT(&htim16);
+  /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

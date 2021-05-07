@@ -24,7 +24,9 @@
 //#define LED_PULSE_ENABLE
 #define LED_PIN GPIO_PIN_3
 #define COM_PIN GPIO_PIN_6
+#define BUZZER GPIO_PIN_3
 #define ANALOG_INPUT
+#define sizeCommand 10
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -50,11 +52,13 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+TIM_HandleTypeDef htim2;
 char counterPP[20];
 uint32_t counterCC, counterALL, sleepDelay;
 uint16_t adcResult;
 uint16_t spectrData[2050];
 uint16_t spectrCRC;
+uint8_t btCommand[sizeCommand];
 
 /* USER CODE END EC */
 
@@ -62,6 +66,8 @@ uint16_t spectrCRC;
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */
+
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
