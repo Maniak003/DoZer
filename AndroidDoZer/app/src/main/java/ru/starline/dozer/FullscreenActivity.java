@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -39,6 +40,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -118,11 +120,31 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
+    public void interConnectProc() {
+
+    }
+
     // Run setup activity
     public void setupActivity() {
         Intent intent = new Intent(this, FullscreenActivity2.class);
-        startActivity(intent);
+        startActivityForResult(intent, 2);
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // check if the request code is same as what is passed  here it is 2
+        if(requestCode == 2) {
+            Log.d("DoZer", "onActivityResult: " + resultCode);
+            if (resultCode > 0) {
+                try {
+                    DA.sendCfg(resultCode);
+                } catch (IOException e) {
+                    Log.d("DoZer", "Error send config: " + e.getMessage());
+                }
+            }
+        }
+    }
+
 
     // Change main screen
     public void selectTypeScreen() {
@@ -913,6 +935,26 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
         }
 
+        // Save config data to spectrometer
+        public void sendCfg(int cfgData) throws IOException  {
+            int CS = 0;
+            if (connected) {
+                //0123456789
+                byte[] sndData = "<2>.......".getBytes();
+                sndData[3] = (byte) (cfgData & 0xFF);
+                sndData[4] = (byte) ((cfgData >> 8) & 0xFF);
+                sndData[5] = (byte) ((cfgData >> 16) & 0xFF);
+                sndData[6] = (byte) ((cfgData >> 24) & 0xFF);
+                for (int i = 0; i < 8; i++) {
+                    CS = CS + (char) (sndData[i] & 0xFF);
+                }
+                // Check summ
+                sndData[8] = (byte) (CS & 0xFF);
+                sndData[9] = (byte) ((CS >> 8) & 0xFF);
+                BT.write(sndData);
+            }
+        }
+
         // Reset statistic
         public void resetAll() throws IOException {
             int CS = 0;
@@ -921,7 +963,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
             if (connected) {
                                 //0123456789
-                byte[] sndData = "<S>1......".getBytes();
+                byte[] sndData = "<1>.......".getBytes();
                 for (int i = 0; i < 8; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }
@@ -1340,3 +1382,4 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 }
+

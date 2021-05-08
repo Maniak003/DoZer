@@ -231,10 +231,10 @@ void ADC1_2_IRQHandler(void)
 			  spectrData[adcResult]++;
 		  counterCC++;
 		  counterALL++;
-		#ifdef LED_PULSE_ENABLE
-		  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-		  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
-		#endif
+		  if ((cfgData & 64) > 0) { // Check config data for LED activity
+			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
+			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+		  }
 	  }
 	}
 	// Battery voltage.

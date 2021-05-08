@@ -1,4 +1,6 @@
 /* USER CODE BEGIN Header */
+
+//#include <FlashPROM.h>
 /**
   ******************************************************************************
   * @file           : main.h
@@ -52,9 +54,11 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+HAL_StatusTypeDef	flash_ok;
 TIM_HandleTypeDef htim2;
+UART_HandleTypeDef huart1;
 char counterPP[20];
-uint32_t counterCC, counterALL, sleepDelay;
+uint32_t cfgData, counterCC, counterALL, sleepDelay, oldTimeAll;
 uint16_t adcResult;
 uint16_t spectrData[2050];
 uint16_t spectrCRC;

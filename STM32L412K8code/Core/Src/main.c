@@ -63,6 +63,58 @@ uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
 uint16_t spectrCRC;
 
+
+/*
+ * read/write config data from/to flash
+ */
+void rwFlash(uint8_t rwFlag) {
+	uint32_t pageAdr = 0x800F800; // Begin of 31 page, last page flash for STM32L412K8.
+	uint32_t magicKey;
+	uint64_t dataForSave;
+	magicKey = *(__IO uint32_t*) pageAdr;
+	if ((magicKey != 0x1234) || (rwFlag == 1)) { // rwFlag == 1 for wrtite data to flash
+		magicKey = 0x1234;
+		if (rwFlag == 0) { // For first init
+			cfgData = 0;
+		}
+		FLASH_EraseInitTypeDef EraseInitStruct;
+		uint32_t PAGEError = 0;
+		EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+		EraseInitStruct.Page = 31; // Page size for STM32L412K8 is 2KB
+		EraseInitStruct.NbPages     = 1;
+
+		flash_ok = HAL_ERROR;
+		// Unlock flash
+		while(flash_ok != HAL_OK) {
+		  flash_ok = HAL_FLASH_Unlock();
+		}
+		if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) == HAL_OK) {
+			dataForSave = (uint64_t) (magicKey | (((uint64_t) cfgData << 32) & 0xFFFFFFFF00000000));
+			flash_ok = HAL_ERROR;
+			while(flash_ok != HAL_OK){
+				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr, dataForSave); // Write  magic key into Flash
+			}
+		}
+		// Lock flash
+		flash_ok = HAL_ERROR;
+		while(flash_ok != HAL_OK){
+			flash_ok = HAL_FLASH_Lock();
+		}
+	} else {
+		cfgData = *(__IO uint32_t*) pageAdr + 1;
+		bebe();
+	}
+}
+
+void bebe(void) {
+	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
+	HAL_Delay(200);
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+	HAL_Delay(200);
+	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
+	HAL_Delay(200);
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,23 +134,6 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-/*
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart == &huart1)
-	{
-		HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-		HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
-
-		__HAL_UART_DISABLE_IT(&huart1, UART_IT_IDLE);
-		//rx_buff_len = BUFSIZE - huart->RxXferCount;
-		HAL_UART_AbortReceive(&huart1);
-		__HAL_UART_CLEAR_IDLEFLAG(&huart1);
-		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-		HAL_UART_Receive_IT(&huart1, (uint8_t*) btCommand, sizeCommand);
-	}
-}
-*/
 /* USER CODE END 0 */
 
 /**
@@ -137,13 +172,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_OVRIE);
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSIE);
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_EOSMPIE);
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_IER_ADRDYIE);
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CR_);
-  //__HAL_ADC_CLEAR_FLAG(&hadc1, ADC_CFGR_EXTEN);
-  //HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -156,16 +184,19 @@ int main(void)
   ssd1306_Init();
   #endif
   //uint16_t tmpData;
-  uint32_t initDelay, oldTimeAll, oldTime = HAL_GetTick();
+  uint32_t initDelay, oldTime = HAL_GetTick();
   initDelay = oldTime;
   oldTimeAll = oldTime;
   sleepFlag = oldTime;
   counterCC = 0;
+
+  rwFlash(0); // Read config from flash.
+
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
   HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET); // Com pin disable
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED
-
+  //
   HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
   __HAL_TIM_CLEAR_FLAG(&htim16, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
@@ -216,10 +247,10 @@ int main(void)
 		  HAL_ADC_Start_IT(&hadc1);  // Init ADC.
 		  oldTimeAll = HAL_GetTick();
 	  }
-	  /* Status JDY-23, BT connected ? */
 	#ifdef DISPLAY_ENABLE
 	  ssd1306_SetCursor(0, 24);
 	#endif
+	  /* Status JDY-19, BT connected ? */
 	  if ( HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1 ) { // BT State active ?
 	#ifdef DISPLAY_ENABLE
 		  ssd1306_WriteString("BT: connect   ", Font_6x8, 0x01);
@@ -230,38 +261,32 @@ int main(void)
 			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
 			  initUART = 0;
 		  }
+
 		  if (hdma_usart1_rx.State == HAL_DMA_STATE_READY) {
 			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
-			  if (btCommand[0] == '<' && btCommand[1] == 'S' && btCommand[2] == '>') {
+			  if (btCommand[0] == '<' && btCommand[2] == '>') {
 				  uint16_t CS = 0;
 				  for (int i = 0; i < 8; i++) {
 					  CS = CS + btCommand[i];
 				  }
 				  if (((CS & 0xFF) == btCommand[8]) && (((CS >> 8) & 0xFF) == btCommand[9])) {
-					  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
-					  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
-					  if (btCommand[3] == '1')  { // Clear statistics
+					  //HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+					  //HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+					  if (btCommand[1] == '1')  { // Clear statistics
 						  for (int i = 0; i < 2050; i++) {
 							  spectrData[i] = 0;
 						  }
 						  oldTimeAll = HAL_GetTick();
 						  counterALL = 0;
+					  } else if (btCommand[1] == '2') { // Write config data
+						  bebe();
+						  cfgData = ((btCommand[6] << 24) & 0xFF000000) | ((btCommand[5] << 16) & 0xFF0000) | ((btCommand[4] << 8) & 0xFF00) | btCommand[3];
+						  rwFlash(1); // Write to flash
 					  }
 				  }
 			  }
 		  }
-/*
-		  // Control from BT
-		  if(HAL_UART_Receive(&huart1, btCommand, 1, 10) == HAL_OK) {
-			  if ( btCommand[0] == 'C' ) { // Clear all measurement.
-				  for (int i = 0; i < 2050; i++) {
-					  spectrData[i] = 0;
-				  }
-				  oldTimeAll = HAL_GetTick();
-				  counterALL = 0;
-			  }
-		  }
-*/
+
 		  j = 0;
 		  // Transmit data over BT.
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
@@ -290,6 +315,7 @@ int main(void)
 		  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 		  sleepDelay = HAL_GetTick();
 		  sleepFlag = 1;
+		  /* Measure battery voltage */
 		  HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_RESET);
 		  HAL_ADC_Start(&hadc2);
 	  } else {
@@ -308,6 +334,10 @@ int main(void)
 			  HAL_UART_DeInit(&huart1);
 			  initUART = 1;
 		  }
+	  }
+	  if ((cfgData & 0x1) > 0 ){  // Test first config bit.
+		  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+		  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 	  }
 	  HAL_Delay(500);
     /* USER CODE END WHILE */

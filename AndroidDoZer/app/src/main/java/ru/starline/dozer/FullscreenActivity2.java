@@ -63,6 +63,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
     public Intent intent;
+    public long propBitData;
 
     private View mContentView;
 
@@ -284,7 +285,11 @@ public class FullscreenActivity2 extends AppCompatActivity {
             return prop.getProperty(key);
         }
 
+        //
+        // Save configuration data
+        //
         public void writeProp() throws IOException {
+            propBitData = 0;
             Properties prop = new Properties();
             FileOutputStream fileOutputStream;
             fileOutputStream = openFileOutput("device.properties", MODE_PRIVATE);
@@ -303,57 +308,89 @@ public class FullscreenActivity2 extends AppCompatActivity {
             prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
             if (checkBoxLevel1_S.isChecked()) {
                 prop.setProperty("Level1_S", "1");
+                propBitData = propBitData + 1;
             } else {
                 prop.setProperty("Level1_S", "0");
             }
             if (checkBoxLevel1_V.isChecked()) {
                 prop.setProperty("Level1_V", "1");
+                propBitData = propBitData + 2;
             } else {
                 prop.setProperty("Level1_V", "0");
             }
 
             if (checkBoxLevel2_S.isChecked()) {
                 prop.setProperty("Level2_S", "1");
+                propBitData = propBitData + 4;
             } else {
                 prop.setProperty("Level2_S", "0");
             }
             if (checkBoxLevel2_V.isChecked()) {
                 prop.setProperty("Level2_V", "1");
+                propBitData = propBitData + 8;
             } else {
                 prop.setProperty("Level2_V", "0");
             }
 
             if (checkBoxLevel3_S.isChecked()) {
                 prop.setProperty("Level3_S", "1");
+                propBitData = propBitData + 16;
             } else {
                 prop.setProperty("Level3_S", "0");
             }
             if (checkBoxLevel3_V.isChecked()) {
                 prop.setProperty("Level3_V", "1");
+                propBitData = propBitData + 32;
             } else {
                 prop.setProperty("Level3_V", "0");
             }
 
             if (checkBoxLed.isChecked()) {
                 prop.setProperty("LED", "1");
+                propBitData = propBitData + 64;
             } else {
                 prop.setProperty("LED", "0");
             }
 
             if (checkBoxSound.isChecked()) {
                 prop.setProperty("Sound", "1");
+                propBitData = propBitData + 128;
             } else {
                 prop.setProperty("Sound", "0");
             }
             if (radioButtonResolution1.isChecked()) {
                 prop.setProperty("Resolution", "1");
+                propBitData = propBitData + 256;
             } else  if (radioButtonResolution2.isChecked()) {
                 prop.setProperty("Resolution", "2");
+                propBitData = propBitData + 512;
             } else {
                 prop.setProperty("Resolution", "3");
+                propBitData = propBitData + 768;
             }
-
+            /*
+            00  -- Level 1 sound 1
+            01  -- Level 1 vibro 2
+            02  -- Level 2 sound 4
+            03  -- Level 2 vibro 8
+            04  -- Level 3 sound 16
+            05  -- Level 3 vibro 32
+            06  -- LED 64
+            07  -- Sound 128
+            08  -- 1 - 1024, 2 - 2048, 3 - 4096
+            09  --
+            10
+            11
+            12
+            13
+            14
+            15
+            16
+             */
             prop.store(fileOutputStream, null);
+            Intent intent=new Intent();
+            intent.putExtra("MESSAGE","Hello !");
+            setResult((int) propBitData, intent);
         }
     }
     class scanLE {
