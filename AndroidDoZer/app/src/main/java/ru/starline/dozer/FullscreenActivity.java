@@ -57,6 +57,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,10 +121,6 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    public void interConnectProc() {
-
-    }
-
     // Run setup activity
     public void setupActivity() {
         Intent intent = new Intent(this, FullscreenActivity2.class);
@@ -133,11 +130,28 @@ public class FullscreenActivity extends AppCompatActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // check if the request code is same as what is passed  here it is 2
-        if(requestCode == 2) {
-            Log.d("DoZer", "onActivityResult: " + resultCode);
-            if (resultCode > 0) {
+        if((data != null) && (requestCode == 2)) {
+            byte[] resData = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+            for ( int jj = 0; jj < 4; jj++) {
+                for (int i = 0; i < 2; i++) {
+                    resData[1 - i + jj * 2] = ByteBuffer.allocate(4).putInt(data.getIntArrayExtra("CFGDATA1")[jj]).get(i + 2);
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                resData[i + 8] = ByteBuffer.allocate(4).putFloat(data.getFloatExtra("CFGDATA5", 1)).get(i);
+            }
+            Log.d("DoZer", "onActivityResult: " + resultCode
+                    + " CFGDATA1: " + resData[1] + resData[0]
+                    + " CFGDATA2: " + resData[3] + resData[2]
+                    + " CFGDATA3: " + resData[5] + resData[4]
+                    + " CFGDATA4: " + resData[7] + resData[6]
+                    + " CFGDATA5: " + resData[11] + resData[10] + resData[9] + resData[8]
+            );
+
+            if (resultCode == 1) {
                 try {
-                    DA.sendCfg(resultCode);
+                    DA.sendCfg(resData);
                 } catch (IOException e) {
                     Log.d("DoZer", "Error send config: " + e.getMessage());
                 }
@@ -936,21 +950,25 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Save config data to spectrometer
-        public void sendCfg(int cfgData) throws IOException  {
+        public void sendCfg(byte [] cfgData) throws IOException  {
             int CS = 0;
             if (connected) {
-                //0123456789
-                byte[] sndData = "<2>.......".getBytes();
-                sndData[3] = (byte) (cfgData & 0xFF);
-                sndData[4] = (byte) ((cfgData >> 8) & 0xFF);
-                sndData[5] = (byte) ((cfgData >> 16) & 0xFF);
-                sndData[6] = (byte) ((cfgData >> 24) & 0xFF);
-                for (int i = 0; i < 8; i++) {
+                                //01234567890123456789
+                byte[] sndData = "<2>.................".getBytes();
+                sndData[3] = cfgData[0];
+                sndData[4] = cfgData[1];
+                sndData[5] = cfgData[2];
+                sndData[6] = cfgData[3];
+                sndData[7] = cfgData[4];
+                sndData[8] = cfgData[5];
+                sndData[9] = cfgData[6];
+                sndData[10] = cfgData[7];
+                for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }
                 // Check summ
-                sndData[8] = (byte) (CS & 0xFF);
-                sndData[9] = (byte) ((CS >> 8) & 0xFF);
+                sndData[18] = (byte) (CS & 0xFF);
+                sndData[19] = (byte) ((CS >> 8) & 0xFF);
                 BT.write(sndData);
             }
         }
@@ -962,14 +980,14 @@ public class FullscreenActivity extends AppCompatActivity  {
                 findData[i] = 0;
             }
             if (connected) {
-                                //0123456789
-                byte[] sndData = "<1>.......".getBytes();
-                for (int i = 0; i < 8; i++) {
+                                //01234567890123456789
+                byte[] sndData = "<1>.................".getBytes();
+                for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }
                 // Check summ
-                sndData[8] = (byte) (CS & 0xFF);
-                sndData[9] = (byte) ((CS >> 8) & 0xFF);
+                sndData[18] = (byte) (CS & 0xFF);
+                sndData[19] = (byte) ((CS >> 8) & 0xFF);
                 BT.write(sndData);
             }
         }

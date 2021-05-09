@@ -58,6 +58,7 @@
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim16;
 extern DMA_HandleTypeDef hdma_usart1_rx;
@@ -282,6 +283,57 @@ void TIM1_UP_TIM16_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
   HAL_TIM_Base_Stop_IT(&htim16);
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM6 global interrupt.
+  */
+void TIM6_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_IRQn 0 */
+
+  /* USER CODE END TIM6_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_IRQn 1 */
+  if ((cfgData & 0x1) > 0 ){  // Test first config bit.
+	  switch (alarmLevel) {
+	  case 0:
+		  alarmCount = 0;
+		  break;
+	  case 1:
+		  if (alarmCount-- <= 0) {
+			  alarmCount = 4;
+		  } else {
+			  if (alarmCount > 2) {
+				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+			  }
+		  }
+		  break;
+	  case 2:
+		  if (alarmCount-- <= 0) {
+			  alarmCount = 5;
+		  } else {
+			  if (alarmCount > 2) {
+				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+			  }
+		  }
+		  break;
+	  case 3:
+		  if (alarmCount-- <= 0) {
+			  alarmCount = 6;
+		  } else {
+			  if (alarmCount > 2) {
+				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+			  }
+		  }
+		  break;
+	  }
+  }
+
+  /* USER CODE END TIM6_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

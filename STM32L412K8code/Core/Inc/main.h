@@ -28,7 +28,7 @@
 #define COM_PIN GPIO_PIN_6
 #define BUZZER GPIO_PIN_3
 #define ANALOG_INPUT
-#define sizeCommand 10
+#define sizeCommand 20
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -58,7 +58,8 @@ HAL_StatusTypeDef	flash_ok;
 TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 char counterPP[20];
-uint32_t cfgData, counterCC, counterALL, sleepDelay, oldTimeAll;
+uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount;
+uint32_t counterCC, counterALL, sleepDelay, oldTimeAll;
 uint16_t adcResult;
 uint16_t spectrData[2050];
 uint16_t spectrCRC;

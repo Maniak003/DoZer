@@ -63,7 +63,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
     public Intent intent;
-    public long propBitData;
+    public int propBitData;
 
     private View mContentView;
 
@@ -388,9 +388,34 @@ public class FullscreenActivity2 extends AppCompatActivity {
             16
              */
             prop.store(fileOutputStream, null);
-            Intent intent=new Intent();
-            intent.putExtra("MESSAGE","Hello !");
-            setResult((int) propBitData, intent);
+            Intent intent = new Intent();
+            int[] tmpData = new int[4];
+            tmpData[0] = propBitData; // Flags
+            if (editTextLevel1.getText().toString().isEmpty()) {
+                tmpData[1] = 0;
+            } else {
+                tmpData[1] = Integer.parseInt(editTextLevel1.getText().toString());
+            }
+            if (editTextLevel2.getText().toString().isEmpty()) {
+                tmpData[2] = 0;
+            } else {
+                tmpData[2] = Integer.parseInt(editTextLevel2.getText().toString());
+            }
+            if (editTextLevel3.getText().toString().isEmpty()) {
+                tmpData[3] = 0;
+            } else {
+                tmpData[3] = Integer.parseInt(editTextLevel3.getText().toString());
+            }
+            intent.putExtra("CFGDATA1", tmpData);
+
+            float tmpdata2;
+            if (editTextKoefR.getText().toString().isEmpty()) {
+                tmpdata2 = 1;
+            } else {
+                tmpdata2 = Float.parseFloat(editTextKoefR.getText().toString());
+            }
+            intent.putExtra("CFGDATA5", tmpdata2);
+            setResult(1, intent);
         }
     }
     class scanLE {

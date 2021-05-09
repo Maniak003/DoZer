@@ -49,6 +49,7 @@ ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
@@ -63,6 +64,15 @@ uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
 uint16_t spectrCRC;
 
+void bebe(void) {
+	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
+	HAL_Delay(200);
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+	HAL_Delay(200);
+	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
+	HAL_Delay(200);
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+}
 
 /*
  * read/write config data from/to flash
@@ -76,6 +86,9 @@ void rwFlash(uint8_t rwFlag) {
 		magicKey = 0x1234;
 		if (rwFlag == 0) { // For first init
 			cfgData = 0;
+			cfgLevel1 = 0;
+			cfgLevel2 = 0;
+			cfgLevel3 = 0;
 		}
 		FLASH_EraseInitTypeDef EraseInitStruct;
 		uint32_t PAGEError = 0;
@@ -89,7 +102,7 @@ void rwFlash(uint8_t rwFlag) {
 		  flash_ok = HAL_FLASH_Unlock();
 		}
 		if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) == HAL_OK) {
-			dataForSave = (uint64_t) (magicKey | (((uint64_t) cfgData << 32) & 0xFFFFFFFF00000000));
+			dataForSave = (uint64_t) (magicKey | (((uint64_t) cfgData << 32) & 0xFFFFFFFF00000000) | (((uint64_t) cfgLevel1 << 48) & 0xFFFF000000000000));
 			flash_ok = HAL_ERROR;
 			while(flash_ok != HAL_OK){
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr, dataForSave); // Write  magic key into Flash
@@ -101,20 +114,13 @@ void rwFlash(uint8_t rwFlag) {
 			flash_ok = HAL_FLASH_Lock();
 		}
 	} else {
-		cfgData = *(__IO uint32_t*) pageAdr + 1;
-		bebe();
+		cfgData = *(__IO uint16_t*) (pageAdr + 4);
+		cfgLevel1 = *(__IO uint16_t*) (pageAdr + 6);
+		cfgLevel2 = *(__IO uint16_t*) (pageAdr + 8);
+		cfgLevel3 = *(__IO uint16_t*) (pageAdr + 10);
 	}
 }
 
-void bebe(void) {
-	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
-	HAL_Delay(200);
-	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
-	HAL_Delay(200);
-	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
-	HAL_Delay(200);
-	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
-}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -127,6 +133,7 @@ static void MX_TIM15_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -171,6 +178,7 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM2_Init();
   MX_TIM16_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
@@ -200,6 +208,11 @@ int main(void)
   HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
   __HAL_TIM_CLEAR_FLAG(&htim16, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+
+  /* Test alarm */
+  alarmLevel = 1;
+  alarmCount = 0;
+  HAL_TIM_Base_Start_IT(&htim6); // Alarm timer.
 
   while (1)
   {
@@ -266,10 +279,10 @@ int main(void)
 			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
 			  if (btCommand[0] == '<' && btCommand[2] == '>') {
 				  uint16_t CS = 0;
-				  for (int i = 0; i < 8; i++) {
+				  for (int i = 0; i < 18; i++) {
 					  CS = CS + btCommand[i];
 				  }
-				  if (((CS & 0xFF) == btCommand[8]) && (((CS >> 8) & 0xFF) == btCommand[9])) {
+				  if (((CS & 0xFF) == btCommand[18]) && (((CS >> 8) & 0xFF) == btCommand[19])) {
 					  //HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
 					  //HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 					  if (btCommand[1] == '1')  { // Clear statistics
@@ -280,7 +293,10 @@ int main(void)
 						  counterALL = 0;
 					  } else if (btCommand[1] == '2') { // Write config data
 						  bebe();
-						  cfgData = ((btCommand[6] << 24) & 0xFF000000) | ((btCommand[5] << 16) & 0xFF0000) | ((btCommand[4] << 8) & 0xFF00) | btCommand[3];
+						  cfgData = ((btCommand[4] << 8) & 0xFF00) | btCommand[3];
+						  cfgLevel1 = ((btCommand[6] << 8) & 0xFF00) | btCommand[5];
+						  cfgLevel2 = ((btCommand[8] << 8) & 0xFF00) | btCommand[7];
+						  cfgLevel3 = ((btCommand[10] << 8) & 0xFF00) | btCommand[9];
 						  rwFlash(1); // Write to flash
 					  }
 				  }
@@ -334,10 +350,6 @@ int main(void)
 			  HAL_UART_DeInit(&huart1);
 			  initUART = 1;
 		  }
-	  }
-	  if ((cfgData & 0x1) > 0 ){  // Test first config bit.
-		  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
-		  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 	  }
 	  HAL_Delay(500);
     /* USER CODE END WHILE */
@@ -578,6 +590,44 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 2;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 20000;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
   * @brief TIM15 Initialization Function
   * @param None
   * @retval None
@@ -642,9 +692,9 @@ static void MX_TIM16_Init(void)
 
   /* USER CODE END TIM16_Init 1 */
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = 1;
+  htim16.Init.Prescaler = 0;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 60000;
+  htim16.Init.Period = 30000;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
