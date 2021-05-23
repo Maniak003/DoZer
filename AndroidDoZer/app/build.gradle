@@ -5,9 +5,9 @@ plugins {
 android {
     signingConfigs {
         DoZer {
-        storeFile file('DoZer')
+        storeFile file('/home/ed/Android/KeyStore/KeyStore.jks')
             storePassword 'gfhjkm123'
-            keyAlias 'DoZer'
+            keyAlias 'key0'
             keyPassword 'gfhjkm123'
         }
     }
