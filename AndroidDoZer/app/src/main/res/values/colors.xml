@@ -17,4 +17,5 @@
     <color name="normal_text">#00FF00</color>
     <color name="warning_text">#FFFF00</color>
     <color name="alarm_text">#FF0000</color>
+    <color name="activeScan">#FF0000</color>
 </resources>

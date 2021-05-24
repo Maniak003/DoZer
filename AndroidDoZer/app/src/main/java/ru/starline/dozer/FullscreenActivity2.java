@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -62,6 +63,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public RadioButton radioButtonResolution1;
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
+    public Button scanBLEBTN;
     public Intent intent;
     public int propBitData;
 
@@ -119,12 +121,12 @@ public class FullscreenActivity2 extends AppCompatActivity {
 
 
         // Scan BLE button
-        final Button scanBLEBTN = findViewById(R.id.scanBLEBTN);
+        scanBLEBTN = findViewById(R.id.scanBLEBTN);
         if (scanBLEBTN != null) {
             scanBLEBTN.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("DoZer", "Pressed setup save & exit.");
+                    Log.d("DoZer", "Pressed scan BLE.");
                     if (sLE.scanRunning ) {
                         sLE.stopScanLE();
                     } else {
@@ -142,13 +144,13 @@ public class FullscreenActivity2 extends AppCompatActivity {
             saveExitBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Log.d("DoZer", "Pressed setup save & exit.");
+                    if (sLE.scanRunning ) { // Stop scanning if active.
+                        sLE.stopScanLE();
+                    }
                     try {
                         PP.writeProp();  // Write to config
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
-                    if (sLE.scanRunning ) {
-                        sLE.stopScanLE();
                     }
                     closeActivity();
                 }
@@ -179,7 +181,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
             // Read MAC from config
             tmpData = PP.readProp("MAC");
             if (tmpData == null) {
-                editTextMAC.setText("20:06:11:11:66:CD");
+                editTextMAC.setText("20:06:11:11:66:CD"); // My 1st BT module
             } else {
                 editTextMAC.setText(tmpData);
             }
@@ -415,6 +417,15 @@ public class FullscreenActivity2 extends AppCompatActivity {
                 tmpdata2 = Float.parseFloat(editTextKoefR.getText().toString());
             }
             intent.putExtra("CFGDATA5", tmpdata2);
+
+            String tmpdata3;
+            if(editTextMAC.getText().toString().isEmpty()) {
+                tmpdata3 = "20:06:11:11:66:CD";
+            } else {
+                tmpdata3 = editTextMAC.getText().toString();
+            }
+            intent.putExtra("CFGDATA6", tmpdata3);
+
             setResult(1, intent);
         }
     }
@@ -425,6 +436,8 @@ public class FullscreenActivity2 extends AppCompatActivity {
         public boolean scanRunning = false;
 
         public void stopScanLE() {
+            scanBLEBTN.setTextColor(0xFF506C35);
+            scanBLEBTN.setText("Scan");
             if (scanner != null) {
                 scanner.stopScan(scanCallback);
                 scanRunning = false;
@@ -432,6 +445,8 @@ public class FullscreenActivity2 extends AppCompatActivity {
         }
 
         public void startScanLE() {
+            scanBLEBTN.setTextColor(0xFFFF0000);
+            scanBLEBTN.setText("Stop");
             ScanSettings scanSettings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     //.setCallbackType(ScanSettings.CALLBACK_TYPE_FIRST_MATCH)
@@ -447,9 +462,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
                 scanRunning = true;
                 scanner.startScan(filters, scanSettings, scanCallback);
                 Log.d("DoZer", "Scan started.");
-            }  else
-
-            {
+            } else {
                 Log.e("DoZer", "could not get scanner object");
             }
         }

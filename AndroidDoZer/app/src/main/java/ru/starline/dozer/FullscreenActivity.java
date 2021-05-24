@@ -149,6 +149,19 @@ public class FullscreenActivity extends AppCompatActivity  {
                     + " CFGDATA5: " + resData[11] + resData[10] + resData[9] + resData[8]
             );
 
+            /* Update MAC address */
+            String tmpMAC;
+            tmpMAC = data.getStringExtra("CFGDATA6");
+            if (tmpMAC != MAC) {
+                MAC = tmpMAC;
+                if (connected) {
+                    connected = false;
+                    BT.destroyDevice();
+                    BT = null;
+                }
+            }
+
+
             if (resultCode == 1) {
                 try {
                     DA.sendCfg(resData);
