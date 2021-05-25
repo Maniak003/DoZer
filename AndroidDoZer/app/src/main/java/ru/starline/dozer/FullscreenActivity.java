@@ -52,9 +52,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -87,15 +89,15 @@ public class FullscreenActivity extends AppCompatActivity  {
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 210, firstCanal = 12, maxCanal = 2055;
-    public float[] findData = new float[findDataSize];
+    public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
-    public int histogramFlag = 1;
-    public String TAG = "!!!!! BLE report : ", FLAG = "";
-    public int startFlag = 0, bufferIndex = 0;
-    public float curentTime, tmpTime, countsAll1;
+    public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15;
+    public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
+    public int startFlag = 0, bufferIndex = 0, foneActive = 0;
+    public float curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 100;
-    public double correctA, correctB, correctC;
+    public double correctA, correctB, correctC, backgtoundTime;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
     //public String MAC = "20:06:03:20:02:A9";
@@ -141,26 +143,45 @@ public class FullscreenActivity extends AppCompatActivity  {
             for (int i = 0; i < 4; i++) {
                 resData[i + 8] = ByteBuffer.allocate(4).putFloat(data.getFloatExtra("CFGDATA5", 1)).get(i);
             }
+
+            /* Update MAC address */
+            String tmpMAC;
+            tmpMAC = data.getStringExtra("CFGDATA6");
+            if ( ! tmpMAC.equals(MAC)) {
+                MAC = tmpMAC;
+                if (connected) {
+                    connected = false;
+                    BT.destroyDevice();
+                }
+            }
+
+            /* Load background radiation file */
+            foneActive = data.getIntExtra ("CFGDATA8", 0);
+            if (foneActive == 1) {
+                foneFlName = data.getStringExtra("CFGDATA7");
+                if (!foneFlName.isEmpty()) {
+                    readBackgroundFile(foneFlName);
+                }
+            }
+            /* Smoothing specter */
+            smoothSpecter = data.getIntExtra ("CFGDATA9", 0);
+            String tmpStr = data.getStringExtra("CFGDATA10");  // Smooth window size
+            if (tmpStr.isEmpty()) {
+                smoothWindow = 15;
+            } else {
+                smoothWindow = Integer.parseInt(tmpStr);
+            }
+
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + resData[0]
                     + " CFGDATA2: " + resData[3] + resData[2]
                     + " CFGDATA3: " + resData[5] + resData[4]
                     + " CFGDATA4: " + resData[7] + resData[6]
                     + " CFGDATA5: " + resData[11] + resData[10] + resData[9] + resData[8]
+                    + " CFGDATA6: " + MAC
+                    + " CFGDATA7: " + foneFlName
+                    + " CFGDATA8: " + foneActive
             );
-
-            /* Update MAC address */
-            String tmpMAC;
-            tmpMAC = data.getStringExtra("CFGDATA6");
-            if (tmpMAC != MAC) {
-                MAC = tmpMAC;
-                if (connected) {
-                    connected = false;
-                    BT.destroyDevice();
-                    BT = null;
-                }
-            }
-
 
             if (resultCode == 1) {
                 try {
@@ -209,6 +230,47 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
+    /* Load background data from file */
+    public void readBackgroundFile(String flname) {
+        File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + flname);
+        if(bgFile.exists()) {
+            try {
+                BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
+                String tmpStr;
+                int foneIdx = 0;
+                /* Clear background data */
+                for ( int ii = 0; ii < 4096; ii++) {
+                    foneData[ii] = 0;
+                }
+                while ((tmpStr = fonBuf.readLine()) != null) {
+                    if (tmpStr.indexOf("<DataPoint>") >= 0 ) {
+                        tmpStr = tmpStr.replace("<DataPoint>", "").replace("</DataPoint>", "");
+                        foneData[foneIdx++] = Integer.parseInt(tmpStr);
+                    } else {
+                        if (tmpStr.indexOf("<MeasurementTime>") >= 0) { // Measurment time value
+                            tmpStr = tmpStr.replace("<MeasurementTime>", "").replace("</MeasurementTime>", "");
+                            backgtoundTime = Integer.parseInt(tmpStr);
+                            Log.d("DoZer", "backgtoundTime: " + backgtoundTime);
+                        }
+                    }
+                }
+                float sm;
+                /* Сглаживание методом скользящего простого среднего */
+                for ( int i = 0; i < foneIdx + 2; i++ ) {
+                    sm = foneData[i] + foneData[i + 1] + foneData[i + 2];
+                    foneData[i + 1]  = sm / 3;
+                }
+                Log.d("DoZer", "Load foneData idx: " + foneIdx);
+                fonBuf.close();
+            } catch (IOException e) {
+                Toast.makeText(getBaseContext(), "Error read bgFile with: " + e.getMessage() , Toast.LENGTH_LONG).show();
+            }
+        } else {
+            foneActive = 0;
+            Toast.makeText(getBaseContext(), "File: " + bgFile.getAbsolutePath() + " not found." , Toast.LENGTH_LONG).show();
+        }
+    }
+
     @SuppressLint({"ClickableViewAccessibility", "HandlerLeak"})
     public void initApplication() {
         //
@@ -245,6 +307,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             correctC = Double.parseDouble(kR);
         } else {
             correctC = 0;
+        }
+
+        kR = PP.readProp("BgActive");
+        if (kR != null && ! kR.isEmpty()) {
+            foneActive = Integer.parseInt(kR);
+            if (foneActive == 1 ) {
+                kR = PP.readProp("BgrdFlName");
+                if (kR != null && ! kR.isEmpty()) {
+                    readBackgroundFile(kR);
+                } else {
+                    foneActive = 0;
+                }
+            }
+        } else {
+            foneActive = 0;
+        }
+
+        kR = PP.readProp("smoothSpectr");
+        if (kR != null && ! kR.isEmpty()) {
+            smoothSpecter = Integer.parseInt(kR);
+        } else {
+            smoothSpecter = 0;
         }
 
         Log.d("DoZer", "koefR: " + koeffR);
@@ -315,7 +399,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         if (setupBtn != null) {
             setupBtn.setOnClickListener(v -> setupActivity());
         } else {
-            Log.d("DoZer", "gistoBtn not found");
+            Log.d("DoZer", "Setup not found");
         }
 
         // Save button to BqMonitor format
@@ -376,8 +460,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         } else {
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            },200);
+                    Manifest.permission.READ_EXTERNAL_STORAGE },200);
         }
     }
 
@@ -869,9 +952,9 @@ public class FullscreenActivity extends AppCompatActivity  {
     */
     public class DrawAll {
         double countsAll, interval, oldValX;
-        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, mastab, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, mastab, mastab2, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
-                emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint();
+                emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pBackground = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
         public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
@@ -1020,27 +1103,8 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         public void writeHistogram(Canvas canvas, Canvas histCanvas) {
-            //
-            //  Вычисление масштабирования для линейного и логарифмического представления.
-            //
-            // Фон
+            // Background
             canvas.drawColor(Color.argb(255, 0, 0, 0));
-            mastab = 1;
-            mastabLog = 1;
-            maxPoint = 1;
-            maxPointLog = 0;
-            for (int i = firstCanal; i < maxCanal; i++) {
-                tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
-                if (tmpVal > maxPoint) {
-                    maxPoint = tmpVal;
-                }
-                if (maxPointLog < (float) Math.log10(tmpVal)) {
-                    maxPointLog = (float) Math.log10(tmpVal);
-                }
-            }
-            mastab = (float) HSize / maxPoint;
-            mastabLog = (float) HSize / maxPointLog;
-
             //
             //  Отрисовка графика с учетом масштаба.
             //
@@ -1056,6 +1120,11 @@ public class FullscreenActivity extends AppCompatActivity  {
             pLog.setColor(Color.argb(100, 40, 60, 255));
             pLog.setStrokeWidth(penSize);
 
+            // Background radiation data
+
+            pBackground.setColor(Color.argb(100, 40, 255, 40));
+            pBackground.setStrokeWidth(penSize);
+
             // Текст статистики
             pText.setColor(Color.argb(100, 255, 40, 255));
             pText.setStrokeWidth(penSize);
@@ -1069,16 +1138,87 @@ public class FullscreenActivity extends AppCompatActivity  {
             pFindData2.setColor(Color.argb(200, 255, 40, 40)); // Alarm
             pFindData2.setStrokeWidth(pen3Size);
             emptFindData.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            //emptFindData.setColor(Color.argb(0, 0, 0, 0)); // Black
+
             /*
-                    Прорисовка гистограмм
+                Get time and counter from device
              */
+            countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
+            countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
+            batVoltage = (char) (spectrData[9] & 0xff);
+            tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+            tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
+
+            //
+            //  Вычисление масштабирования для линейного и логарифмического представления.
+            //
+            mastab = 1;
+            mastabLog = 1;
+            maxPoint = 1;
+            maxPointLog = 0;
             countsAll = 0;
-            countsAll1 = 0;
-            //canvas.drawColor(0xFF000000);
+            int j = 0;
+            if ((foneActive == 1) && (tmpTime > 0) && (backgtoundTime > 0) ) {
+                mastab2 = tmpTime / (float) backgtoundTime;  // Calculate mashtab for background radiation
+            } else {
+                mastab2 = 0;
+            }
             for (int i = firstCanal; i < 2084; i++) {
+                tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
+                countsAll = countsAll + tmpVal;  // Total pulses
+                if ( i < maxCanal) {
+                    if (mastab2 == 0) {  // background radiation disabled
+                        resultData[j] = tmpVal;
+                    } else {
+                        resultData[j] = tmpVal - foneData[j] *  mastab2;
+                        if (resultData[j] < 0) {
+                            resultData[j] = 0;
+                        }
+                    }
+                    if (resultData[j] > maxPoint) {
+                        maxPoint = resultData[j];
+                    }
+                    if (maxPointLog < (float) Math.log10(resultData[j])) {
+                        maxPointLog = (float) Math.log10(resultData[j]);
+                    }
+                    j++;
+                }
+            }
+
+            /*
+                Smoothing specter
+            */
+            float sm;
+            if (smoothSpecter == 1) {
+                maxPoint = 1;
+                maxPointLog = 1;
+                for (int i = 0; i < maxCanal / 2 + smoothWindow; i++) {
+                    sm = 0;
+                    for (int k = 0; k < smoothWindow; k++) {
+                        sm = sm + resultData[i + k];
+                    }
+                    resultData[i + (int) (smoothWindow / 2)] = sm / smoothWindow;
+                    if (resultData[i] > maxPoint) {
+                        maxPoint = resultData[i];
+                    }
+                    if (maxPointLog < (float) Math.log10(resultData[i])) {
+                        maxPointLog = (float) Math.log10(resultData[i]);
+                    }
+                }
+            }
+
+            mastab = (float) HSize / maxPoint;
+            mastabLog = (float) HSize / maxPointLog;
+            /*
+                    Redraw histogram
+             */
+            for (int i = 0; i < maxCanal / 2; i++) {
+                float X = i * penSize - 2;
+                canvas.drawLine(X, HSize - (float) Math.log10(resultData[i]) * mastabLog, X, HSize, pLog);
+                canvas.drawLine(X, HSize - resultData[i] * mastab, X, HSize, p);
+            }
+            /*
+            for (int i = firstCanal; i < maxCanal; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                countsAll1 = countsAll1 + tmpVal;
                 if ( i < maxCanal) {
                     float X = round((i) / 2) * penSize - 2;
                     // В логарифмическом представлении
@@ -1087,14 +1227,20 @@ public class FullscreenActivity extends AppCompatActivity  {
                     canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
                 }
             }
+             */
 
+            // Draw background radiation
+            /*
+            if ((foneActive == 1) && (tmpTime > 0) && (backgtoundTime > 0) ) {
+                mastab2 =  tmpTime / (float) backgtoundTime * mastab;  // Calculate mashtab for background radiation
+                for (int i = 0; i < 1024; i++) {
+                    float X = i * penSize + firstCanal / 2;
+                    canvas.drawLine(X, HSize - foneData[i] * mastab2, X, HSize, pBackground);
+                }
+            }
+            */
             // Output total counts and cps.
-            countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
-            countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
-            batVoltage = (char) (spectrData[9] & 0xff);
-            tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
-            tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
-            //Log.i(TAG, "tmpTime : " + tmpTime + ", curentTime : " + curentTime + ", countsAll: " + countsAll + ", countsAll - oldCounts: " + (countsAll - oldCounts) + ", countsAll1: " + countsAll1);
+            //Log.i(TAG, "tmpTime : " + tmpTime + ", curentTime : " + curentTime + ", countsAll: " + countsAll + ", countsAll - oldCounts: " + (countsAll - oldCounts));
 
             if (oldCounts <= 0 ) {
                 oldCounts = countsAll;

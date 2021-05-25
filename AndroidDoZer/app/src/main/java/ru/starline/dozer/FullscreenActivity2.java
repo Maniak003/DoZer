@@ -39,6 +39,7 @@ import java.util.TimerTask;
 
 public class FullscreenActivity2 extends AppCompatActivity {
     public Props PP;
+    //public ColorPicker cp;
     public  scanLE sLE = new scanLE();
     public TextView editTextMAC;
     public TextView editTextKoefR;
@@ -52,6 +53,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public TextView editTextEnergi_B;
     public TextView editTextEnergi_C;
     public TextView editTextEnergi_D;
+    public TextView editTextBackgroundFile;
     public CheckBox checkBoxLevel1_S;
     public CheckBox checkBoxLevel1_V;
     public CheckBox checkBoxLevel2_S;
@@ -60,12 +62,15 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public CheckBox checkBoxLevel3_V;
     public CheckBox checkBoxLed;
     public CheckBox checkBoxSound;
+    public CheckBox DiffBackground;
+    public CheckBox smoothSpecter;
     public RadioButton radioButtonResolution1;
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
     public Button scanBLEBTN;
     public Intent intent;
     public int propBitData;
+    public TextView smoothWindow;
 
     private View mContentView;
 
@@ -118,6 +123,10 @@ public class FullscreenActivity2 extends AppCompatActivity {
         radioButtonResolution1 = findViewById(R.id.radioButtonResolution1);
         radioButtonResolution2 = findViewById(R.id.radioButtonResolution2);
         radioButtonResolution3 = findViewById(R.id.radioButtonResolution3);
+        editTextBackgroundFile = findViewById(R.id.editTextBackgroundFile);
+        DiffBackground = findViewById(R.id.checkBoxDiffBackground);
+        smoothSpecter = findViewById(R.id.checkBoxSmooth);
+        smoothWindow = findViewById(R.id.editTextSmoothWindow);
 
 
         // Scan BLE button
@@ -218,6 +227,8 @@ public class FullscreenActivity2 extends AppCompatActivity {
             editTextEnergi_A.setText(PP.readProp("Energi_A"));
             editTextEnergi_B.setText(PP.readProp("Energi_B"));
             editTextEnergi_C.setText(PP.readProp("Energi_C"));
+            smoothWindow.setText(PP.readProp("smoothWindow"));
+            editTextBackgroundFile.setText(PP.readProp("BgrdFlName"));
             tmpData = PP.readProp("Energi_D");
             if (tmpData == null) {
                 editTextEnergi_D.setText("1");
@@ -252,10 +263,22 @@ public class FullscreenActivity2 extends AppCompatActivity {
             if (tmpData != null) {
                 checkBoxLed.setChecked(tmpData.equals("1"));
             }
+
+            tmpData = PP.readProp("BgActive");
+            if (tmpData != null) {
+                DiffBackground.setChecked(tmpData.equals("1"));
+            }
+
             tmpData = PP.readProp("Sound");
             if (tmpData != null) {
                 checkBoxSound.setChecked(tmpData.equals("1"));
             }
+
+            tmpData = PP.readProp("smoothSpectr");
+            if (tmpData != null) {
+                smoothSpecter.setChecked(tmpData.equals("1"));
+            }
+
             tmpData = PP.readProp("Resolution");
             if (tmpData != null) {
                 if (tmpData.equals("3")) {
@@ -308,53 +331,65 @@ public class FullscreenActivity2 extends AppCompatActivity {
             prop.setProperty("Energi_B", editTextEnergi_B.getText().toString());
             prop.setProperty("Energi_C", editTextEnergi_C.getText().toString());
             prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
-            if (checkBoxLevel1_S.isChecked()) {
+            prop.setProperty("BgrdFlName", editTextBackgroundFile.getText().toString());
+            prop.setProperty("smoothWindow", smoothWindow.getText().toString());
+            if (smoothSpecter.isChecked()) {  // Smoothing specter
+                prop.setProperty("smoothSpectr", "1");
+            } else {
+                prop.setProperty("smoothSpectr", "0");
+            }
+            if (DiffBackground.isChecked()) {  // Background radiation data active
+                prop.setProperty("BgActive", "1");
+            } else {
+                prop.setProperty("BgActive", "0");
+            }
+            if (checkBoxLevel1_S.isChecked()) {  // Sound for level 1
                 prop.setProperty("Level1_S", "1");
                 propBitData = propBitData + 1;
             } else {
                 prop.setProperty("Level1_S", "0");
             }
-            if (checkBoxLevel1_V.isChecked()) {
+            if (checkBoxLevel1_V.isChecked()) {  // Vibro for level 1
                 prop.setProperty("Level1_V", "1");
                 propBitData = propBitData + 2;
             } else {
                 prop.setProperty("Level1_V", "0");
             }
 
-            if (checkBoxLevel2_S.isChecked()) {
+            if (checkBoxLevel2_S.isChecked()) {  // Sound for level 2
                 prop.setProperty("Level2_S", "1");
                 propBitData = propBitData + 4;
             } else {
                 prop.setProperty("Level2_S", "0");
             }
-            if (checkBoxLevel2_V.isChecked()) {
+            if (checkBoxLevel2_V.isChecked()) {  // Vibro for level 2
                 prop.setProperty("Level2_V", "1");
                 propBitData = propBitData + 8;
             } else {
                 prop.setProperty("Level2_V", "0");
             }
 
-            if (checkBoxLevel3_S.isChecked()) {
+            if (checkBoxLevel3_S.isChecked()) {  // Sound for level 3
                 prop.setProperty("Level3_S", "1");
                 propBitData = propBitData + 16;
             } else {
                 prop.setProperty("Level3_S", "0");
             }
-            if (checkBoxLevel3_V.isChecked()) {
+            if (checkBoxLevel3_V.isChecked()) {  // Vibro for level 3
                 prop.setProperty("Level3_V", "1");
                 propBitData = propBitData + 32;
             } else {
                 prop.setProperty("Level3_V", "0");
             }
 
-            if (checkBoxLed.isChecked()) {
+            if (checkBoxLed.isChecked()) {  // LED active
                 prop.setProperty("LED", "1");
                 propBitData = propBitData + 64;
             } else {
                 prop.setProperty("LED", "0");
             }
 
-            if (checkBoxSound.isChecked()) {
+            if (checkBoxSound.isChecked()) {  // Sound active
                 prop.setProperty("Sound", "1");
                 propBitData = propBitData + 128;
             } else {
@@ -425,6 +460,20 @@ public class FullscreenActivity2 extends AppCompatActivity {
                 tmpdata3 = editTextMAC.getText().toString();
             }
             intent.putExtra("CFGDATA6", tmpdata3);
+            intent.putExtra("CFGDATA7", editTextBackgroundFile.getText().toString());
+            intent.putExtra("CFGDATA10", smoothWindow.getText().toString());
+
+            if (DiffBackground.isChecked()) { // Active background radiation
+                intent.putExtra("CFGDATA8", 1);
+            } else {
+                intent.putExtra("CFGDATA8", 0);
+            }
+
+            if (smoothSpecter.isChecked()) {  // Smoothing specter
+                intent.putExtra("CFGDATA9", 1);
+            } else {
+                intent.putExtra("CFGDATA9", 0);
+            }
 
             setResult(1, intent);
         }
@@ -472,7 +521,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
             public void onScanResult(int callbackType, ScanResult result) {
                 BluetoothDevice device = result.getDevice();
                 String devName = device.getName();
-                if (devName != null && devName.equals("DoZer")) {
+                if (devName != null && devName.equalsIgnoreCase("DoZer")) {
                     editTextMAC.setText(device.getAddress());
                     stopScanLE();
                     Log.d("DoZer", "---------------------scan finished-----------------");

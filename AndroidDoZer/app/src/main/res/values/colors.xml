@@ -18,4 +18,7 @@
     <color name="warning_text">#FFFF00</color>
     <color name="alarm_text">#FF0000</color>
     <color name="activeScan">#FF0000</color>
+    <color name="label_text">#FF0000FF</color>
+    <color name="statistic_text">#FF8F8F8F</color>
+    <color name="edit_text">#FFFFFF00</color>
 </resources>

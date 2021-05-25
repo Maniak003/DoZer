@@ -48,13 +48,15 @@
                 android:id="@+id/textStatistic1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/statistic_text" />
 
             <TextView
                 android:id="@+id/textStatistic2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/statistic_text" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -65,14 +67,16 @@
                     android:id="@+id/textStatistic3"
                     android:layout_width="105dp"
                     android:layout_height="wrap_content"
-                    android:textAlignment="textEnd" />
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/statistic_text" />
 
                 <TextView
                     android:id="@+id/textStatistic4"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textAlignment="textStart" />
+                    android:textAlignment="textStart"
+                    android:textColor="@color/statistic_text" />
             </LinearLayout>
 
             <ImageView
