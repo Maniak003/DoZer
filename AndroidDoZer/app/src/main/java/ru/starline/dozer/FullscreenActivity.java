@@ -256,15 +256,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 float sm;
                 /* Сглаживание методом скользящего простого среднего */
-                int windSmooth = 0;
+                int windSmooth = 3;
                 if (windSmooth > 1) {
-                    for (int i = 0; i < foneIdx + 2; i++) {
-                        sm = 0;
-                        for (int k = 0; k < windSmooth; k++) {
-                            sm = sm + foneData[i + k];
-                        }
-                        foneData[i + (int) (windSmooth / 2)] = sm / windSmooth;
-                    }
+                    smoothArray(foneData, windSmooth, foneIdx);
                 }
                 Log.d("DoZer", "Load foneData idx: " + foneIdx);
                 fonBuf.close();
@@ -274,6 +268,26 @@ public class FullscreenActivity extends AppCompatActivity  {
         } else {
             foneActive = 0;
             Toast.makeText(getBaseContext(), "File: " + bgFile.getAbsolutePath() + " not found." , Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /*
+        Smoothing array
+    */
+    public void smoothArray(float[] arr, int win, int sz) {
+        if (win > 2) {
+            float[] tmpArr = new float[sz];
+            float sm;
+            for (int i = 0; i < sz - win / 2; i++) {
+                sm = 0;
+                for (int k = 0; k < win; k++) {
+                    sm = sm + arr[i + k];
+                }
+                tmpArr[i] = sm / win;
+            }
+            for ( int i = 0; i < sz - win; i++) {
+                arr[i + (int) win / 2] = tmpArr[i];
+            }
         }
     }
 
@@ -1183,9 +1197,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                     if (resultData[j] > maxPoint) {
                         maxPoint = resultData[j];
                     }
-                    if (maxPointLog < (float) Math.log10(resultData[j])) {
-                        maxPointLog = (float) Math.log10(resultData[j]);
-                    }
                     j++;
                 }
             }
@@ -1195,25 +1206,18 @@ public class FullscreenActivity extends AppCompatActivity  {
             */
             float sm;
             if (smoothSpecter == 1) {
+                smoothArray(resultData,smoothWindow, maxCanal / 2 + smoothWindow);
                 maxPoint = 1;
                 maxPointLog = 1;
                 for (int i = 0; i < maxCanal / 2 + smoothWindow; i++) {
-                    sm = 0;
-                    for (int k = 0; k < smoothWindow; k++) {
-                        sm = sm + resultData[i + k];
-                    }
-                    resultData[i + (int) (smoothWindow / 2)] = sm / smoothWindow;
                     if (resultData[i] > maxPoint) {
                         maxPoint = resultData[i];
-                    }
-                    if (maxPointLog < (float) Math.log10(resultData[i])) {
-                        maxPointLog = (float) Math.log10(resultData[i]);
                     }
                 }
             }
 
             mastab = (float) HSize / maxPoint;
-            mastabLog = (float) HSize / maxPointLog;
+            mastabLog = (float) HSize / (float) Math.log10(maxPoint);
             /*
                     Redraw histogram
              */
