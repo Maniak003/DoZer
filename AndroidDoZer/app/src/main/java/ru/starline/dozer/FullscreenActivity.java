@@ -256,7 +256,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 float sm;
                 /* Сглаживание методом скользящего простого среднего */
-                int windSmooth = 3;
+                int windSmooth = 0;
                 if (windSmooth > 1) {
                     smoothArray(foneData, windSmooth, foneIdx);
                 }
