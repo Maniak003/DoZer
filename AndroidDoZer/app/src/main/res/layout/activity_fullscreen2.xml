@@ -305,6 +305,35 @@
                     android:textColor="@color/edit_text" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Smooothing"
+                android:textColor="@color/label_text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/checkBoxSmooth"
+                    android:layout_width="26dp"
+                    android:layout_height="wrap_content" />
+
+                <EditText
+                    android:id="@+id/editTextSmoothWindow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:text="3"
+                    android:textColor="@color/edit_text" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
@@ -390,16 +419,41 @@
                 android:text="Background radiation"
                 android:textColor="@color/label_text" />
 
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButtonBGNone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="none"
+                    android:textColor="@color/edit_text" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonBGDiff"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Diff"
+                    android:textColor="@color/edit_text" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonBGOver"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Over"
+                    android:textColor="@color/edit_text" />
+
+            </RadioGroup>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <CheckBox
-                    android:id="@+id/checkBoxDiffBackground"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
 
                 <EditText
                     android:id="@+id/editTextBackgroundFile"
@@ -409,33 +463,6 @@
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:textColor="@color/edit_text" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textView18"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Smooothing"
-                android:textColor="@color/label_text" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <CheckBox
-                    android:id="@+id/checkBoxSmooth"
-                    android:layout_width="26dp"
-                    android:layout_height="wrap_content" />
-
-                <EditText
-                    android:id="@+id/editTextSmoothWindow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:inputType="number" />
-
             </LinearLayout>
 
         </LinearLayout>

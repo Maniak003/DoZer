@@ -62,8 +62,10 @@ public class FullscreenActivity2 extends AppCompatActivity {
     public CheckBox checkBoxLevel3_V;
     public CheckBox checkBoxLed;
     public CheckBox checkBoxSound;
-    public CheckBox DiffBackground;
     public CheckBox smoothSpecter;
+    public RadioButton BGNone;
+    public RadioButton BGDiff;
+    public RadioButton BGOver;
     public RadioButton radioButtonResolution1;
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
@@ -124,7 +126,9 @@ public class FullscreenActivity2 extends AppCompatActivity {
         radioButtonResolution2 = findViewById(R.id.radioButtonResolution2);
         radioButtonResolution3 = findViewById(R.id.radioButtonResolution3);
         editTextBackgroundFile = findViewById(R.id.editTextBackgroundFile);
-        DiffBackground = findViewById(R.id.checkBoxDiffBackground);
+        BGNone = findViewById(R.id.radioButtonBGNone);
+        BGDiff = findViewById(R.id.radioButtonBGDiff);
+        BGOver = findViewById(R.id.radioButtonBGOver);
         smoothSpecter = findViewById(R.id.checkBoxSmooth);
         smoothWindow = findViewById(R.id.editTextSmoothWindow);
 
@@ -265,8 +269,11 @@ public class FullscreenActivity2 extends AppCompatActivity {
             }
 
             tmpData = PP.readProp("BgActive");
+            Log.d("Dozer", "BGActive: " + tmpData);
             if (tmpData != null) {
-                DiffBackground.setChecked(tmpData.equals("1"));
+                BGNone.setChecked(tmpData.equals("0"));
+                BGDiff.setChecked(tmpData.equals("1"));
+                BGOver.setChecked(tmpData.equals("2"));
             }
 
             tmpData = PP.readProp("Sound");
@@ -332,17 +339,22 @@ public class FullscreenActivity2 extends AppCompatActivity {
             prop.setProperty("Energi_C", editTextEnergi_C.getText().toString());
             prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
             prop.setProperty("BgrdFlName", editTextBackgroundFile.getText().toString());
+            if (BGNone.isChecked()) {
+                prop.setProperty("BgActive", "0");
+            } else {
+                if (BGDiff.isChecked()) {  // Background radiation data active
+                    prop.setProperty("BgActive", "1");  // BG different
+                } else {
+                    prop.setProperty("BgActive", "2");  // BG over
+                }
+            }
             prop.setProperty("smoothWindow", smoothWindow.getText().toString());
             if (smoothSpecter.isChecked()) {  // Smoothing specter
                 prop.setProperty("smoothSpectr", "1");
             } else {
                 prop.setProperty("smoothSpectr", "0");
             }
-            if (DiffBackground.isChecked()) {  // Background radiation data active
-                prop.setProperty("BgActive", "1");
-            } else {
-                prop.setProperty("BgActive", "0");
-            }
+
             if (checkBoxLevel1_S.isChecked()) {  // Sound for level 1
                 prop.setProperty("Level1_S", "1");
                 propBitData = propBitData + 1;
@@ -463,10 +475,14 @@ public class FullscreenActivity2 extends AppCompatActivity {
             intent.putExtra("CFGDATA7", editTextBackgroundFile.getText().toString());
             intent.putExtra("CFGDATA10", smoothWindow.getText().toString());
 
-            if (DiffBackground.isChecked()) { // Active background radiation
-                intent.putExtra("CFGDATA8", 1);
-            } else {
+            if (BGNone.isChecked()) {
                 intent.putExtra("CFGDATA8", 0);
+            } else {
+                if (BGDiff.isChecked()) { // Active background radiation
+                    intent.putExtra("CFGDATA8", 1);
+                } else {
+                    intent.putExtra("CFGDATA8", 2);
+                }
             }
 
             if (smoothSpecter.isChecked()) {  // Smoothing specter

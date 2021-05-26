@@ -157,7 +157,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             /* Load background radiation file */
             foneActive = data.getIntExtra ("CFGDATA8", 0);
-            if (foneActive == 1) {
+            if (foneActive > 0) {
                 foneFlName = data.getStringExtra("CFGDATA7");
                 if (!foneFlName.isEmpty()) {
                     readBackgroundFile(foneFlName);
@@ -256,9 +256,15 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 float sm;
                 /* Сглаживание методом скользящего простого среднего */
-                for ( int i = 0; i < foneIdx + 2; i++ ) {
-                    sm = foneData[i] + foneData[i + 1] + foneData[i + 2];
-                    foneData[i + 1]  = sm / 3;
+                int windSmooth = 0;
+                if (windSmooth > 1) {
+                    for (int i = 0; i < foneIdx + 2; i++) {
+                        sm = 0;
+                        for (int k = 0; k < windSmooth; k++) {
+                            sm = sm + foneData[i + k];
+                        }
+                        foneData[i + (int) (windSmooth / 2)] = sm / windSmooth;
+                    }
                 }
                 Log.d("DoZer", "Load foneData idx: " + foneIdx);
                 fonBuf.close();
@@ -312,7 +318,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         kR = PP.readProp("BgActive");
         if (kR != null && ! kR.isEmpty()) {
             foneActive = Integer.parseInt(kR);
-            if (foneActive == 1 ) {
+            if (foneActive > 0 ) {
                 kR = PP.readProp("BgrdFlName");
                 if (kR != null && ! kR.isEmpty()) {
                     readBackgroundFile(kR);
@@ -1026,10 +1032,10 @@ public class FullscreenActivity extends AppCompatActivity  {
                     oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
                 }
                 // Calculate index specter array
-                int i = (int) Math.floor(X / penSize ) * 2 + 4;
+                int i = (int) Math.floor(X / penSize ) ;
                 if ( i > 11 ) {
                     // Get specter data
-                    tmpVal2 = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                    tmpVal2 = resultData[i];
                     oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
                     if (X > 0 && oldY > 0) {
                         cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
@@ -1216,29 +1222,17 @@ public class FullscreenActivity extends AppCompatActivity  {
                 canvas.drawLine(X, HSize - (float) Math.log10(resultData[i]) * mastabLog, X, HSize, pLog);
                 canvas.drawLine(X, HSize - resultData[i] * mastab, X, HSize, p);
             }
-            /*
-            for (int i = firstCanal; i < maxCanal; i++) {
-                tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                if ( i < maxCanal) {
-                    float X = round((i) / 2) * penSize - 2;
-                    // В логарифмическом представлении
-                    canvas.drawLine(X, HSize - (float) Math.log10(tmpVal) * mastabLog, X, HSize, pLog);
-                    // В линейном представлении
-                    canvas.drawLine(X, HSize - tmpVal * mastab, X, HSize, p);
-                }
-            }
-             */
 
-            // Draw background radiation
             /*
-            if ((foneActive == 1) && (tmpTime > 0) && (backgtoundTime > 0) ) {
+                Draw background radiation
+             */
+            if ((foneActive == 2) && (tmpTime > 0) && (backgtoundTime > 0) ) {
                 mastab2 =  tmpTime / (float) backgtoundTime * mastab;  // Calculate mashtab for background radiation
                 for (int i = 0; i < 1024; i++) {
-                    float X = i * penSize + firstCanal / 2;
+                    float X = i * penSize - 2;
                     canvas.drawLine(X, HSize - foneData[i] * mastab2, X, HSize, pBackground);
                 }
             }
-            */
             // Output total counts and cps.
             //Log.i(TAG, "tmpTime : " + tmpTime + ", curentTime : " + curentTime + ", countsAll: " + countsAll + ", countsAll - oldCounts: " + (countsAll - oldCounts));
 
@@ -1484,8 +1478,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                 startTime = simpleDateFormat.format(sTime);
                 endTime = simpleDateFormat.format(now);
 
-                for (int i = 8; i < maxCanal; i++) {
-                    pulseSumm = pulseSumm + (float) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
+                for (int i = 0; i < maxCanal / 2; i++) {
+                    pulseSumm = pulseSumm + resultData[i];
                 }
                 dataStr = (String) "<?xml version=\"1.0\"?>\n" +
                         "<ResultDataFile xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
@@ -1533,9 +1527,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                         "<Spectrum>\n";
                 outputStream.write(dataStr.getBytes());
 
-                for (int i = 8; i < maxCanal; i++) {
-                    tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                    dataStr = "<DataPoint>" + String.format("%.0f", tmpVal) + "</DataPoint>\n";
+                for (int i = 0; i < maxCanal / 2; i++) {
+                    dataStr = "<DataPoint>" + String.format("%.0f", resultData[i]) + "</DataPoint>\n";
                     outputStream.write(dataStr.getBytes());                            // Write to file
                 }
                 dataStr = (String) "</Spectrum>\n" +
