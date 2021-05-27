@@ -38,7 +38,7 @@
 
         <LinearLayout
             android:id="@+id/statisticLayoout"
-            android:layout_width="215dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:background="#00000000"
             android:backgroundTint="#00000000"
@@ -65,14 +65,14 @@
 
                 <TextView
                     android:id="@+id/textStatistic3"
-                    android:layout_width="105dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:textAlignment="textEnd"
                     android:textColor="@color/statistic_text" />
 
                 <TextView
                     android:id="@+id/textStatistic4"
-                    android:layout_width="100dp"
+                    android:layout_width="125dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textAlignment="textStart"

@@ -1290,11 +1290,14 @@ public class FullscreenActivity extends AppCompatActivity  {
                     if (tmpTime > 0) {
                         acps = (float) (countsAll / tmpTime);
                     }
+                    /* Battery capacity */
                     float batCapacity =  (float) ((batVoltage - 192) * 1.7);
                     if (batCapacity > 100) {
                         batCapacity = 100;
-                    } else if (batCapacity < 0) {
-                        batCapacity = 0;
+                    } else {
+                        if (batCapacity < 0) {
+                            batCapacity = 0;
+                        }
                     }
                     textStatistic1.setText(String.format("%.0f%% total: %.0f cps: %.0f", batCapacity, countsAll, findData[0]));
                     if (countsAll == 0) {
