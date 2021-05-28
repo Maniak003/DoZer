@@ -14,12 +14,14 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -76,10 +78,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
     public Button scanBLEBTN;
-    public Button mainColor;
+    public Button mainColor, buttonLogHistogram, buttonFonHistogram;
     public Intent intent;
     public int propBitData;
     public TextView smoothWindow;
+    public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
 
     private View mContentView;
 
@@ -143,17 +146,61 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         smoothWindow = findViewById(R.id.editTextSmoothWindow);
 
         /* Color dialog */
+        buttonFonHistogram = findViewById(R.id.buttonFonColor);
+        if(buttonFonHistogram != null) {
+            buttonFonHistogram.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ColorPickerDialog CD = new ColorPickerDialog(FullscreenActivity2.this,
+                            new ColorPickerDialog.OnColorChangedListener() {
+                                @Override
+                                public void colorChanged(String key, int color) {
+                                    buttonFonHistogram.setBackgroundColor(color);
+                                    colorFoneHistogram = color & 0xBFFFFFFF;
+                                }
+                            }
+                            , "10", colorFoneHistogram, colorFoneHistogram);
+                    CD.show();
+                }
+            });
+        }
+
+        buttonLogHistogram = findViewById(R.id.buttonLogHistogram);
+        if(buttonLogHistogram != null) {
+            buttonLogHistogram.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ColorPickerDialog CD = new ColorPickerDialog(FullscreenActivity2.this,
+                            new ColorPickerDialog.OnColorChangedListener() {
+                                @Override
+                                public void colorChanged(String key, int color) {
+                                    buttonLogHistogram.setBackgroundColor(color);
+                                    colorLogHistogram = color & 0xC3FFFFFF;
+                                }
+                            }
+                            , "10", colorLogHistogram, colorLogHistogram);
+                    CD.show();
+                }
+            });
+        }
+
         mainColor = findViewById(R.id.buttonMainColor);
         if (mainColor != null) {
             mainColor.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public  void onClick(View v) {
                     Log.d("DoZer", "Main color clicked.");
-                    //ColorPickerDialog CD = new ColorPickerDialog(FullscreenActivity2.this, null, "10", 0xFFFF0000, 0xFF00FF00);
+                    ColorPickerDialog CD = new ColorPickerDialog(FullscreenActivity2.this,
+                            new ColorPickerDialog.OnColorChangedListener() {
+                                @Override
+                                public void colorChanged(String key, int color) {
+                                    mainColor.setBackgroundColor(color);
+                                    colorLineHistogram = color;
+                                }
+                            }
+                            , "10", colorLineHistogram, colorLineHistogram);
                     //CD.setOnShowListener();
-                    //CD.show();
-                    //void colorChanged(String key, int color);
-                    //final ColorPicker cp = new ColorPicker(MainActivity.this, defaultColorR, defaultColorG, defaultColorB);
+                    CD.show();
                 }
             });
         }
@@ -252,6 +299,31 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 editTextCorrect_C.setText(tmpData);
             }
+
+            /* Colors */
+            tmpData = PP.readProp("colorLinHhistogram");
+            if (tmpData == null ) {
+                colorLineHistogram = 0xFF2828FF;
+            } else {
+                colorLineHistogram = Integer.parseInt(tmpData);
+            }
+            mainColor.setBackgroundColor(colorLineHistogram);
+
+            tmpData = PP.readProp("colorLogHhistogram");
+            if (tmpData == null ) {
+                colorLogHistogram = 0x64283CFF;
+            } else {
+                colorLogHistogram = Integer.parseInt(tmpData);
+            }
+            buttonLogHistogram.setBackgroundColor(colorLogHistogram);
+
+            tmpData = PP.readProp("colorFoneHhistogram");
+            if (tmpData == null ) {
+                colorFoneHistogram = 0x6428FF28;
+            } else {
+                colorFoneHistogram = Integer.parseInt(tmpData);
+            }
+            buttonFonHistogram.setBackgroundColor(colorFoneHistogram);
 
             editTextEnergi_A.setText(PP.readProp("Energi_A"));
             editTextEnergi_B.setText(PP.readProp("Energi_B"));
@@ -364,6 +436,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             prop.setProperty("Energi_C", editTextEnergi_C.getText().toString());
             prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
             prop.setProperty("BgrdFlName", editTextBackgroundFile.getText().toString());
+            prop.setProperty("colorLinHhistogram", String.valueOf(colorLineHistogram));
+            prop.setProperty("colorLogHhistogram", String.valueOf(colorLogHistogram));
+            prop.setProperty("colorFoneHhistogram", String.valueOf(colorFoneHistogram));
             if (BGNone.isChecked()) {
                 prop.setProperty("BgActive", "0");
             } else {
@@ -515,6 +590,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 intent.putExtra("CFGDATA9", 0);
             }
+
+            /* Colors */
+            intent.putExtra("CFGDATA11", colorLineHistogram);
+            intent.putExtra("CFGDATA12", colorLogHistogram);
+            intent.putExtra("CFGDATA13", colorFoneHistogram);
 
             setResult(1, intent);
         }

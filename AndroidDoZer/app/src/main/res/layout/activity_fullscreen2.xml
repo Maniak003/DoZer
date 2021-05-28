@@ -192,23 +192,30 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/buttonMainColor"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:backgroundTint="@color/button_color" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/button2"
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:backgroundTint="@color/button_color" />
+                    <Button
+                        android:id="@+id/buttonMainColor"
+                        android:layout_width="45dp"
+                        android:layout_height="35dp"
+                        android:backgroundTint="@color/button_color" />
 
-                <Button
-                    android:id="@+id/button3"
-                    android:layout_width="match_parent"
-                    android:layout_height="35dp"
-                    android:backgroundTint="@color/button_color" />
+                    <Button
+                        android:id="@+id/buttonLogHistogram"
+                        android:layout_width="45dp"
+                        android:layout_height="35dp"
+                        android:backgroundTint="@color/button_color" />
+
+                    <Button
+                        android:id="@+id/buttonFonColor"
+                        android:layout_width="45dp"
+                        android:layout_height="35dp"
+                        android:backgroundTint="@color/button_color" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

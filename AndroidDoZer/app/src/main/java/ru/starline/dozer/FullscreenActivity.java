@@ -76,6 +76,9 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
+    /* Colors */
+    public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
+
     public Handler h;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
@@ -171,6 +174,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             } else {
                 smoothWindow = Integer.parseInt(tmpStr);
             }
+
+            colorLineHistogram = data.getIntExtra("CFGDATA11", 0xFF2828FF);
+            colorLogHistogram = data.getIntExtra("CFGDATA12", 0x64283CFF);
+            colorFoneHistogram = data.getIntExtra("CFGDATA13", 0x6428FF28);
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + resData[0]
@@ -349,6 +356,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             smoothSpecter = Integer.parseInt(kR);
         } else {
             smoothSpecter = 0;
+        }
+
+        /* Colors */
+        kR = PP.readProp("colorLinHhistogram");
+        if (kR != null && ! kR.isEmpty()) {
+            colorLineHistogram = Integer.parseInt(kR);
+        } else {
+            colorLineHistogram = 0xFF2828FF;
+        }
+
+        kR = PP.readProp("colorLogHhistogram");
+        if (kR != null && ! kR.isEmpty()) {
+            colorLogHistogram = Integer.parseInt(kR);
+        } else {
+            colorLogHistogram = 0x64283CFF;
+        }
+
+        kR = PP.readProp("colorFoneHhistogram");
+        if (kR != null && ! kR.isEmpty()) {
+            colorFoneHistogram = Integer.parseInt(kR);
+        } else {
+            colorFoneHistogram = 0x6428FF28;
         }
 
         Log.d("DoZer", "koefR: " + koeffR);
@@ -1129,7 +1158,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             //  Отрисовка графика с учетом масштаба.
             //
             // Линейная гистограмма
-            p.setColor(Color.argb(255, 40, 40, 255));
+            p.setColor(colorLineHistogram);
             p.setStrokeWidth(penSize);
 
             // For markers
@@ -1137,12 +1166,12 @@ public class FullscreenActivity extends AppCompatActivity  {
             pm.setStrokeWidth(penSize);
 
             // Логарифмическая гистограмма
-            pLog.setColor(Color.argb(100, 40, 60, 255));
+            pLog.setColor(colorLogHistogram);
             pLog.setStrokeWidth(penSize);
 
             // Background radiation data
 
-            pBackground.setColor(Color.argb(100, 40, 255, 40));
+            pBackground.setColor(colorFoneHistogram);
             pBackground.setStrokeWidth(penSize);
 
             // Текст статистики
