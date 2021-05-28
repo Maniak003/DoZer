@@ -667,6 +667,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     */
     public static class ColorPickerDialog extends Dialog {
 
+        public int HDSize = 800, WDSize = 790;
         public interface OnColorChangedListener {
             void colorChanged(String key, int color);
         }
@@ -806,20 +807,22 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             @Override
             protected void onDraw(Canvas canvas) {
                 //int translatedHue = 255 - (int) (mCurrentHue * 500 / 600);
-                int translatedHue = 255 - (int) (mCurrentHue * 255 / 360);
+                int translatedHue = 255 - (int) (mCurrentHue * 255 / 360), xx;
+                float kf = (WDSize ) / 256;
                 // Display all the colors of the hue bar with lines
                 for (int x = 0; x < 256; x++) {
                     // If this is not the current selected hue, display the actual
                     // color
                     if (translatedHue != x) {
                         mPaint.setColor(mHueBarColors[x]);
-                        mPaint.setStrokeWidth(1);
+                        mPaint.setStrokeWidth(kf);
                     } else // else display a slightly larger black line
                     {
                         mPaint.setColor(Color.BLACK);
                         mPaint.setStrokeWidth(3);
                     }
-                    canvas.drawLine(x + 10, 0, x + 10, 40, mPaint);
+                    xx = (int) (x * kf) + 10;
+                    canvas.drawLine(xx, 0, xx, 70, mPaint);
                     // canvas.drawLine(0, x+10, 40, x+10, mPaint);
                 }
 
@@ -828,9 +831,10 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     int[] colors = new int[2];
                     colors[0] = mMainColors[x];
                     colors[1] = Color.BLACK;
-                    Shader shader = new LinearGradient(0, 50, 0, 306, colors, null, Shader.TileMode.REPEAT);
+                    Shader shader = new LinearGradient(0, 80, 0, HDSize - 60, colors, null, Shader.TileMode.REPEAT);
                     mPaint.setShader(shader);
-                    canvas.drawLine(x + 10, 50, x + 10, 306, mPaint);
+                    xx = (int) (x * kf) + 10;
+                    canvas.drawLine(xx, 80, xx, HDSize - 60, mPaint);
                 }
                 mPaint.setShader(null);
 
@@ -845,33 +849,36 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 // Draw a 'button' with the currently selected color
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setColor(mCurrentColor);
-                canvas.drawRect(10, 316, 138, 356 , mPaint);
+                //canvas.drawRect(10, 316, 138, 356 , mPaint);
+                canvas.drawRect(10, HDSize - 50, WDSize / 2 - 5, HDSize - 10 , mPaint);
 
                 // Set the text color according to the brightness of the color
-                if (Color.red(mCurrentColor) + Color.green(mCurrentColor)
-                        + Color.blue(mCurrentColor) < 384)
+                if (Color.red(mCurrentColor) + Color.green(mCurrentColor) + Color.blue(mCurrentColor) < 384)
                     mPaint.setColor(Color.WHITE);
                 else
                     mPaint.setColor(Color.BLACK);
-                canvas.drawText("Text2", 74,340, mPaint);
+                //canvas.drawText("Set", 74,340, mPaint);
+                canvas.drawText("Set", WDSize / 4,HDSize - 22, mPaint);
 
                 // Draw a 'button' with the default color
                 mPaint.setStyle(Paint.Style.FILL);
                 mPaint.setColor(mDefaultColor);
-                canvas.drawRect(138, 316, 266, 356, mPaint);
+                canvas.drawRect(WDSize / 2 + 5, HDSize - 50, WDSize - 10, HDSize - 10, mPaint);
 
                 // Set the text color according to the brightness of the color
-                if (Color.red(mDefaultColor) + Color.green(mDefaultColor)
-                        + Color.blue(mDefaultColor) < 384)
+                if (Color.red(mDefaultColor) + Color.green(mDefaultColor) + Color.blue(mDefaultColor) < 384)
                     mPaint.setColor(Color.WHITE);
                 else
                     mPaint.setColor(Color.BLACK);
-                canvas.drawText("Text1", 202, 340, mPaint);
+                //canvas.drawText("Def", 202, 340, mPaint);
+                canvas.drawText("Def", WDSize * 3 / 4, HDSize - 22, mPaint);
             }
 
+            /* Size dialog window */
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                setMeasuredDimension(276, 366);
+                setMeasuredDimension(WDSize, HDSize);
+                //setMeasuredDimension(276, 366);
             }
 
             @Override
@@ -882,7 +889,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 float y = event.getY();
 
                 // If the touch event is located in the hue bar
-                if (x > 10 && x < 266 && y > 0 && y < 40) {
+                if (x > 10 && x < WDSize - 10 && y > 0 && y < 70) {
                     // Update the main field colors
                     mCurrentHue = (255 - x) * 360 / 255;
                     updateMainColors();
@@ -899,7 +906,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 }
 
                 // If the touch event is located in the main field
-                if (x > 10 && x < 266 && y > 50 && y < 306) {
+                if (x > 10 && x < WDSize - 10 && y > 80 && y < HDSize - 60) {
                     mCurrentX = (int) x;
                     mCurrentY = (int) y;
                     int transX = mCurrentX - 10;
@@ -915,20 +922,19 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
                 // If the touch event is located in the left button, notify the
                 // listener with the current color
-                if (x > 10 && x < 138 && y > 316 && y < 356)
+                if (x > 10 && x < WDSize / 2 - 5 && y > HDSize - 50 && y < HDSize - 10)
                     mListener.colorChanged("", mCurrentColor);
 
                 // If the touch event is located in the right button, notify the
                 // listener with the default color
-                if (x > 138 && x < 266 && y > 316 && y < 356)
+                if (x > WDSize / 2 + 5 && x < WDSize - 10 && y > HDSize - 50 && y < HDSize - 10)
                     mListener.colorChanged("", mDefaultColor);
 
                 return true;
             }
         }
 
-        public ColorPickerDialog(Context context, OnColorChangedListener listener,
-                                 String key, int initialColor, int defaultColor) {
+        public ColorPickerDialog(Context context, OnColorChangedListener listener, String key, int initialColor, int defaultColor) {
             super(context);
 
             mListener = listener;
@@ -947,10 +953,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 }
             };
 
-            setContentView(new ColorPickerView(getContext(), l, mInitialColor,
-                    mDefaultColor));
+            setContentView(new ColorPickerView(getContext(), l, mInitialColor, mDefaultColor));
             setTitle("Color dialog");
-
         }
     }
 
