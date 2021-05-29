@@ -83,8 +83,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public int propBitData;
     public TextView smoothWindow;
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
-
-    private View mContentView;
+    public View mContentView;
 
     private void closeActivity() {
         this.finish();
@@ -110,7 +109,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         setContentView(R.layout.activity_fullscreen2);
         mContentView = findViewById(R.id.mainSetup);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         PP = new Props();
         editTextMAC = findViewById(R.id.editTextMAC);
         editTextKoefR = findViewById(R.id.editTextKoefR);
@@ -154,6 +152,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                                 public void colorChanged(String key, int color) {
                                     buttonFonHistogram.setBackgroundColor(color);
                                     colorFoneHistogram = color & 0xBFFFFFFF;
+                                    formatLayoutSet();
                                 }
                             }
                             , "10", colorFoneHistogram, colorFoneHistogram);
@@ -173,6 +172,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                                 public void colorChanged(String key, int color) {
                                     buttonLogHistogram.setBackgroundColor(color);
                                     colorLogHistogram = color & 0xC3FFFFFF;
+                                    formatLayoutSet();
                                 }
                             }
                             , "10", colorLogHistogram, colorLogHistogram);
@@ -193,10 +193,10 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                                 public void colorChanged(String key, int color) {
                                     mainColor.setBackgroundColor(color);
                                     colorLineHistogram = color;
+                                    formatLayoutSet();
                                 }
                             }
                             , "10", colorLineHistogram, colorLineHistogram);
-                    //CD.setOnShowListener();
                     CD.show();
                 }
             });
@@ -668,7 +668,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     */
     public static class ColorPickerDialog extends Dialog {
 
-        public int HDSize = 800, WDSize = 785;
+        public int HDSize = 600, WDSize = 785, HSize;
         public float kf = WDSize  / 256;
         public interface OnColorChangedListener {
             void colorChanged(String key, int color);
@@ -677,6 +677,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         private OnColorChangedListener mListener;
         private int mInitialColor, mDefaultColor;
         private String mKey;
+
+
 
         private class ColorPickerView extends View {
             private Paint mPaint;
