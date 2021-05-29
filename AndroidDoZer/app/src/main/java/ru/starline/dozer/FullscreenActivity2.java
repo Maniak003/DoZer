@@ -104,9 +104,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         );
     }
 
-    public void listCD(String key, int color) {
-
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -517,6 +514,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 prop.setProperty("Resolution", "3");
                 propBitData = propBitData + 768;
             }
+            prop.store(fileOutputStream, null);
+            fileOutputStream.close();
+
             /*
             00  -- Level 1 sound 1
             01  -- Level 1 vibro 2
@@ -536,7 +536,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             15
             16
              */
-            prop.store(fileOutputStream, null);
             Intent intent = new Intent();
             int[] tmpData = new int[4];
             tmpData[0] = propBitData; // Flags
@@ -599,6 +598,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             setResult(1, intent);
         }
     }
+
+    /* Scan BLE devices */
     class scanLE {
         private BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         private BluetoothLeScanner scanner = adapter.getBluetoothLeScanner();
@@ -667,7 +668,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     */
     public static class ColorPickerDialog extends Dialog {
 
-        public int HDSize = 800, WDSize = 790;
+        public int HDSize = 800, WDSize = 785;
+        public float kf = WDSize  / 256;
         public interface OnColorChangedListener {
             void colorChanged(String key, int color);
         }
@@ -746,7 +748,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
             // Get the current selected color from the hue bar
             private int getCurrentMainColor() {
-                int translatedHue = 255 - (int) (mCurrentHue * 255 / 360);
+                int translatedHue = 255 - (int) mCurrentHue;
                 int index = 0;
                 for (float i = 0; i < 256; i += 256 / 42) {
                     if (index == translatedHue)
@@ -807,8 +809,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             @Override
             protected void onDraw(Canvas canvas) {
                 //int translatedHue = 255 - (int) (mCurrentHue * 500 / 600);
-                int translatedHue = 255 - (int) (mCurrentHue * 255 / 360), xx;
-                float kf = (WDSize ) / 256;
+                int translatedHue = 255 - (int) mCurrentHue, xx;
                 // Display all the colors of the hue bar with lines
                 for (int x = 0; x < 256; x++) {
                     // If this is not the current selected hue, display the actual
@@ -816,10 +817,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     if (translatedHue != x) {
                         mPaint.setColor(mHueBarColors[x]);
                         mPaint.setStrokeWidth(kf);
-                    } else // else display a slightly larger black line
-                    {
+                    } else {    // else display a slightly larger black line -- cursor.
                         mPaint.setColor(Color.BLACK);
-                        mPaint.setStrokeWidth(3);
+                        mPaint.setStrokeWidth(6);
                     }
                     xx = (int) (x * kf) + 10;
                     canvas.drawLine(xx, 0, xx, 70, mPaint);
@@ -891,7 +891,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 // If the touch event is located in the hue bar
                 if (x > 10 && x < WDSize - 10 && y > 0 && y < 70) {
                     // Update the main field colors
-                    mCurrentHue = (255 - x) * 360 / 255;
+                    mCurrentHue = 255 - x * 255 / WDSize;
                     updateMainColors();
 
                     // Update the current selected color
@@ -910,8 +910,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     mCurrentX = (int) x;
                     mCurrentY = (int) y;
                     int transX = mCurrentX - 10;
-                    int transY = mCurrentY - 60;
-                    int index = 256 * (transY - 1) + transX;
+                    int transY = mCurrentY - 80;
+                    int index = 256 * (transY / (HDSize / 256) - 1) + transX / (WDSize / 256);
+                    //Log.d("DoZer", "Index: " + index);
                     if (index > 0 && index < mMainColors.length) {
                         // Update the current color
                         mCurrentColor = mMainColors[index];

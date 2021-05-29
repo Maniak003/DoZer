@@ -2,14 +2,6 @@ package ru.starline.dozer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -18,17 +10,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -40,7 +25,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -48,9 +32,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,14 +47,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -107,7 +94,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     //public String MAC = "20:06:03:20:02:B3";
     //public String MAC = "20:06:12:09:74:3E"; // F103
     //public String MAC = "A4:C1:38:05:49:8E";
-    public String defMAC = "20:06:11:11:66:CD", MAC = ""; // L412
+    public String defMAC = "20:06:00:00:00:00", MAC = ""; // L412
 
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
@@ -131,6 +118,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Intent intent = new Intent(this, FullscreenActivity2.class);
         startActivityForResult(intent, 2);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -195,6 +183,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                     DA.sendCfg(resData);
                 } catch (IOException e) {
                     Log.d("DoZer", "Error send config: " + e.getMessage());
+                }
+            }
+        } else {
+            if(requestCode == 3) {  // Accept BT enable.
+                if (resultCode == RESULT_OK) {
+                    BT.initLeDevice();
+                    tmFull.startTimer();
                 }
             }
         }
@@ -386,8 +381,25 @@ public class FullscreenActivity extends AppCompatActivity  {
             MAC = defMAC;
         }
         BT = new getBluetooth();
-        BT.initLeDevice();
-        tmFull.startTimer();
+        /*
+            Проверяет поддержку Bluetooth
+         */
+         BT.bluetooth = BluetoothAdapter.getDefaultAdapter();
+         if(BT.bluetooth == null) { // Bluetooth отсутствует
+              Toast.makeText(getApplicationContext(), "Bluetooth disabled ?", Toast.LENGTH_LONG).show();
+         } else {
+              if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                if (BT.bluetooth.isEnabled()) {
+                    BT.initLeDevice();
+                    tmFull.startTimer();
+                } else {
+                    // Bluetooth выключен. Предложим пользователю включить его.
+                    startActivityForResult(BT.enableBtIntent, 3);
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Bluetooth BLE not support", Toast.LENGTH_LONG).show();
+            }
+        }
 
         mainImage.setOnTouchListener((v, event) -> {
             float x = event.getX();
@@ -504,12 +516,22 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Check permission for write storage.
         int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        if ((permissionStatus1 == PackageManager.PERMISSION_GRANTED) && (permissionStatus2 == PackageManager.PERMISSION_GRANTED)) {
+        int permissionStatus3 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionStatus4 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionStatus5 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH);
+        int permissionStatus6 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN);
+        if ((permissionStatus1 == PackageManager.PERMISSION_GRANTED) && (permissionStatus2 == PackageManager.PERMISSION_GRANTED)
+            && permissionStatus3 == PackageManager.PERMISSION_GRANTED && permissionStatus4 == PackageManager.PERMISSION_GRANTED
+            && permissionStatus5 == PackageManager.PERMISSION_GRANTED && permissionStatus6 == PackageManager.PERMISSION_GRANTED) {
             initApplication();
         } else {
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE },200);
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION},200);
         }
     }
 
@@ -594,6 +616,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         public BluetoothAdapter bluetooth;
         //private final BluetoothSocket btSocket = null;
         public BluetoothDevice device;
+        public Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         private BluetoothGattCharacteristic readCharacteristic, writeCharacteristic;
         //private boolean canceled = false;
         private static final int MAX_MTU = 512; // BLE standard does not limit, some BLE 4.2 devices support 251, various source say that Android has max 512
@@ -642,11 +665,11 @@ public class FullscreenActivity extends AppCompatActivity  {
         public void initLeDevice() {
             writeBuffer = new ArrayList<>();    // Буфер для передачи.
             Log.d(TAG, "...Установка соединенния...");
-            bluetooth = BluetoothAdapter.getDefaultAdapter();
+            //bluetooth = BluetoothAdapter.getDefaultAdapter();
             if  ( ! bluetooth.isEnabled()) {
                 Log.d(TAG, "Bluetooth disabled. Exit.");
                 Toast.makeText(getBaseContext(), "BlueTooth disable ? \nProgram terminated.", Toast.LENGTH_LONG).show();
-                return;
+                finish();
             }
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
             Log.d(TAG, "Status: " + bluetooth.getState());
@@ -905,29 +928,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                 status="Bluetooth выключен";
             }
             Log.i(TAG, "Status:" + status);
-        }
-
-        /*
-            Проверяет поддержку Bluetooth
-         */
-        public void checkBluetooth()
-        {
-            if(bluetooth == null) { // Bluetooth отсутствует
-                Toast.makeText(getApplicationContext(), "Не работает Bluetooth.", Toast.LENGTH_LONG).show();
-            } else {
-                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-
-                    if (bluetooth.isEnabled()) {
-                        Toast.makeText(getApplicationContext(), "Bluetooth BLE - Ok", Toast.LENGTH_LONG).show();
-                    } else {
-                        // Bluetooth выключен. Предложим пользователю включить его.
-                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        startActivityForResult(enableBtIntent, RESULT_OK);
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Bluetooth BLE not support", Toast.LENGTH_LONG).show();
-                }
-            }
         }
 
         /*
