@@ -18,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="clip_horizontal"
+        android:background="#000000"
         android:baselineAligned="false"
         android:orientation="horizontal">
 
@@ -199,21 +200,27 @@
 
                     <Button
                         android:id="@+id/buttonMainColor"
-                        android:layout_width="45dp"
-                        android:layout_height="35dp"
-                        android:backgroundTint="@color/button_color" />
+                        android:layout_width="60dp"
+                        android:layout_height="45dp"
+                        android:backgroundTint="@color/button_color"
+                        android:text="Lin"
+                        android:textAllCaps="false" />
 
                     <Button
                         android:id="@+id/buttonLogHistogram"
-                        android:layout_width="45dp"
-                        android:layout_height="35dp"
-                        android:backgroundTint="@color/button_color" />
+                        android:layout_width="60dp"
+                        android:layout_height="45dp"
+                        android:backgroundTint="@color/button_color"
+                        android:text="Log"
+                        android:textAllCaps="false" />
 
                     <Button
                         android:id="@+id/buttonFonColor"
-                        android:layout_width="45dp"
-                        android:layout_height="35dp"
-                        android:backgroundTint="@color/button_color" />
+                        android:layout_width="60dp"
+                        android:layout_height="45dp"
+                        android:backgroundTint="@color/button_color"
+                        android:text="Fon"
+                        android:textAllCaps="false" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -499,14 +506,15 @@
         </LinearLayout>
 
         <Space
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="left"
+            android:layout_gravity="right|left|end"
+            android:gravity="start|right|left|end"
             android:orientation="vertical">
 
             <Button

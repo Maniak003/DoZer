@@ -698,7 +698,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 // color field
                 float[] hsv = new float[3];
                 Color.colorToHSV(color, hsv);
-                mCurrentHue = hsv[0];
+                mCurrentHue = hsv[0] - 10;
                 updateMainColors();
 
                 mCurrentColor = color;
@@ -873,7 +873,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 else
                     mPaint.setColor(Color.BLACK);
                 //canvas.drawText("Def", 202, 340, mPaint);
-                canvas.drawText("Def", WDSize * 3 / 4, HDSize - 22, mPaint);
+                canvas.drawText("Default", WDSize * 3 / 4, HDSize - 22, mPaint);
             }
 
             /* Size dialog window */
