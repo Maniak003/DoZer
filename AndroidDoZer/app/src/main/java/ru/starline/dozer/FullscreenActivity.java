@@ -1245,8 +1245,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
-            mastab = (float) HSize / maxPoint;
-            mastabLog = (float) HSize / (float) Math.log10(maxPoint);
+            mastab = (float) (HSize - 20) / maxPoint;
+            mastabLog = (float) (HSize - 20) / (float) Math.log10(maxPoint);
             /*
                     Redraw histogram
              */
