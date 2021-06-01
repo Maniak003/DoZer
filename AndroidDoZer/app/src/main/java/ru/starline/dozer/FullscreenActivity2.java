@@ -140,7 +140,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         smoothSpecter = findViewById(R.id.checkBoxSmooth);
         smoothWindow = findViewById(R.id.editTextSmoothWindow);
 
-        /* Color dialog */
+        /* Color dialog for fone histogram */
         buttonFonHistogram = findViewById(R.id.buttonFonColor);
         if(buttonFonHistogram != null) {
             buttonFonHistogram.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +151,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                                 @Override
                                 public void colorChanged(String key, int color) {
                                     buttonFonHistogram.setBackgroundColor(color);
-                                    colorFoneHistogram = color & 0xBFFFFFFF;
+                                    colorFoneHistogram = color & 0xAFFFFFFF;
                                     formatLayoutSet();
                                 }
                             }
@@ -161,6 +161,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             });
         }
 
+        /* Color dialog for log histogram */
         buttonLogHistogram = findViewById(R.id.buttonLogHistogram);
         if(buttonLogHistogram != null) {
             buttonLogHistogram.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +182,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             });
         }
 
+        /* Color dialog for line histogram */
         mainColor = findViewById(R.id.buttonMainColor);
         if (mainColor != null) {
             mainColor.setOnClickListener(new View.OnClickListener() {
@@ -939,7 +941,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
         public ColorPickerDialog(Context context, OnColorChangedListener listener, String key, int initialColor, int defaultColor) {
             super(context);
-
             mListener = listener;
             mKey = key;
             mInitialColor = initialColor;

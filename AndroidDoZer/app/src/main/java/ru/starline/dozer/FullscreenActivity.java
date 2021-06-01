@@ -119,6 +119,12 @@ public class FullscreenActivity extends AppCompatActivity  {
         startActivityForResult(intent, 2);
     }
 
+    // Run logView activity
+    public void logViewActivity() {
+        Intent intent = new Intent(this, logView.class);
+        startActivityForResult(intent, 4);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -415,19 +421,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Log button
         final Button logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
-            logBtn.setOnClickListener(v -> {
-                /*
-                Log.d("DoZer", "Pressed Log.");
-                Log.d(TAG, "Path: " + android.os.Environment.getExternalStorageDirectory().toString());
-                try {
-                    File myFile = new File("dozer.txt");
-                    Log.d(TAG, "Absolute path: " + myFile.getAbsolutePath());
-                    myFile.createNewFile();                                         // Создается файл, если он не был создан
-                } catch (IOException e) {
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                */
-            });
+            logBtn.setOnClickListener(v -> logViewActivity());
         } else {
             Log.d("DoZer", "exitBtn not found");
         }
@@ -577,7 +571,6 @@ public class FullscreenActivity extends AppCompatActivity  {
     protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "onRestart.");
-
         formatLayout();
     }
 
@@ -995,13 +988,12 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-
     /*
             Вызывается при перерисовке.
     */
     public class DrawAll {
-        double countsAll, interval, oldValX;
-        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, mastab, mastab2, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        double countsAll, interval, oldValX, mastab, mastab2;
+        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pBackground = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
@@ -1042,7 +1034,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
-         public void hideCursor() {
+        public void hideCursor() {
              if (oldX > 0) {
                  cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
                  cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
@@ -1218,7 +1210,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     if (mastab2 == 0) {  // background radiation disabled
                         resultData[j] = tmpVal;
                     } else {
-                        resultData[j] = tmpVal - foneData[j] *  mastab2;
+                        resultData[j] = (float)  (tmpVal - foneData[j] *  mastab2);
                         if (resultData[j] < 0) {
                             resultData[j] = 0;
                         }
@@ -1245,25 +1237,25 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
-            mastab = (float) (HSize - 20) / maxPoint;
-            mastabLog = (float) (HSize - 20) / (float) Math.log10(maxPoint);
+            mastab =  (HSize - 20) / maxPoint;
+            mastabLog = (HSize - 20) / (float) Math.log10(maxPoint);
             /*
                     Redraw histogram
              */
             for (int i = 0; i < maxCanal / 2; i++) {
                 float X = i * penSize - 2;
-                canvas.drawLine(X, HSize - (float) Math.log10(resultData[i]) * mastabLog, X, HSize, pLog);
-                canvas.drawLine(X, HSize - resultData[i] * mastab, X, HSize, p);
+                canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, HSize, pLog);
+                canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, HSize, p);
             }
 
             /*
                 Draw background radiation
              */
             if ((foneActive == 2) && (tmpTime > 0) && (backgtoundTime > 0) ) {
-                mastab2 =  tmpTime / (float) backgtoundTime * mastab;  // Calculate mashtab for background radiation
+                mastab2 =  tmpTime * mastab / (float) backgtoundTime;  // Calculate mashtab for background radiation
                 for (int i = 0; i < 1024; i++) {
                     float X = i * penSize - 2;
-                    canvas.drawLine(X, HSize - foneData[i] * mastab2, X, HSize, pBackground);
+                    canvas.drawLine(X, (float)  (HSize - foneData[i] * mastab2), X, HSize, pBackground);
                 }
             }
             // Output total counts and cps.
@@ -1296,7 +1288,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     //histCanvas.drawColor(0xff000000);
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = WSizeHist - i * pen3Size - 1;
-                        Y = HSizeHist - findData[i] * mastab + 1;
+                        Y = (float)  (HSizeHist - findData[i] * mastab + 1);
                         if (HSizeHist - Y < 1) {
                             Y = HSizeHist - 1;
                         }
