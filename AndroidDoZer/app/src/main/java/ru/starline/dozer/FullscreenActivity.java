@@ -86,7 +86,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0;
     public float curentTime, tmpTime;
-    public float tmpFindData, Trh1 = 40, Trh2 = 100;
+    public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
+    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B;
     public double correctA, correctB, correctC, backgtoundTime;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
@@ -141,6 +142,17 @@ public class FullscreenActivity extends AppCompatActivity  {
                 resData[i + 8] = ByteBuffer.allocate(4).putFloat(data.getFloatExtra("CFGDATA5", 1)).get(i);
             }
 
+            /* Radiation levels */
+            Trh1 = data.getIntArrayExtra("CFGDATA1")[1];
+            if (Trh1 == 0 )
+                Trh1 = 30;
+            Trh2 = data.getIntArrayExtra("CFGDATA1")[2];
+            if (Trh2 == 0 )
+                Trh2 = 60;
+            Trh3 = data.getIntArrayExtra("CFGDATA1")[3];
+            if (Trh3 == 0 )
+                Trh3 = 100;
+
             /* Update MAC address */
             String tmpMAC;
             tmpMAC = data.getStringExtra("CFGDATA6");
@@ -169,16 +181,17 @@ public class FullscreenActivity extends AppCompatActivity  {
                 smoothWindow = Integer.parseInt(tmpStr);
             }
 
+            /* Histogram colors */
             colorLineHistogram = data.getIntExtra("CFGDATA11", 0xFF2828FF);
             colorLogHistogram = data.getIntExtra("CFGDATA12", 0x64283CFF);
             colorFoneHistogram = data.getIntExtra("CFGDATA13", 0x6428FF28);
 
             Log.d("DoZer", "onActivityResult: " + resultCode
-                    + " CFGDATA1: " + resData[1] + resData[0]
-                    + " CFGDATA2: " + resData[3] + resData[2]
-                    + " CFGDATA3: " + resData[5] + resData[4]
-                    + " CFGDATA4: " + resData[7] + resData[6]
-                    + " CFGDATA5: " + resData[11] + resData[10] + resData[9] + resData[8]
+                    + " CFGDATA1: " + resData[1] + ", " + resData[0]
+                    + " TRH1: " + Trh1
+                    + " TRH2: " + Trh2
+                    + " TRH3: " + Trh3
+                    + " CFGDATA5: " + resData[11] + ", " + resData[10] + resData[9] + resData[8]
                     + " CFGDATA6: " + MAC
                     + " CFGDATA7: " + foneFlName
                     + " CFGDATA8: " + foneActive
@@ -379,6 +392,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             colorFoneHistogram = Integer.parseInt(kR);
         } else {
             colorFoneHistogram = 0x6428FF28;
+        }
+
+        /* Radiation level */
+        kR = PP.readProp("Level1");
+        if (kR != null && ! kR.isEmpty()) {
+            Trh1 = Integer.parseInt(kR);
+        } else {
+            Trh1 = 30;
+        }
+
+        kR = PP.readProp("Level2");
+        if (kR != null && ! kR.isEmpty()) {
+            Trh2 = Integer.parseInt(kR);
+        } else {
+            Trh2 = 60;
+        }
+
+        kR = PP.readProp("Level3");
+        if (kR != null && ! kR.isEmpty()) {
+            Trh3 = Integer.parseInt(kR);
+        } else {
+            Trh3 = 100;
         }
 
         Log.d("DoZer", "koefR: " + koeffR);
@@ -994,8 +1029,10 @@ public class FullscreenActivity extends AppCompatActivity  {
     public class DrawAll {
         double countsAll, interval, oldValX, mastab, mastab2;
         float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
-        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pText = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
-                emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(), pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pBackground = new Paint();
+        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
+                emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(),
+                pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pFindData3 = new Paint(),
+                pBackground = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
         public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
@@ -1166,18 +1203,15 @@ public class FullscreenActivity extends AppCompatActivity  {
             pBackground.setColor(colorFoneHistogram);
             pBackground.setStrokeWidth(penSize);
 
-            // Текст статистики
-            pText.setColor(Color.argb(100, 255, 40, 255));
-            pText.setStrokeWidth(penSize);
-            pText.setTextSize(10.0f);
-
-            // График дла поиска
-            pFindData.setColor(Color.argb(200, 40, 255, 40)); // Normal
+              // График дла поиска
+            pFindData.setColor(colorNormal); // Normal
             pFindData.setStrokeWidth(pen3Size);
-            pFindData1.setColor(Color.argb(200, 255, 255, 40)); // Warning
+            pFindData1.setColor(colorWarning); // Warning
             pFindData1.setStrokeWidth(pen3Size);
-            pFindData2.setColor(Color.argb(200, 255, 40, 40)); // Alarm
+            pFindData2.setColor(colorAlarm); // Alarm
             pFindData2.setStrokeWidth(pen3Size);
+            pFindData3.setColor(colorAlert); // Alert
+            pFindData3.setStrokeWidth(pen3Size);
             emptFindData.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
             /*
@@ -1285,7 +1319,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
                     // Перерисовка графика поиска
                     float X, Y;
-                    //histCanvas.drawColor(0xff000000);
+                    double knf;
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = WSizeHist - i * pen3Size - 1;
                         Y = (float)  (HSizeHist - findData[i] * mastab + 1);
@@ -1295,15 +1329,20 @@ public class FullscreenActivity extends AppCompatActivity  {
                         // Clear old data
                         histCanvas.drawLine(X, 1, X, HSizeHist, emptFindData);
                         // Draw new line
-                        //if ( findData[i] > 0) {
-                            if (findData[i] < Trh1) {
-                                histCanvas.drawLine(X, Y, X, HSizeHist, pFindData);
-                            } else if (findData[i] < Trh2) {
+                        knf = findData[i] * koeffR;
+                        if (knf < Trh1) {
+                            histCanvas.drawLine(X, Y, X, HSizeHist, pFindData);
+                        } else {
+                            if (knf < Trh2) {
                                 histCanvas.drawLine(X, Y, X, HSizeHist, pFindData1);
                             } else {
-                                histCanvas.drawLine(X, Y, X, HSizeHist, pFindData2);
+                                if (knf < Trh3) {
+                                    histCanvas.drawLine(X, Y, X, HSizeHist, pFindData2);
+                                } else {
+                                    histCanvas.drawLine(X, Y, X, HSizeHist, pFindData3);
+                                }
                             }
-                        //}
+                        }
                     }
 
                     // Вывод статистики
@@ -1326,23 +1365,39 @@ public class FullscreenActivity extends AppCompatActivity  {
                     } else {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f%%)", tmpTime, acps, 300 / Math.sqrt(countsAll)));
                     }
+
                     /* Текущее значение */
-                    if (findData[0] < Trh1) {
-                        textStatistic3.setTextColor(0xFF00FF00);
-                    } else if ( findData[0] < Trh2 ) {
-                        textStatistic3.setTextColor(0xFFFFFF00);
+                    //Log.i(TAG, "findData[0]: " + findData[0] + " Trh1: " + Trh1 + " Trh2: " + Trh2 + " Trh3: " + Trh3);
+                    knf = findData[0] * koeffR;
+                    if (knf < Trh1) {
+                        textStatistic3.setTextColor(colorNormal); // Green
                     } else {
-                        textStatistic3.setTextColor(0xFFFF0000);
+                        if (knf < Trh2 ) {
+                            textStatistic3.setTextColor(colorWarning); // Yellow
+                        } else {
+                            if (knf < Trh3 ) {
+                                textStatistic3.setTextColor(colorAlarm); // Red
+                            } else {
+                                textStatistic3.setTextColor(colorAlert); // Magenta
+                            }
+                        }
                     }
                     textStatistic3.setText(String.format("Now: %.1f uR/h", findData[0] * koeffR));
 
                     /* Среднее значение */
-                    if (acps < Trh1) {
-                        textStatistic4.setTextColor(0xFF00FF00);
-                    } else if (acps < Trh2) {
-                        textStatistic4.setTextColor(0xFFFFFF00);
+                    knf = acps * koeffR;
+                    if (knf < Trh1) {
+                        textStatistic4.setTextColor(colorNormal);
                     } else {
-                        textStatistic4                                                   .setTextColor(0xFFFF0000);
+                        if (knf < Trh2) {
+                            textStatistic4.setTextColor(colorWarning);
+                        } else {
+                            if (knf < Trh3) {
+                                textStatistic4.setTextColor(colorAlarm);
+                            } else {
+                                textStatistic4.setTextColor(colorAlert);
+                            }
+                        }
                     }
                     textStatistic4.setText(String.format(" Avg: %.2f uR/h", acps * koeffR));
 

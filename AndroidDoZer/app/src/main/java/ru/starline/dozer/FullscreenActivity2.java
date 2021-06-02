@@ -94,12 +94,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             actionBar.hide();
         }
         mContentView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LOW_PROFILE
-              | View.SYSTEM_UI_FLAG_FULLSCREEN
-              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-              | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-              | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN
+              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         );
     }
 
@@ -276,9 +273,27 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 editTextKoefR.setText(tmpData);
             }
-            editTextLevel1.setText(PP.readProp("Level1"));
-            editTextLevel2.setText(PP.readProp("Level2"));
-            editTextLevel3.setText(PP.readProp("Level3"));
+
+            String tStr;
+            tStr = PP.readProp("Level1");
+            if (tStr != null && ! tStr.isEmpty()) {
+                editTextLevel1.setText(tStr);
+            } else {
+                editTextLevel1.setText("30");
+            }
+
+            tStr = PP.readProp("Level2");
+            if (tStr != null && ! tStr.isEmpty()) {
+                editTextLevel2.setText(tStr);
+            } else {
+                editTextLevel2.setText("60");
+            }
+            tStr = PP.readProp("Level3");
+            if (tStr != null && ! tStr.isEmpty()) {
+                editTextLevel3.setText(tStr);
+            } else {
+                editTextLevel3.setText("100");
+            }
             // Correction data
             tmpData = PP.readProp("Correct_A");
             if (tmpData == null) {
@@ -324,11 +339,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             }
             buttonFonHistogram.setBackgroundColor(colorFoneHistogram);
 
+            editTextBackgroundFile.setText(PP.readProp("BgrdFlName"));
             editTextEnergi_A.setText(PP.readProp("Energi_A"));
             editTextEnergi_B.setText(PP.readProp("Energi_B"));
             editTextEnergi_C.setText(PP.readProp("Energi_C"));
             smoothWindow.setText(PP.readProp("smoothWindow"));
-            editTextBackgroundFile.setText(PP.readProp("BgrdFlName"));
             tmpData = PP.readProp("Energi_D");
             if (tmpData == null) {
                 editTextEnergi_D.setText("1");
@@ -538,21 +553,22 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             15
             16
              */
+            /* Send data into Main activity */
             Intent intent = new Intent();
             int[] tmpData = new int[4];
-            tmpData[0] = propBitData; // Flags
+            tmpData[0] = propBitData; // Flags for activate sound & vibro
             if (editTextLevel1.getText().toString().isEmpty()) {
-                tmpData[1] = 0;
+                tmpData[1] = 30;
             } else {
                 tmpData[1] = Integer.parseInt(editTextLevel1.getText().toString());
             }
             if (editTextLevel2.getText().toString().isEmpty()) {
-                tmpData[2] = 0;
+                tmpData[2] = 60;
             } else {
                 tmpData[2] = Integer.parseInt(editTextLevel2.getText().toString());
             }
             if (editTextLevel3.getText().toString().isEmpty()) {
-                tmpData[3] = 0;
+                tmpData[3] = 100;
             } else {
                 tmpData[3] = Integer.parseInt(editTextLevel3.getText().toString());
             }
