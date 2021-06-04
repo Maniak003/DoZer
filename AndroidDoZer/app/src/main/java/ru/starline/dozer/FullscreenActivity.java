@@ -1050,14 +1050,14 @@ public class FullscreenActivity extends AppCompatActivity  {
         private int textVShift = 45;
 
         /* Energy compensation function */
-        public double energyCalculate(double eVal) {
-            double resVal = 0;
-            if (eVal >= 0 && eVal <= 160) {
-                //resVal = 0.0006169 * Math.pow(eVal, 3) - 0.02163328 * Math.pow(eVal, 2) + 2.46946365 * eVal + 0.03982075;
-                resVal = 0.00003544 * Math.pow(eVal, 3) - 0.0159535 * Math.pow(eVal, 2) + 2.18650806 * eVal + 0.33390472;
+        public double energyCalculate(int  chan) {
+            double resVal = Math.pow(chan , 2) * correctA + ((double) chan ) * correctB + correctC;
+            if (resVal >= 0 && resVal <= 160) {
+                //resVal = 0.0006169 * Math.pow(resVal, 3) - 0.02163328 * Math.pow(resVal, 2) + 2.46946365 * resVal + 0.03982075;
+                resVal = 0.00003544 * Math.pow(resVal, 3) - 0.0159535 * Math.pow(resVal, 2) + 2.18650806 * resVal + 0.33390472;
             } else {
-                //resVal = -4.06093089 + 13928.43350697 / eVal;
-                resVal = 82431.29943816 * Math.pow(eVal, -1.35254625);
+                //resVal = -4.06093089 + 13928.43350697 / resVal;
+                resVal = 82431.29943816 * Math.pow(resVal, -1.35254625);
             }
             return resVal ;
         }
@@ -1262,17 +1262,23 @@ public class FullscreenActivity extends AppCompatActivity  {
                 mastab2 = 0;
             }
             for (int i = firstCanal; i < 2084; i++) {
+                double knf = 1;
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
                 countsAll = countsAll + tmpVal;  // Total pulses
                 /* Energy compensation calculate */
                 if (energyCompFlag == 1) {
-                    tmpVal = (float) ((double) tmpVal / energyCalculate(Math.pow(j , 2) * correctA + ((double) j ) * correctB + correctC));
+                    knf = energyCalculate(j);
+                    tmpVal = (float) ((double) tmpVal / knf);
                 }
                 if ( i < maxCanal) {
                     if (mastab2 == 0) {  // background radiation disabled
                         resultData[j] = tmpVal;
                     } else {
-                        resultData[j] = (float)  (tmpVal - foneData[j] *  mastab2);
+                        if (energyCompFlag == 1) {
+                            resultData[j] = (float) (tmpVal - foneData[j]  * mastab2 / knf);
+                        } else {
+                            resultData[j] = (float) (tmpVal - foneData[j] * mastab2);
+                        }
                         if (resultData[j] < 0) {
                             resultData[j] = 0;
                         }
@@ -1315,9 +1321,11 @@ public class FullscreenActivity extends AppCompatActivity  {
              */
             if ((foneActive == 2) && (tmpTime > 0) && (backgtoundTime > 0) ) {
                 mastab2 =  tmpTime * mastab / (float) backgtoundTime;  // Calculate mashtab for background radiation
+                double knf = 1;
                 for (int i = 0; i < 1024; i++) {
+                     knf = energyCalculate(i);
                     float X = i * penSize - 2;
-                    canvas.drawLine(X, (float)  (HSize - foneData[i] * mastab2), X, HSize, pBackground);
+                    canvas.drawLine(X, (float)  (HSize - foneData[i] * mastab2 / knf), X, HSize, pBackground);
                 }
             }
             // Output total counts and cps.
