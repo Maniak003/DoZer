@@ -386,6 +386,12 @@
                 android:text="Energ-comp: Ax^3+Bx^2+Cx+D"
                 android:textColor="@color/label_text" />
 
+            <CheckBox
+                android:id="@+id/checkBoxEnergyComp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Compensation" />
+
             <TextView
                 android:id="@+id/textView13"
                 android:layout_width="match_parent"

@@ -71,6 +71,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public CheckBox checkBoxLed;
     public CheckBox checkBoxSound;
     public CheckBox smoothSpecter;
+    public CheckBox energyCompensation;
     public RadioButton BGNone;
     public RadioButton BGDiff;
     public RadioButton BGOver;
@@ -125,6 +126,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         checkBoxLevel2_V= findViewById(R.id.checkBoxLevel2_V);
         checkBoxLevel3_S = findViewById(R.id.checkBoxLevel3_S);
         checkBoxLevel3_V = findViewById(R.id.checkBoxLevel3_V);
+        energyCompensation = findViewById(R.id.checkBoxEnergyComp);
         checkBoxLed = findViewById(R.id.checkBoxLed);
         checkBoxSound = findViewById(R.id.checkBoxSound);
         radioButtonResolution1 = findViewById(R.id.radioButtonResolution1);
@@ -350,6 +352,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 editTextEnergi_D.setText(tmpData);
             }
+            /* Energy compensation enable */
+            tmpData = PP.readProp("energyCompFlag");
+            if (tmpData != null) {
+                energyCompensation.setChecked(tmpData.equals("1"));
+            }
+
             tmpData = PP.readProp("Level1_S");
             if (tmpData != null) {
                 checkBoxLevel1_S.setChecked(tmpData.equals("1"));
@@ -453,6 +461,13 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             prop.setProperty("colorLinHhistogram", String.valueOf(colorLineHistogram));
             prop.setProperty("colorLogHhistogram", String.valueOf(colorLogHistogram));
             prop.setProperty("colorFoneHhistogram", String.valueOf(colorFoneHistogram));
+            /* Energy compensation flag */
+            if (energyCompensation.isChecked()) {
+                prop.setProperty("energyCompFlag", "1");
+            } else {
+                prop.setProperty("energyCompFlag", "0");
+            }
+
             if (BGNone.isChecked()) {
                 prop.setProperty("BgActive", "0");
             } else {
@@ -612,6 +627,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             intent.putExtra("CFGDATA11", colorLineHistogram);
             intent.putExtra("CFGDATA12", colorLogHistogram);
             intent.putExtra("CFGDATA13", colorFoneHistogram);
+            if (energyCompensation.isChecked()) {
+                intent.putExtra("CFGDATA14", 1);
+            } else {
+                intent.putExtra("CFGDATA14", 0);
+            }
 
             setResult(1, intent);
         }

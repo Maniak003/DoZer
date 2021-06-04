@@ -87,7 +87,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public int startFlag = 0, bufferIndex = 0, foneActive = 0;
     public float curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
-    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B;
+    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0;
     public double correctA, correctB, correctC, backgtoundTime;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
@@ -185,6 +185,9 @@ public class FullscreenActivity extends AppCompatActivity  {
             colorLineHistogram = data.getIntExtra("CFGDATA11", 0xFF2828FF);
             colorLogHistogram = data.getIntExtra("CFGDATA12", 0x64283CFF);
             colorFoneHistogram = data.getIntExtra("CFGDATA13", 0x6428FF28);
+
+            /* Energy compensation enable */
+            energyCompFlag = data.getIntExtra("CFGDATA14", 0);
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + ", " + resData[0]
@@ -392,6 +395,14 @@ public class FullscreenActivity extends AppCompatActivity  {
             colorFoneHistogram = Integer.parseInt(kR);
         } else {
             colorFoneHistogram = 0x6428FF28;
+        }
+
+        /* Energy compensation flag */
+        kR = PP.readProp("energyCompFlag");
+        if (kR != null && ! kR.isEmpty()) {
+            energyCompFlag = Integer.parseInt(kR);
+        } else {
+            energyCompFlag = 0;
         }
 
         /* Radiation level */
@@ -1038,6 +1049,19 @@ public class FullscreenActivity extends AppCompatActivity  {
         public int WSizeHist, HSizeHist;
         private int textVShift = 45;
 
+        /* Energy compensation function */
+        public double energyCalculate(double eVal) {
+            double resVal = 0;
+            if (eVal >= 0 && eVal <= 160) {
+                //resVal = 0.0006169 * Math.pow(eVal, 3) - 0.02163328 * Math.pow(eVal, 2) + 2.46946365 * eVal + 0.03982075;
+                resVal = 0.00003544 * Math.pow(eVal, 3) - 0.0159535 * Math.pow(eVal, 2) + 2.18650806 * eVal + 0.33390472;
+            } else {
+                //resVal = -4.06093089 + 13928.43350697 / eVal;
+                resVal = 82431.29943816 * Math.pow(eVal, -1.35254625);
+            }
+            return resVal ;
+        }
+
         public void redraw() {
             //
             // Layout size
@@ -1240,6 +1264,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             for (int i = firstCanal; i < 2084; i++) {
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
                 countsAll = countsAll + tmpVal;  // Total pulses
+                /* Energy compensation calculate */
+                if (energyCompFlag == 1) {
+                    tmpVal = (float) ((double) tmpVal / energyCalculate(Math.pow(j , 2) * correctA + ((double) j ) * correctB + correctC));
+                }
                 if ( i < maxCanal) {
                     if (mastab2 == 0) {  // background radiation disabled
                         resultData[j] = tmpVal;
