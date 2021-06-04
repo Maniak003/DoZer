@@ -223,6 +223,36 @@
                         android:textAllCaps="false" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Save format"
+                    android:textColor="@color/label_text" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal" >
+
+                    <RadioButton
+                        android:id="@+id/radioButtonSaveSPE"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SPE"
+                        android:textColor="@color/edit_text" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonSaveXML"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="BqXML"
+                        android:textColor="@color/edit_text" />
+                </RadioGroup>
+
             </LinearLayout>
 
         </LinearLayout>

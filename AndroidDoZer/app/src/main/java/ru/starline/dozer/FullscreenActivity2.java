@@ -78,6 +78,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public RadioButton radioButtonResolution1;
     public RadioButton radioButtonResolution2;
     public RadioButton radioButtonResolution3;
+    public RadioButton saveSPE;
+    public RadioButton saveXML;
     public Button scanBLEBTN;
     public Button mainColor, buttonLogHistogram, buttonFonHistogram;
     public Intent intent;
@@ -138,6 +140,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         BGOver = findViewById(R.id.radioButtonBGOver);
         smoothSpecter = findViewById(R.id.checkBoxSmooth);
         smoothWindow = findViewById(R.id.editTextSmoothWindow);
+        saveSPE = findViewById(R.id.radioButtonSaveSPE);
+        saveXML = findViewById(R.id.radioButtonSaveXML);
 
         /* Color dialog for fone histogram */
         buttonFonHistogram = findViewById(R.id.buttonFonColor);
@@ -395,6 +399,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 BGOver.setChecked(tmpData.equals("2"));
             }
 
+            tmpData = PP.readProp("saveFormat");
+            if (tmpData != null) {
+                saveSPE.setChecked(tmpData.equals("1"));
+                saveXML.setChecked(tmpData.equals("0"));
+            }
+
             tmpData = PP.readProp("Sound");
             if (tmpData != null) {
                 checkBoxSound.setChecked(tmpData.equals("1"));
@@ -477,6 +487,13 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     prop.setProperty("BgActive", "2");  // BG over
                 }
             }
+
+            if (saveSPE.isChecked()) {
+                prop.setProperty("saveFormat", "1");  // SPE
+            } else {
+                prop.setProperty("saveFormat", "0");  // XML
+            }
+
             prop.setProperty("smoothWindow", smoothWindow.getText().toString());
             if (smoothSpecter.isChecked()) {  // Smoothing specter
                 prop.setProperty("smoothSpectr", "1");
@@ -627,10 +644,17 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             intent.putExtra("CFGDATA11", colorLineHistogram);
             intent.putExtra("CFGDATA12", colorLogHistogram);
             intent.putExtra("CFGDATA13", colorFoneHistogram);
+
             if (energyCompensation.isChecked()) {
                 intent.putExtra("CFGDATA14", 1);
             } else {
                 intent.putExtra("CFGDATA14", 0);
+            }
+
+            if (saveSPE.isChecked()) {
+                intent.putExtra("CFGDATA15", 1);  // SPE
+            } else {
+                intent.putExtra("CFGDATA15", 0);  // XML
             }
 
             setResult(1, intent);

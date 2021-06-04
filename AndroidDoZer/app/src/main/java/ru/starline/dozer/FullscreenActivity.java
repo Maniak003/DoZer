@@ -87,7 +87,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public int startFlag = 0, bufferIndex = 0, foneActive = 0;
     public float curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
-    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0;
+    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0;
     public double correctA, correctB, correctC, backgtoundTime;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
@@ -188,6 +188,9 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             /* Energy compensation enable */
             energyCompFlag = data.getIntExtra("CFGDATA14", 0);
+
+            /* Save format*/
+            saveFormat = data.getIntExtra("CFGDATA15", 0);  // XML default
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + ", " + resData[0]
@@ -368,6 +371,13 @@ public class FullscreenActivity extends AppCompatActivity  {
             foneActive = 0;
         }
 
+        kR = PP.readProp("saveFormat");
+        if (kR != null && ! kR.isEmpty()) {
+            saveFormat = Integer.parseInt(kR);
+        } else {
+            saveFormat = 0;
+        }
+
         kR = PP.readProp("smoothSpectr");
         if (kR != null && ! kR.isEmpty()) {
             smoothSpecter = Integer.parseInt(kR);
@@ -464,6 +474,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             return true;
         });
 
+         /* Button listeners */
         // Log button
         final Button logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
@@ -506,7 +517,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         // Save button to BqMonitor format
         final Button saveBtn = findViewById(R.id.SaveBtn);
         if (saveBtn != null) {
-            saveBtn.setOnClickListener(v -> DH.saveHistogramXML());
+            saveBtn.setOnClickListener(v -> DH.saveFile());
         } else {
             Log.d("DoZer", "saveBtn not found");
         }
@@ -1450,6 +1461,14 @@ public class FullscreenActivity extends AppCompatActivity  {
     class drawHistogram {
         float tmpVal;
 
+        public void saveFile() {
+            if (saveFormat == 0) {
+                saveHistogramXML();
+            } else {
+                saveHistogram();
+            }
+        }
+
         //  Save histogram in CSV format
         public void saveHistogram() {
             String dataStr = null, fileName;
@@ -1462,7 +1481,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 Toast.makeText(getBaseContext(), "SD-storage not available: " + Environment.getExternalStorageState() , Toast.LENGTH_LONG).show();
                 return;
             }
-            Toast toast = Toast.makeText(getApplicationContext(),"Сохранено.", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(),"Saved SPE.", Toast.LENGTH_SHORT);
             try {
                 File direct = new File(Environment.getExternalStorageDirectory()+"/DoZer");
                 if(!direct.exists()) {
@@ -1476,7 +1495,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
                     dataStr = String.valueOf(j++);
                     outputStream.write(dataStr.getBytes());
-                    outputStream.write(0x2c);
+                    outputStream.write(0x2c);  // 2c = ,
                     dataStr = String.valueOf((int) tmpVal);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
@@ -1486,7 +1505,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
+                toast = Toast.makeText(getApplicationContext(),"Error: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
             toast.show();
             /*
@@ -1535,7 +1554,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             Date now = calendar.getTime();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'_'HHmmss");
             fileName = simpleDateFormat.format(now);
-            Toast toast = Toast.makeText(getApplicationContext(),"Saved.", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(),"Saved BqXML.", Toast.LENGTH_SHORT);
             // Check mount devices
             if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 Log.d(TAG, "SD-storage not available: " + Environment.getExternalStorageState());
@@ -1665,7 +1684,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 outputStream.close();
             } catch (Exception e) {
                 //e.printStackTrace();
-                toast = Toast.makeText(getApplicationContext(),"Ошибка. " + e.getMessage(), Toast.LENGTH_SHORT);
+                toast = Toast.makeText(getApplicationContext(),"Error: " + e.getMessage(), Toast.LENGTH_SHORT);
             }
             toast.show();
         }
