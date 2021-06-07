@@ -78,7 +78,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public boolean connected = false;
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096];
-    public int findDataSize = 210, firstCanal = 12, maxCanal = 2055;
+    public int findDataSize = 210, firstCanal = 12, maxCanal = 2048;
     public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
@@ -191,6 +191,11 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             /* Save format*/
             saveFormat = data.getIntExtra("CFGDATA15", 0);  // XML default
+
+            correctA = data.getFloatArrayExtra("CFGDATA16")[0];
+            correctB = data.getFloatArrayExtra("CFGDATA16")[1];
+            correctC = data.getFloatArrayExtra("CFGDATA16")[2];
+
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + ", " + resData[0]
@@ -1490,17 +1495,15 @@ public class FullscreenActivity extends AppCompatActivity  {
                 File myFile = new File(Environment.getExternalStorageDirectory().toString() + "/DoZer/" + fileName + ".csv");
                 myFile.createNewFile();                                         // Создается файл, если он не был создан
                 FileOutputStream outputStream = new FileOutputStream(myFile);   // После чего создаем поток для записи
-                int j = 0;
-                for (int i = 8; i < maxCanal; i++) {
-                    tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xff));
-                    dataStr = String.valueOf(j++);
+                for (int i = 0; i < maxCanal / 2; i++) {
+                    dataStr = String.valueOf(i);
                     outputStream.write(dataStr.getBytes());
                     outputStream.write(0x2c);  // 2c = ,
-                    dataStr = String.valueOf((int) tmpVal);
+                    dataStr = String.valueOf((int) resultData[i]);
                     outputStream.write(dataStr.getBytes());                            // и производим непосредственно запись
                     outputStream.write(0x0a);
                 }
-                outputStream.write(dataStr.getBytes());
+                //outputStream.write(dataStr.getBytes());
                 outputStream.close();
 
             } catch (Exception e) {

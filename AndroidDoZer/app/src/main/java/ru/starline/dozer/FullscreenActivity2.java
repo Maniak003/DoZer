@@ -657,6 +657,25 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 intent.putExtra("CFGDATA15", 0);  // XML
             }
 
+            /* Correction coefficient Chanel to Energy */
+            float[] corrVal = new float[3];
+            if (editTextCorrect_A.getText() != null && editTextCorrect_A.getText().length() > 0) {
+                corrVal[0] = Float.parseFloat(editTextCorrect_A.getText().toString());
+            } else {
+                corrVal[0] = 0;
+            }
+            if (editTextCorrect_B.getText() != null && editTextCorrect_B.getText().length() > 0) {
+                corrVal[1] = Float.parseFloat(editTextCorrect_B.getText().toString());
+            } else {
+                corrVal[1] = 1;
+            }
+            if (editTextCorrect_A.getText() != null && editTextCorrect_A.getText().length() > 0) {
+                corrVal[2] = Float.parseFloat(editTextCorrect_C.getText().toString());
+            } else {
+                corrVal[2] = 0;
+            }
+            intent.putExtra("CFGDATA16", corrVal);
+
             setResult(1, intent);
         }
     }
