@@ -1,0 +1,62 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>KiCad BOM Example 5</title>
+    </head>
+    <body>
+    <h1>/home/ed/work/DoZer/SC-STM32L412K8-light/SC-STM32L412K8.sch</h1>
+    <p>Пн 24 мая 2021 10:10:28</p>
+    <p>Eeschema 5.1.8+dfsg1-1~bpo10+1</p>
+    <p><b>Component Count:</b>64</p>
+    <table>
+    <tr><th style='width:640px'>Ref</th><th>Qnty</th><th>Value</th><th>Part</th><th>Footprint</th><th>Description</th><th>Vendor</th></tr>
+    <tr><td>C1, C2, C3, C4, C12, C13, C15, C16, C17, C18, C19</td><td>11</td><td>22uF</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C5</td><td>1</td><td>1.5pF</td><td>Device:C</td><td>Capacitor_SMD:C_0603_1608Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C6, C7, C8, C11, C14</td><td>5</td><td>C3216X7R1H106K160AC</td><td>Device:C</td><td>Capacitor_SMD:C_0805_2012Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>C20</td><td>1</td><td>0.1uF</td><td>Device:C</td><td>Capacitor_SMD:C_0603_1608Metric</td><td>Unpolarized capacitor</td><td></td></tr>
+    <tr><td>D1, D7</td><td>2</td><td>LED</td><td>Device:LED</td><td>LED_SMD:LED_0805_2012Metric</td><td>Light emitting diode</td><td></td></tr>
+    <tr><td>D2</td><td>1</td><td>MBR0540</td><td>Device:D</td><td>Diode_SMD:D_SOD-123</td><td>Diode</td><td></td></tr>
+    <tr><td>D6</td><td>1</td><td>STM32L412K8</td><td>SC-STM32L412K8-rescue:STM32L412K8-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>Package_QFP:LQFP-32_7x7mm_P0.8mm</td><td></td><td></td></tr>
+    <tr><td>J1</td><td>1</td><td>usb</td><td>Connector:USB_B_Micro</td><td>Connector_USB:USB_Micro-B_Molex_47346-0001</td><td>USB Micro Type B connector</td><td></td></tr>
+    <tr><td>J2</td><td>1</td><td>+29.6 SiPM</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J3</td><td>1</td><td>TxD (20)</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J4</td><td>1</td><td>RxD (19)</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J5</td><td>1</td><td>SWDIO</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J6</td><td>1</td><td>SWCLK</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J7</td><td>1</td><td>+BAT</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J8</td><td>1</td><td>SiPM-</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J9</td><td>1</td><td>BT Status</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J10</td><td>1</td><td>Buzzer</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J11</td><td>1</td><td>Vibro</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J12</td><td>1</td><td>+3v</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>J13</td><td>1</td><td>+vibro</td><td>SC-STM32L412K8-rescue:Conn-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>My-library:SMD-CONN</td><td></td><td></td></tr>
+    <tr><td>L1</td><td>1</td><td>LQM21FN100N</td><td>Device:L</td><td>Inductor_SMD:L_0805_2012Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>L2</td><td>1</td><td>LQH31MN220J03L</td><td>Device:L</td><td>Inductor_SMD:L_1210_3225Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>L3, L4</td><td>2</td><td>MLZ2012M470WT000</td><td>Device:L</td><td>Inductor_SMD:L_0805_2012Metric</td><td>Inductor</td><td></td></tr>
+    <tr><td>Q1, Q2</td><td>2</td><td>IRLML6344</td><td>Transistor_FET:2N7002</td><td>Package_TO_SOT_SMD:SOT-23</td><td>0.115A Id, 60V Vds, N-channel MOSFET, SOT-23</td><td></td></tr>
+    <tr><td>R1</td><td>1</td><td>20k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R2</td><td>1</td><td>2.2k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R3</td><td>1</td><td>430k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R4, R13, R14</td><td>3</td><td>1k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R5</td><td>1</td><td>10M</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R6</td><td>1</td><td>1</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R7</td><td>1</td><td>680k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R8</td><td>1</td><td>5.1k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R9</td><td>1</td><td>12k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R10</td><td>1</td><td>3k*</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R11</td><td>1</td><td>100</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R12</td><td>1</td><td>200</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R15, R16, R20</td><td>3</td><td>100k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>R19</td><td>1</td><td>39k</td><td>Device:R</td><td>Resistor_SMD:R_0603_1608Metric</td><td>Resistor</td><td></td></tr>
+    <tr><td>SW1</td><td>1</td><td>power</td><td>Switch:SW_DPDT_x2</td><td>My-library:MySwithc</td><td>Switch, dual pole double throw, separate symbols</td><td></td></tr>
+    <tr><td>U2</td><td>1</td><td>AP3015KTR</td><td>Regulator_Switching:LM2733YMF</td><td>Package_TO_SOT_SMD:SOT-23-5</td><td>LM27313, 1A, 40Vout Boost Voltage Regulator, 600KHz Frequency,</td><td></td></tr>
+    <tr><td>U3</td><td>1</td><td>MCP73831</td><td>Battery_Management:LTC4054ES5-4.2</td><td>Package_TO_SOT_SMD:TSOT-23-5</td><td>Constant-current/constant-voltage linear charger for single cell lithium-ion batteries with 2.9V Trickle Charge, 4.5V to 6.5V VDD, -40 to +85 degree Celcius, TSOT-23-5</td><td></td></tr>
+    <tr><td>U4</td><td>1</td><td>TLV3201AIDBVT</td><td>SC-STM32L412K8-rescue:LMV7239M5-My_Library-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue-SC-STM32L412K8-rescue</td><td>Package_TO_SOT_SMD:SOT-23-5</td><td></td><td></td></tr>
+    <tr><td>U5</td><td>1</td><td>MCP1700-3002E</td><td>Regulator_Linear:MCP1700-3002E_SOT23</td><td>Package_TO_SOT_SMD:SOT-23</td><td>250mA Low Quiscent Current LDO, 3.0V output, SOT-23</td><td></td></tr><!--TABLEROW-->
+    </table>
+    </body>
+</html>
+    
