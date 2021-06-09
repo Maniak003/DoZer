@@ -349,7 +349,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             editTextEnergi_A.setText(PP.readProp("Energi_A"));
             editTextEnergi_B.setText(PP.readProp("Energi_B"));
             editTextEnergi_C.setText(PP.readProp("Energi_C"));
-            smoothWindow.setText(PP.readProp("smoothWindow"));
             tmpData = PP.readProp("Energi_D");
             if (tmpData == null) {
                 editTextEnergi_D.setText("1");
@@ -413,6 +412,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             tmpData = PP.readProp("smoothSpectr");
             if (tmpData != null) {
                 smoothSpecter.setChecked(tmpData.equals("1"));
+            }
+            tmpData = PP.readProp("smoothWindow");
+            if (tmpData != null && tmpData.length() > 0) {
+                smoothWindow.setText(tmpData);
+            } else {
+                smoothWindow.setText("3");
             }
 
             tmpData = PP.readProp("Resolution");
@@ -494,7 +499,21 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 prop.setProperty("saveFormat", "0");  // XML
             }
 
-            prop.setProperty("smoothWindow", smoothWindow.getText().toString());
+            if (smoothWindow.getText().length() > 0) {
+                int tmpD = Integer.parseInt(smoothWindow.getText().toString());
+                if (tmpD < 3) {
+                    tmpD = 3;
+                } else {
+                    if (tmpD % 2 == 0) {  // Четное ?
+                        tmpD++;
+                    }
+                }
+                smoothWindow.setText(String.valueOf(tmpD));
+                prop.setProperty("smoothWindow", String.valueOf(tmpD));
+            } else {
+                prop.setProperty("smoothWindow", "3");
+                smoothWindow.setText("3");
+            }
             if (smoothSpecter.isChecked()) {  // Smoothing specter
                 prop.setProperty("smoothSpectr", "1");
             } else {
