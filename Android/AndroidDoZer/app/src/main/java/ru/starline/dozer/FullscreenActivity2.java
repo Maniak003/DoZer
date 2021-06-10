@@ -70,6 +70,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public CheckBox checkBoxLevel3_V;
     public CheckBox checkBoxLed;
     public CheckBox checkBoxSound;
+    public CheckBox checkBoxMarker;
     public CheckBox smoothSpecter;
     public CheckBox energyCompensation;
     public RadioButton BGNone;
@@ -131,6 +132,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         energyCompensation = findViewById(R.id.checkBoxEnergyComp);
         checkBoxLed = findViewById(R.id.checkBoxLed);
         checkBoxSound = findViewById(R.id.checkBoxSound);
+        checkBoxMarker = findViewById(R.id.checkBoxMarker);
         radioButtonResolution1 = findViewById(R.id.radioButtonResolution1);
         radioButtonResolution2 = findViewById(R.id.radioButtonResolution2);
         radioButtonResolution3 = findViewById(R.id.radioButtonResolution3);
@@ -409,6 +411,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 checkBoxSound.setChecked(tmpData.equals("1"));
             }
 
+            tmpData = PP.readProp("Marker");
+            if (tmpData != null) {
+                checkBoxMarker.setChecked(tmpData.equals("1"));
+            }
+
             tmpData = PP.readProp("smoothSpectr");
             if (tmpData != null) {
                 smoothSpecter.setChecked(tmpData.equals("1"));
@@ -572,6 +579,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 prop.setProperty("Sound", "0");
             }
+            if (checkBoxMarker.isChecked()) {  // Marker active
+                prop.setProperty("Marker", "1");
+            } else {
+                prop.setProperty("Marker", "0");
+            }
+
             if (radioButtonResolution1.isChecked()) {
                 prop.setProperty("Resolution", "1");
                 propBitData = propBitData + 256;
@@ -694,6 +707,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 corrVal[2] = 0;
             }
             intent.putExtra("CFGDATA16", corrVal);
+
+            if (checkBoxMarker.isChecked()) {
+                intent.putExtra("CFGDATA17", 1);  // Mark active
+            } else {
+                intent.putExtra("CFGDATA17", 0);  // Mark not active
+            }
 
             setResult(1, intent);
         }

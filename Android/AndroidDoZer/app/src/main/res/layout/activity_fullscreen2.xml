@@ -371,6 +371,14 @@
                     android:layout_weight="1"
                     android:text="Sound"
                     android:textColor="@color/edit_text" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxMarker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Merker"
+                    android:textColor="@color/edit_text" />
             </LinearLayout>
 
             <TextView

@@ -79,7 +79,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096];
     public int findDataSize = 210, firstCanal = 12, maxCanal = 2048;
-    public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096];
+    public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096], oldData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
     public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15;
@@ -87,7 +87,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public int startFlag = 0, bufferIndex = 0, foneActive = 0;
     public float curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
-    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0;
+    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0;
     public double correctA, correctB, correctC, backgtoundTime;
     public double koeffR = (double) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
@@ -195,6 +195,8 @@ public class FullscreenActivity extends AppCompatActivity  {
             correctA = data.getFloatArrayExtra("CFGDATA16")[0];
             correctB = data.getFloatArrayExtra("CFGDATA16")[1];
             correctC = data.getFloatArrayExtra("CFGDATA16")[2];
+
+            Marker = data.getIntExtra("CFGDATA17", 0);
 
 
             Log.d("DoZer", "onActivityResult: " + resultCode
@@ -418,6 +420,14 @@ public class FullscreenActivity extends AppCompatActivity  {
             energyCompFlag = Integer.parseInt(kR);
         } else {
             energyCompFlag = 0;
+        }
+
+        /* Marker flag */
+        kR = PP.readProp("Marker");
+        if (kR != null && ! kR.isEmpty()) {
+            Marker = Integer.parseInt(kR);
+        } else {
+            Marker = 0;
         }
 
         /* Radiation level */
@@ -1059,7 +1069,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(),
                 pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pFindData3 = new Paint(),
-                pBackground = new Paint();
+                pBackground = new Paint(), actualPaint = new Paint();
         public Bitmap bitmap, bitmap2, bitmap3;
         public Canvas mainCanvas, historyCanvas, cursorCanvas;
         public int WSizeHist, HSizeHist;
@@ -1254,6 +1264,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             pFindData3.setStrokeWidth(pen3Size);
             emptFindData.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
+            actualPaint.setStrokeWidth(penSize);
             /*
                 Get time and counter from device
              */
@@ -1326,10 +1337,33 @@ public class FullscreenActivity extends AppCompatActivity  {
             /*
                     Redraw histogram
              */
+
+            double knf = 1;
+            knf = findData[0] * koeffR;
+            if (knf < Trh1) {
+                actualPaint.setColor(colorNormal); // Green
+            } else {
+                if (knf < Trh2 ) {
+                    actualPaint.setColor(colorWarning); // Yellow
+                } else {
+                    if (knf < Trh3 ) {
+                        actualPaint.setColor(colorAlarm); // Red
+                    } else {
+                        actualPaint.setColor(colorAlert); // Magenta
+                    }
+                }
+            }
+
+            float X, Y;
             for (int i = 0; i < maxCanal / 2; i++) {
-                float X = i * penSize - 2;
+                X = i * penSize - 2;
                 canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, HSize, pLog);
                 canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, HSize, p);
+                if (Marker == 1 && resultData[i] > oldData[i] && oldData[i] != 0) {  // delta marker
+                    canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, (float)(HSize - Math.log10(resultData[i]) * mastabLog + 5), actualPaint);
+                    canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, (float) (HSize - resultData[i] * mastab + 5), actualPaint);
+                }
+                oldData[i] = resultData[i];
             }
 
             /*
@@ -1337,10 +1371,9 @@ public class FullscreenActivity extends AppCompatActivity  {
              */
             if ((foneActive == 2) && (tmpTime > 0) && (backgtoundTime > 0) ) {
                 mastab2 =  tmpTime * mastab / (float) backgtoundTime;  // Calculate mashtab for background radiation
-                double knf = 1;
                 for (int i = 0; i < 1024; i++) {
                      knf = energyCalculate(i);
-                    float X = i * penSize - 2;
+                    X = i * penSize - 2;
                     canvas.drawLine(X, (float)  (HSize - foneData[i] * mastab2 / knf), X, HSize, pBackground);
                 }
             }
@@ -1370,11 +1403,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                     mastab = HSizeHist / mastab;
 
                     // Перерисовка графика поиска
-                    float X, Y;
-                    double knf;
                     for (int i = 0; i < findDataSize - 1; i++) {
                         X = WSizeHist - i * pen3Size - 1;
-                        Y = (float)  (HSizeHist - findData[i] * mastab + 1);
+                        Y = (float) (HSizeHist - findData[i] * mastab + 1);
                         if (HSizeHist - Y < 1) {
                             Y = HSizeHist - 1;
                         }
@@ -1434,6 +1465,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                             }
                         }
                     }
+
                     textStatistic3.setText(String.format("Now: %.1f uR/h", findData[0] * koeffR));
 
                     /* Среднее значение */
