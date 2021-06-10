@@ -217,6 +217,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                     Log.d("DoZer", "Error send config: " + e.getMessage());
                 }
             }
+            for ( int i = 0; i < 4096; i++) {  // Clear old array
+                oldData[i] = 0;
+            }
         } else {
             if(requestCode == 3) {  // Accept BT enable.
                 if (resultCode == RESULT_OK) {
@@ -1372,9 +1375,13 @@ public class FullscreenActivity extends AppCompatActivity  {
             if ((foneActive == 2) && (tmpTime > 0) && (backgtoundTime > 0) ) {
                 mastab2 =  tmpTime * mastab / (float) backgtoundTime;  // Calculate mashtab for background radiation
                 for (int i = 0; i < 1024; i++) {
-                     knf = energyCalculate(i);
                     X = i * penSize - 2;
-                    canvas.drawLine(X, (float)  (HSize - foneData[i] * mastab2 / knf), X, HSize, pBackground);
+                    if (energyCompFlag == 1 ) {
+                        knf = energyCalculate(i);
+                        canvas.drawLine(X, (float) (HSize - foneData[i] * mastab2 / knf), X, HSize, pBackground);
+                    } else {
+                        canvas.drawLine(X, (float) (HSize - foneData[i] * mastab2), X, HSize, pBackground);
+                    }
                 }
             }
             // Output total counts and cps.
