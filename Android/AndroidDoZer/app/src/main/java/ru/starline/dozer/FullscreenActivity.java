@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,17 +27,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -63,9 +67,10 @@ import static java.lang.Math.round;
 
 public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
+    public Intent intent2;
     /* Colors */
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
-
+    public Button calibrateButton;
     public Handler h;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
@@ -84,7 +89,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     private intervalTimer tmFull = new intervalTimer();
     public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15;
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
-    public int startFlag = 0, bufferIndex = 0, foneActive = 0;
+    public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
+    public int[][] calibrateData = new int[3][2];
     public float curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0;
@@ -157,7 +163,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             String tmpMAC;
             tmpMAC = data.getStringExtra("CFGDATA6");
             if ( ! tmpMAC.equals(MAC)) {
-                MAC = tmpMAC;
+                MAC = tmpMAC.toUpperCase();
                 if (connected) {
                     connected = false;
                     BT.destroyDevice();
@@ -308,6 +314,101 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
+    public double determinant(double[][] matr) {
+        double det = matr[0][0] * matr[1][1] * matr[2][2] +
+                     matr[2][0] * matr[0][1] * matr[1][2] +
+                     matr[1][0] * matr[2][1] * matr[0][2] -
+                     matr[2][0] * matr[1][1] * matr[0][2] -
+                     matr[0][0] * matr[2][1] * matr[1][2] -
+                     matr[1][0] * matr[0][1] * matr[2][2];
+        return det;
+    }
+
+    public void calibrateSpecter() {
+        if (cursorHideFlag > 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            if (calibrateIndex > 3) {
+                calibrateIndex = 1;
+                calibrateButton.setText("1");
+                /*  */
+                double koeffData[][] = new double[3][3], mainDet = 0;
+                koeffData[0][0] = (double) Math.pow(calibrateData[0][0], 2);
+                koeffData[0][1] = (double)  calibrateData[0][0];
+                koeffData[0][2] = 1;
+                koeffData[1][0] = (double) Math.pow(calibrateData[1][0], 2);
+                koeffData[1][1] = (double)  calibrateData[1][0];
+                koeffData[1][2] = 1;
+                koeffData[2][0] = (double) Math.pow(calibrateData[2][0], 2);
+                koeffData[2][1] = (double)  calibrateData[2][0];
+                koeffData[2][2] = 1;
+                mainDet = determinant(koeffData);
+                if (mainDet != 0) {
+                    Log.d("DoZer", "Det: " + mainDet);
+
+                    koeffData[0][0] = (double) calibrateData[0][1];
+                    koeffData[1][0] = (double) calibrateData[1][1];
+                    koeffData[2][0] = (double) calibrateData[2][1];
+                    correctA = determinant(koeffData) / mainDet;
+
+                    koeffData[0][0] = (double) Math.pow(calibrateData[0][0], 2);
+                    koeffData[0][1] = (double) calibrateData[0][1];
+                    koeffData[1][0] = (double) Math.pow(calibrateData[1][0], 2);
+                    koeffData[1][1] = (double) calibrateData[1][1];
+                    koeffData[2][0] = (double) Math.pow(calibrateData[2][0], 2);
+                    koeffData[2][1] = (double) calibrateData[2][1];
+                    correctB = determinant(koeffData) / mainDet;
+
+                    koeffData[0][1] = (double) calibrateData[0][0];
+                    koeffData[0][2] = (double) calibrateData[0][1];
+                    koeffData[1][1] = (double) calibrateData[1][0];
+                    koeffData[1][2] = (double) calibrateData[1][1];
+                    koeffData[2][1] = (double) calibrateData[2][0];
+                    koeffData[2][2] = (double) calibrateData[2][1];
+                    correctC = determinant(koeffData) / mainDet;
+                    DA.hideCursor();
+                    intent2 = new Intent(this, FullscreenActivity2.class);
+                    intent2.putExtra("CFGDATA0",correctA);
+                    intent2.putExtra("CFGDATA1",correctB);
+                    intent2.putExtra("CFGDATA2",correctC);
+                    startActivityForResult(intent2, 2);
+                }
+            } else {
+                builder.setTitle("Enter energy for chanal " + (int) (DA.oldX / DA.penSize) + ", point: " + calibrateIndex);
+                // Set up the input
+                final EditText input = new EditText(this);
+                // Specify the type of input expected.
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String m_Text = input.getText().toString();
+                        if (m_Text != null && m_Text.length() > 0) {
+                            calibrateData[calibrateIndex - 1][0] = (int) (DA.oldX / DA.penSize); // Chanel
+                            calibrateData[calibrateIndex - 1][1] = Integer.parseInt(m_Text); // Energy
+                            calibrateIndex++;
+                            if (calibrateIndex > 3) {
+                                calibrateButton.setText("v");
+                            } else {
+                                calibrateButton.setText(String.valueOf(calibrateIndex));
+                            }
+                        }
+                        formatLayout();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        formatLayout();
+                    }
+                });
+                builder.show();
+            }
+        }
+    }
     /*
         Smoothing array
     */
@@ -493,6 +594,28 @@ public class FullscreenActivity extends AppCompatActivity  {
         });
 
          /* Button listeners */
+        /* Calibrate button */
+        calibrateButton = findViewById(R.id.buttonCalibrate);
+        if (calibrateButton != null) {
+            calibrateButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    calibrateSpecter();
+                }
+            });
+        } else {
+            Log.d("DoZer", "buttonCalibrate not found");
+        }
+
+        final Button cancelCalibrate = findViewById(R.id.buttonCancelCalibrate);
+        if (cancelCalibrate != null) {
+            cancelCalibrate.setOnClickListener(new View.OnClickListener() {
+               public void  onClick(View v) {
+                   calibrateIndex = 1;
+                   calibrateButton.setText("1");
+               }
+            });
+        }
+
         // Log button
         final Button logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
@@ -1068,7 +1191,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     */
     public class DrawAll {
         double countsAll, interval, oldValX, mastab, mastab2;
-        float batVoltage = 0, oldX = -1 , oldY = -1, maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, penSize = 2, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        float batVoltage = 0,  maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        public float oldX = -1 , oldY = -1, penSize = 2;
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(),
                 pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pFindData3 = new Paint(),
@@ -1126,6 +1250,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
         public void hideCursor() {
              if (oldX > 0) {
+                 cursorHideFlag = 0;
                  cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
                  cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
                  cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
@@ -1148,6 +1273,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 curs.setTextSize(20.0f);
             } else {
                 hideCursor();
+                cursorHideFlag = 1;
                 oldX = X;
                 oldY = Y;
                 // Calculate Energy over channel.

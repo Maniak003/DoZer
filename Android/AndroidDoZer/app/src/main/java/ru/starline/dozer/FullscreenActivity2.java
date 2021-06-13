@@ -303,23 +303,31 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 editTextLevel3.setText("100");
             }
             // Correction data
-            tmpData = PP.readProp("Correct_A");
-            if (tmpData == null) {
-                editTextCorrect_A.setText("0.0025257686806495"); // For original DoZer NaI(Tl) 10x40 + FC60035
+            Bundle arguments = getIntent().getExtras();
+            if (arguments != null) {
+                editTextCorrect_A.setText(arguments.get("CFGDATA0").toString());
+                editTextCorrect_B.setText(arguments.get("CFGDATA1").toString());
+                editTextCorrect_C.setText(arguments.get("CFGDATA2").toString());
+                Log.d("DoZer", "Activity2 A, B, C: " + editTextCorrect_A.getText() + " " + editTextCorrect_B.getText() + " " + editTextCorrect_C.getText());
             } else {
-                editTextCorrect_A.setText(tmpData);
-            }
-            tmpData = PP.readProp("Correct_B");
-            if (tmpData == null) {
-                editTextCorrect_B.setText("1.99778118743629"); // For original DoZer NaI(Tl) 10x40 + FC60035
-            } else {
-                editTextCorrect_B.setText(tmpData);
-            }
-            tmpData = PP.readProp("Correct_C");
-            if (tmpData == null) {
-                editTextCorrect_C.setText("6.03265776105158"); // For original DoZer NaI(Tl) 10x40 + FC60035
-            } else {
-                editTextCorrect_C.setText(tmpData);
+                tmpData = PP.readProp("Correct_A");
+                if (tmpData == null) {
+                    editTextCorrect_A.setText("0.0025257686806495"); // For original DoZer NaI(Tl) 10x40 + FC60035
+                } else {
+                    editTextCorrect_A.setText(tmpData);
+                }
+                tmpData = PP.readProp("Correct_B");
+                if (tmpData == null) {
+                    editTextCorrect_B.setText("1.99778118743629"); // For original DoZer NaI(Tl) 10x40 + FC60035
+                } else {
+                    editTextCorrect_B.setText(tmpData);
+                }
+                tmpData = PP.readProp("Correct_C");
+                if (tmpData == null) {
+                    editTextCorrect_C.setText("6.03265776105158"); // For original DoZer NaI(Tl) 10x40 + FC60035
+                } else {
+                    editTextCorrect_C.setText(tmpData);
+                }
             }
 
             /* Colors */
@@ -437,6 +445,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     radioButtonResolution1.setChecked(true);
                 }
             }
+
             intent = new Intent(this, FullscreenActivity.class);
         } catch (IOException e) {
             Log.d("Dozer", "Error message: " + e.getMessage());

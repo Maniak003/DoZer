@@ -110,10 +110,12 @@
             <Button
                 android:id="@+id/SaveBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:background="#F8F5F5"
                 android:backgroundTint="@color/button_color"
                 android:foregroundTint="#7BBA59"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/SaveBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
@@ -124,8 +126,10 @@
             <Button
                 android:id="@+id/clearBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/clearBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
@@ -134,8 +138,10 @@
             <Button
                 android:id="@+id/gistoBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/gistogramBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
@@ -144,8 +150,10 @@
             <Button
                 android:id="@+id/setupBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/setupBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
@@ -154,18 +162,52 @@
             <Button
                 android:id="@+id/logBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/logBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
                 app:rippleColor="#FFFFFF" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonCalibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/button_color"
+                    android:insetTop="2dp"
+                    android:insetRight="2dp"
+                    android:insetBottom="2dp"
+                    android:text="1"
+                    android:textColor="@color/button_text" />
+
+                <Button
+                    android:id="@+id/buttonCancelCalibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/button_color"
+                    android:insetLeft="2dp"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:text="X"
+                    android:textColor="@color/button_text" />
+            </LinearLayout>
+
             <Button
                 android:id="@+id/exitBtn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
                 android:text="@string/exitBtn"
                 android:textAllCaps="false"
                 android:textColor="@color/button_text"
