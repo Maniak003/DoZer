@@ -1,5 +1,5 @@
-main.c:67:6:bebe	8	static
-main.c:80:6:rwFlash	56	static
-main.c:366:6:SystemClock_Config	160	static
-main.c:150:5:main	120	static
-main.c:822:6:Error_Handler	0	static
+main.c:72:6:bebe	8	static
+main.c:85:6:rwFlash	56	static
+main.c:399:6:SystemClock_Config	160	static
+main.c:173:5:main	120	static
+main.c:893:6:Error_Handler	0	static

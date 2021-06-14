@@ -29,6 +29,7 @@
 #define BUZZER GPIO_PIN_3
 #define ANALOG_INPUT
 #define sizeCommand 20
+#define radBufferSize 50
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -59,11 +60,14 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 char counterPP[20];
 uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount;
-uint32_t counterCC, counterALL, sleepDelay, oldTimeAll;
+uint32_t counterCC, counterALL, sleepDelay, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3;
 uint16_t adcResult;
 uint16_t spectrData[2050];
 uint16_t spectrCRC;
 uint8_t btCommand[sizeCommand];
+uint8_t indexBuffer;
+uint32_t radBuffer[radBufferSize];
+float cfgKoefRh;
 
 /* USER CODE END EC */
 

@@ -58,6 +58,7 @@
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern LPTIM_HandleTypeDef hlptim2;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim16;
@@ -222,6 +223,7 @@ void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
 	uint16_t batResult;
+	uint32_t nowInterval;
 	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
 	  adcResult = HAL_ADC_GetValue(&hadc1);
 	  if (adcResult > 0) {
@@ -232,6 +234,17 @@ void ADC1_2_IRQHandler(void)
 			  spectrData[adcResult]++;
 		  counterCC++;
 		  counterALL++;
+
+		  /* intervals for radiation level */
+		  nowInterval = HAL_GetTick();
+		  if (oldInterval > 0) {
+			  radBuffer[indexBuffer++] = nowInterval - oldInterval;
+			  if (indexBuffer > radBufferSize - 1) { // Buffer size = radBufferSize.
+				  indexBuffer = 0;
+			  }
+		  }
+		  oldInterval = nowInterval;
+
 		  if ((cfgData & 64) > 0) { // Check config data for LED activity
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
@@ -295,7 +308,7 @@ void TIM6_IRQHandler(void)
   /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_IRQn 1 */
-  if ((cfgData & 0x1) > 0 ){  // Test first config bit.
+  if ((cfgData & 0x15) > 0 ){  // Sound on.
 	  switch (alarmLevel) {
 	  case 0:
 		  alarmCount = 0;
@@ -305,35 +318,82 @@ void TIM6_IRQHandler(void)
 			  alarmCount = 4;
 		  } else {
 			  if (alarmCount > 2) {
-				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
-				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+				  if ((cfgData & 0x1) != 0) { // Check enabled flag sound level 1
+					  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+					  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+				  }
 			  }
 		  }
 		  break;
 	  case 2:
-		  if (alarmCount-- <= 0) {
-			  alarmCount = 5;
-		  } else {
-			  if (alarmCount > 2) {
-				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
-				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+			  if (alarmCount-- <= 0) {
+				  alarmCount = 5;
+			  } else {
+				  if (alarmCount > 2) {
+					  if ((cfgData & 0x4) != 0) {  // Check enabled flag sound level 2
+						  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+					  }
+				  }
 			  }
-		  }
 		  break;
 	  case 3:
-		  if (alarmCount-- <= 0) {
-			  alarmCount = 6;
-		  } else {
-			  if (alarmCount > 2) {
-				  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
-				  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+			  if (alarmCount-- <= 0) {
+				  alarmCount = 6;
+			  } else {
+				  if (alarmCount > 2) {
+					  if ((cfgData & 0x10) != 0) { // Check enabled flag sound level 3
+						  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+					  }
+				  }
 			  }
-		  }
 		  break;
 	  }
   }
 
   /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles LPTIM2 global interrupt.
+  */
+void LPTIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN LPTIM2_IRQn 0 */
+  uint32_t realCount;
+  //uint8_t s[100];
+
+  /* USER CODE END LPTIM2_IRQn 0 */
+  HAL_LPTIM_IRQHandler(&hlptim2);
+  /* USER CODE BEGIN LPTIM2_IRQn 1 */
+  avgRadInterval = 0;
+  realCount = 0;
+  for ( int i = 0; i < radBufferSize; i++) {
+	  if (radBuffer[i] > 0) {
+		  realCount++;
+		  avgRadInterval = avgRadInterval + radBuffer[i];
+	  }
+  }
+  if (realCount > 0) {
+	  avgRadInterval = avgRadInterval / realCount;
+	  if (avgRadInterval < Thr3) {
+			  alarmLevel = 3;
+	  } else {
+		  if (avgRadInterval < Thr2) {
+				  alarmLevel = 2;
+		  } else {
+			  if (avgRadInterval < Thr1) {
+					  alarmLevel = 1;
+			  } else {
+				  alarmLevel = 0;  // Disable alarm sound
+			  }
+		  }
+	  }
+  }
+  //sprintf(s, "Avg: %d, Cnt: %d, alarm: %d\r\n", avgRadInterval, realCount, alarmLevel);
+  //HAL_UART_Transmit(&huart1, s, strlen((char *)s), 1000);
+  /* USER CODE END LPTIM2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

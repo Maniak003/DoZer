@@ -48,6 +48,8 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
+LPTIM_HandleTypeDef hlptim2;
+
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
@@ -59,10 +61,13 @@ DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE BEGIN PV */
 char counterPP[20];
 _Bool initFlag = 1, sleepFlag = 1, initUART = 1;
-uint32_t counterCC = 0, counterALL = 0, sleepDelay;
+uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0;
 uint16_t adcResult = 0;
 uint16_t spectrData[2050] = {0};
 uint16_t spectrCRC;
+uint8_t indexBuffer;
+uint32_t radBuffer[radBufferSize] = {0};
+float cfgKoefRh;
 
 void bebe(void) {
 	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
@@ -107,17 +112,34 @@ void rwFlash(uint8_t rwFlag) {
 			while(flash_ok != HAL_OK){
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr, dataForSave); // Write  magic key into Flash
 			}
+			uint32_t tmpInt = *((uint32_t *) &cfgKoefRh);
+			dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) tmpInt << 32);
+			flash_ok = HAL_ERROR;
+			while(flash_ok != HAL_OK){
+				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr + 8, dataForSave); // Write Level2, Level3
+			}
 		}
 		// Lock flash
 		flash_ok = HAL_ERROR;
 		while(flash_ok != HAL_OK){
 			flash_ok = HAL_FLASH_Lock();
 		}
+		bebe();
 	} else {
 		cfgData = *(__IO uint16_t*) (pageAdr + 4);
 		cfgLevel1 = *(__IO uint16_t*) (pageAdr + 6);
 		cfgLevel2 = *(__IO uint16_t*) (pageAdr + 8);
 		cfgLevel3 = *(__IO uint16_t*) (pageAdr + 10);
+		uint32_t koefAddr = pageAdr + 12;
+		uint32_t ddd = *(__IO uint32_t*) (koefAddr);
+		//  cfgKoefRh = *(float *) &btCommand[11];
+		cfgKoefRh = *(float*) &ddd;
+		if (cfgKoefRh > 0) {
+			float tmpVal = cfgKoefRh * 1000;
+			Thr1 = (uint32_t) (tmpVal / (float)cfgLevel1);
+			Thr2 = (uint32_t) (tmpVal / (float)cfgLevel2);
+			Thr3 = (uint32_t) (tmpVal / (float)cfgLevel3);
+		}
 	}
 }
 
@@ -134,6 +156,7 @@ static void MX_ADC2_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_LPTIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -179,7 +202,9 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM16_Init();
   MX_TIM6_Init();
+  MX_LPTIM2_Init();
   /* USER CODE BEGIN 2 */
+  HAL_LPTIM_Counter_Stop_IT(&hlptim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -209,10 +234,10 @@ int main(void)
   __HAL_TIM_CLEAR_FLAG(&htim16, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 
-  /* Test alarm */
-  alarmLevel = 1;
+  alarmLevel = 0;
   alarmCount = 0;
   HAL_TIM_Base_Start_IT(&htim6); // Alarm timer.
+  //HAL_UART_Init(&huart1);
 
   while (1)
   {
@@ -259,6 +284,7 @@ int main(void)
 		  initFlag = 0;
 		  HAL_ADC_Start_IT(&hadc1);  // Init ADC.
 		  oldTimeAll = HAL_GetTick();
+		  HAL_LPTIM_Counter_Start_IT(&hlptim2, 32000);
 	  }
 	#ifdef DISPLAY_ENABLE
 	  ssd1306_SetCursor(0, 24);
@@ -275,6 +301,7 @@ int main(void)
 			  initUART = 0;
 		  }
 
+		  /* Receive data from android */
 		  if (hdma_usart1_rx.State == HAL_DMA_STATE_READY) {
 			  HAL_UART_Receive_DMA(&huart1, btCommand, sizeCommand);
 			  if (btCommand[0] == '<' && btCommand[2] == '>') {
@@ -292,11 +319,17 @@ int main(void)
 						  oldTimeAll = HAL_GetTick();
 						  counterALL = 0;
 					  } else if (btCommand[1] == '2') { // Write config data
-						  bebe();
 						  cfgData = ((btCommand[4] << 8) & 0xFF00) | btCommand[3];
 						  cfgLevel1 = ((btCommand[6] << 8) & 0xFF00) | btCommand[5];
 						  cfgLevel2 = ((btCommand[8] << 8) & 0xFF00) | btCommand[7];
 						  cfgLevel3 = ((btCommand[10] << 8) & 0xFF00) | btCommand[9];
+						  cfgKoefRh = *(float *) &btCommand[11];
+						  if (cfgKoefRh > 0) {
+							  float tmpVal = cfgKoefRh * 1000;
+							  Thr1 = (uint32_t) (tmpVal / (float)cfgLevel1);
+							  Thr2 = (uint32_t) (tmpVal / (float)cfgLevel2);
+							  Thr3 = (uint32_t) (tmpVal / (float)cfgLevel3);
+						  }
 						  rwFlash(1); // Write to flash
 					  }
 				  }
@@ -342,8 +375,8 @@ int main(void)
 		  // BT sleep control
 		  if (sleepFlag && (HAL_GetTick() - sleepDelay > SLEEPDALAY)) {
 			  sleepFlag = 0;
-			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\n", 9, 1000);    //For JDY-10
-			  HAL_Delay(200);
+			  //HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\n", 9, 1000);    //For JDY-10
+			  //HAL_Delay(200);
 			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\r\n", 10, 1000); //For JDY-19
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
@@ -378,7 +411,8 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_7;
@@ -400,8 +434,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_ADC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_LPTIM2
+                              |RCC_PERIPHCLK_ADC;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
+  PeriphClkInit.Lptim2ClockSelection = RCC_LPTIM2CLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -530,6 +566,41 @@ static void MX_ADC2_Init(void)
 }
 
 /**
+  * @brief LPTIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_LPTIM2_Init(void)
+{
+
+  /* USER CODE BEGIN LPTIM2_Init 0 */
+
+  /* USER CODE END LPTIM2_Init 0 */
+
+  /* USER CODE BEGIN LPTIM2_Init 1 */
+
+  /* USER CODE END LPTIM2_Init 1 */
+  hlptim2.Instance = LPTIM2;
+  hlptim2.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
+  hlptim2.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV1;
+  hlptim2.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
+  hlptim2.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
+  hlptim2.Init.UpdateMode = LPTIM_UPDATE_ENDOFPERIOD;
+  hlptim2.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
+  hlptim2.Init.Input1Source = LPTIM_INPUT1SOURCE_GPIO;
+  hlptim2.Init.Input2Source = LPTIM_INPUT2SOURCE_GPIO;
+  hlptim2.Init.RepetitionCounter = 0;
+  if (HAL_LPTIM_Init(&hlptim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN LPTIM2_Init 2 */
+
+  /* USER CODE END LPTIM2_Init 2 */
+
+}
+
+/**
   * @brief TIM2 Initialization Function
   * @param None
   * @retval None
@@ -551,7 +622,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 32;
+  htim2.Init.Period = 48;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

@@ -95,7 +95,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0;
     public double correctA, correctB, correctC, backgtoundTime;
-    public double koeffR = (double) 0.5310015898;
+    public float koeffR = (float) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
     //public String MAC = "20:06:03:20:02:A9";
     //public String MAC = "20:06:03:20:02:B3";
@@ -144,8 +144,10 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
+            /* CPS to uR/h */
+            koeffR = data.getFloatExtra("CFGDATA5", 1);
             for (int i = 0; i < 4; i++) {
-                resData[i + 8] = ByteBuffer.allocate(4).putFloat(data.getFloatExtra("CFGDATA5", 1)).get(i);
+                resData[i + 8] = ByteBuffer.allocate(4).putFloat(koeffR).get(i);
             }
 
             /* Radiation levels */
@@ -214,6 +216,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     + " CFGDATA6: " + MAC
                     + " CFGDATA7: " + foneFlName
                     + " CFGDATA8: " + foneActive
+                    + " koefR: " + String.format("%02x", resData[8] & 0xff) + String.format("%02x", resData[9] & 0xff) + String.format("%02x", resData[10] & 0xff) + String.format("%02x", resData[11] & 0xff)
             );
 
             if (resultCode == 1) {
@@ -445,7 +448,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         // For calculate radiation for pulses
         String kR = PP.readProp("koefR");
         if (kR != null && ! kR.isEmpty()) {
-            koeffR = Double.parseDouble(kR);
+            koeffR = Float.parseFloat(kR);
         }
         // Correction coefficients
         kR = PP.readProp("Correct_A");
@@ -1316,6 +1319,10 @@ public class FullscreenActivity extends AppCompatActivity  {
                 sndData[8] = cfgData[5];
                 sndData[9] = cfgData[6];
                 sndData[10] = cfgData[7];
+                sndData[11] = cfgData[11];
+                sndData[12] = cfgData[10];
+                sndData[13] = cfgData[9];
+                sndData[14] = cfgData[8];
                 for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }
