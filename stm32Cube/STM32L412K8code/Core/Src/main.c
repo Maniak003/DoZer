@@ -345,6 +345,7 @@ int main(void)
 						  counterALL = 0;
 					  } else if (btCommand[1] == '2') { // Write config data
 						  cfgData = ((btCommand[4] << 8) & 0xFF00) | btCommand[3];
+						  resolution = (uint8_t) (cfgData >> 8 & 0x3);
 						  cfgLevel1 = ((btCommand[6] << 8) & 0xFF00) | btCommand[5];
 						  cfgLevel2 = ((btCommand[8] << 8) & 0xFF00) | btCommand[7];
 						  cfgLevel3 = ((btCommand[10] << 8) & 0xFF00) | btCommand[9];
