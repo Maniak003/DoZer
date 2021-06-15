@@ -63,11 +63,16 @@ char counterPP[20];
 _Bool initFlag = 1, sleepFlag = 1, initUART = 1;
 uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0;
 uint16_t adcResult = 0;
-uint16_t spectrData[2050] = {0};
+uint16_t spectrData[4096 + reservDataSize] = {0};
 uint16_t spectrCRC;
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize] = {0};
-float cfgKoefRh;
+uint8_t	resolution = 0;
+//float cfgKoefRh;
+static union {
+	uint32_t uint;
+	float flt;
+}cfgKoef;
 
 void bebe(void) {
 	HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4); // Start timer for turn off Buzzer
@@ -81,6 +86,25 @@ void bebe(void) {
 
 /*
  * read/write config data from/to flash
+ *
+ * cfgData:
+            00  -- Level 1 sound 1
+            01  -- Level 1 vibro 2
+            02  -- Level 2 sound 4
+            03  -- Level 2 vibro 8
+            04  -- Level 3 sound 16
+            05  -- Level 3 vibro 32
+            06  -- LED 64
+            07  -- Sound 128
+            08  -- 1 - 1024, 2 - 2048, 3 - 4096
+            09  --
+            10
+            11
+            12
+            13
+            14
+            15
+            16
  */
 void rwFlash(uint8_t rwFlag) {
 	uint32_t pageAdr = 0x800F800; // Begin of 31 page, last page flash for STM32L412K8.
@@ -89,7 +113,7 @@ void rwFlash(uint8_t rwFlag) {
 	magicKey = *(__IO uint32_t*) pageAdr;
 	if ((magicKey != 0x1234) || (rwFlag == 1)) { // rwFlag == 1 for wrtite data to flash
 		magicKey = 0x1234;
-		if (rwFlag == 0) { // For first init
+		if (rwFlag == 0) { // For first initial
 			cfgData = 0;
 			cfgLevel1 = 0;
 			cfgLevel2 = 0;
@@ -112,8 +136,9 @@ void rwFlash(uint8_t rwFlag) {
 			while(flash_ok != HAL_OK){
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr, dataForSave); // Write  magic key into Flash
 			}
-			uint32_t tmpInt = *((uint32_t *) &cfgKoefRh);
-			dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) tmpInt << 32);
+			//uint32_t tmpInt = *((uint32_t *) &cfgKoefRh);
+			//dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) tmpInt << 32);
+			dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) cfgKoef.uint << 32);
 			flash_ok = HAL_ERROR;
 			while(flash_ok != HAL_OK){
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr + 8, dataForSave); // Write Level2, Level3
@@ -127,15 +152,16 @@ void rwFlash(uint8_t rwFlag) {
 		bebe();
 	} else {
 		cfgData = *(__IO uint16_t*) (pageAdr + 4);
+		resolution = (uint8_t) (cfgData >> 8 & 0x3);
 		cfgLevel1 = *(__IO uint16_t*) (pageAdr + 6);
 		cfgLevel2 = *(__IO uint16_t*) (pageAdr + 8);
 		cfgLevel3 = *(__IO uint16_t*) (pageAdr + 10);
 		uint32_t koefAddr = pageAdr + 12;
-		uint32_t ddd = *(__IO uint32_t*) (koefAddr);
-		//  cfgKoefRh = *(float *) &btCommand[11];
-		cfgKoefRh = *(float*) &ddd;
-		if (cfgKoefRh > 0) {
-			float tmpVal = cfgKoefRh * 1000;
+		cfgKoef.uint = *(__IO uint32_t*) (koefAddr);
+		//uint32_t ddd = *(__IO uint32_t*) (koefAddr);
+		//cfgKoefRh = *(float*) &ddd;
+		if (cfgKoef.flt > 0) {
+			float tmpVal = cfgKoef.flt * 1000;
 			Thr1 = (uint32_t) (tmpVal / (float)cfgLevel1);
 			Thr2 = (uint32_t) (tmpVal / (float)cfgLevel2);
 			Thr3 = (uint32_t) (tmpVal / (float)cfgLevel3);
@@ -249,11 +275,10 @@ int main(void)
 	  ssd1306_SetCursor(0, 0);
 	  ssd1306_WriteString(counterPP, Font_6x8, 0x01);
 	#endif
-	  int ttt, max = 1;
-	  for ( int i = 2; i < 2050; i++) {
-		  ttt = spectrData[i];
-		  if ((float) ttt > max)
-			  max = ttt;
+	  uint32_t max = 1;
+	  for ( int i = reservDataSize; i < 2050; i++) {
+		  if (spectrData[i] > max)
+			  max = spectrData[i];
 	  }
 	#ifdef DISPLAY_ENABLE
 	  sprintf(counterPP, "AVG:%lu MAX:%d", counterALL / ((HAL_GetTick() - oldTimeAll) / 1000), max);
@@ -266,7 +291,7 @@ int main(void)
 	#endif
 	/*
 	  //
-	  // Гистограмма для LCD 64x128.
+	  // Histogram for LCD 64x128.
 	  //
 	  int k = 0;
 	  for ( int i = 0; i < 119; i++) {
@@ -323,9 +348,11 @@ int main(void)
 						  cfgLevel1 = ((btCommand[6] << 8) & 0xFF00) | btCommand[5];
 						  cfgLevel2 = ((btCommand[8] << 8) & 0xFF00) | btCommand[7];
 						  cfgLevel3 = ((btCommand[10] << 8) & 0xFF00) | btCommand[9];
-						  cfgKoefRh = *(float *) &btCommand[11];
-						  if (cfgKoefRh > 0) {
-							  float tmpVal = cfgKoefRh * 1000;
+						  //cfgKoefRh = *(float *) &btCommand[11];
+						  cfgKoef.uint = (uint32_t) (btCommand[11] | (uint32_t) btCommand[12] << 8 | (uint32_t) btCommand[13] << 16 | (uint32_t) btCommand[14] << 24);
+						  if (cfgKoef.flt > 0) {
+							  //float tmpVal = cfgKoefRh * 1000;
+							  float tmpVal = cfgKoef.flt * 1000;
 							  Thr1 = (uint32_t) (tmpVal / (float)cfgLevel1);
 							  Thr2 = (uint32_t) (tmpVal / (float)cfgLevel2);
 							  Thr3 = (uint32_t) (tmpVal / (float)cfgLevel3);
@@ -336,8 +363,9 @@ int main(void)
 			  }
 		  }
 
-		  j = 0;
-		  // Transmit data over BT.
+		  /*
+		   *  Transmit data over BT.
+		   */
 		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
 		  spectrData[0] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
 		  spectrData[1] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
@@ -345,6 +373,7 @@ int main(void)
 		  spectrData[3] = (uint16_t) (counterALL >> 16);
 		  spectrCRC = 0;
 		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+		  j = 0;
 		  for ( int i = 0; i < 1042; i++) {
 			  lowSpectr = spectrData[i] & 0xFF;
 			  highSpectr = (spectrData[i] & 0xFF00) >> 8;

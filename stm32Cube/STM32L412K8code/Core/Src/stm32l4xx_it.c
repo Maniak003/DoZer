@@ -228,14 +228,20 @@ void ADC1_2_IRQHandler(void)
 	  adcResult = HAL_ADC_GetValue(&hadc1);
 	  if (adcResult > 0) {
 		  adcResult = adcResult & 0x0FFF;
-		  adcResult = adcResult >> 2;
-		  adcResult = adcResult + 6; // Reserved additional parameter in send buffer ( 12 bytes )
-		  if (spectrData[adcResult] < 0xFFFF) // Check overflow in channel.
+		  if (resolution == 1) {
+			  adcResult = adcResult >> 2;			// 1024 channels
+		  } else {
+			  if (resolution == 2) {
+				  adcResult = adcResult >> 1;		// 2048 channels
+			  }										// else 4096 channels
+		  }
+		  adcResult = adcResult + reservDataSize;	// Reserved additional parameter in send buffer ( 12 bytes )
+		  if (spectrData[adcResult] < 0xFFFF)		// Check overflow in channel.
 			  spectrData[adcResult]++;
 		  counterCC++;
 		  counterALL++;
 
-		  /* intervals for radiation level */
+		  /* intervals for radiation levels */
 		  nowInterval = HAL_GetTick();
 		  if (oldInterval > 0) {
 			  radBuffer[indexBuffer++] = nowInterval - oldInterval;
@@ -245,9 +251,9 @@ void ADC1_2_IRQHandler(void)
 		  }
 		  oldInterval = nowInterval;
 
-		  if ((cfgData & 64) > 0) { // Check config data for LED activity
+		  if ((cfgData & 64) > 0) {					// Check config data for LED activity
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
-			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
+			  HAL_TIM_Base_Start_IT(&htim15);		// Start timer for turn off LED.
 		  }
 	  }
 	}
@@ -362,15 +368,14 @@ void LPTIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN LPTIM2_IRQn 0 */
   uint32_t realCount;
-  //uint8_t s[100];
 
   /* USER CODE END LPTIM2_IRQn 0 */
   HAL_LPTIM_IRQHandler(&hlptim2);
   /* USER CODE BEGIN LPTIM2_IRQn 1 */
-  avgRadInterval = 0;
-  realCount = 0;
+  avgRadInterval = 0;	// Average interval
+  realCount = 0;		// Counter real data interval
   for ( int i = 0; i < radBufferSize; i++) {
-	  if (radBuffer[i] > 0) {
+	  if (radBuffer[i] > 0) {	// Calculate only positive interval
 		  realCount++;
 		  avgRadInterval = avgRadInterval + radBuffer[i];
 	  }
@@ -378,19 +383,20 @@ void LPTIM2_IRQHandler(void)
   if (realCount > 0) {
 	  avgRadInterval = avgRadInterval / realCount;
 	  if (avgRadInterval < Thr3) {
-			  alarmLevel = 3;
+			  alarmLevel = 3;			// Activate 3 alarm level
 	  } else {
 		  if (avgRadInterval < Thr2) {
-				  alarmLevel = 2;
+				  alarmLevel = 2;		// Activate 2 alarm level
 		  } else {
 			  if (avgRadInterval < Thr1) {
-					  alarmLevel = 1;
+					  alarmLevel = 1;	// Activate 1 alarm level
 			  } else {
-				  alarmLevel = 0;  // Disable alarm sound
+				  alarmLevel = 0;		// Disable alarm sound
 			  }
 		  }
 	  }
   }
+  //uint8_t s[100];
   //sprintf(s, "Avg: %d, Cnt: %d, alarm: %d\r\n", avgRadInterval, realCount, alarmLevel);
   //HAL_UART_Transmit(&huart1, s, strlen((char *)s), 1000);
   /* USER CODE END LPTIM2_IRQn 1 */
