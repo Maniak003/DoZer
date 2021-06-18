@@ -224,8 +224,8 @@ void ADC1_2_IRQHandler(void)
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
 	uint16_t batResult;
 	uint32_t nowInterval;
-	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
-	  adcResult = HAL_ADC_GetValue(&hadc1);
+	if( __HAL_ADC_GET_FLAG(&hadc2, ADC_ISR_EOC) != RESET) {
+	  adcResult = HAL_ADC_GetValue(&hadc2);
 	  if (adcResult > 0) {
 		  adcResult = adcResult & 0x0FFF;
 		  if (resolution == 1) {
@@ -258,9 +258,9 @@ void ADC1_2_IRQHandler(void)
 	  }
 	}
 	// Battery voltage.
-	if( __HAL_ADC_GET_FLAG(&hadc2, ADC_ISR_EOC) != RESET) {
+	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
 		HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);
-		batResult = HAL_ADC_GetValue(&hadc2);
+		batResult = HAL_ADC_GetValue(&hadc1);
 		if ( batResult > 0 ) {
 			spectrData[4] = (spectrData[4] & 0xFF00) | (batResult & 0x00FF);
 		}

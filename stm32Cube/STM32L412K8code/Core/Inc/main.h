@@ -88,6 +88,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define DI_Pin GPIO_PIN_8
+#define DI_GPIO_Port GPIOA
+#define CS_Pin GPIO_PIN_12
+#define CS_GPIO_Port GPIOA
+#define SC_Pin GPIO_PIN_4
+#define SC_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
