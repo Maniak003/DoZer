@@ -26,6 +26,9 @@
 //#define LED_PULSE_ENABLE
 #define LED_PIN GPIO_PIN_3
 #define COM_PIN GPIO_PIN_6
+#define SCK_DAC GPIO_PIN_4
+#define SDI_DAC GPIO_PIN_8
+#define CS_DAC GPIO_PIN_12
 #define BUZZER GPIO_PIN_3
 #define ANALOG_INPUT
 #define sizeCommand 20

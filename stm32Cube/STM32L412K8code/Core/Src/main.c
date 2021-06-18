@@ -68,6 +68,7 @@ uint16_t spectrCRC;
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize] = {0};
 uint8_t	resolution = 0;
+uint16_t dacValue;
 //float cfgKoefRh;
 static union {
 	uint32_t uint;
@@ -267,6 +268,23 @@ int main(void)
 
   while (1)
   {
+	  /* DAC control */
+	  dacValue = 0xa070;  // Constant for test
+	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
+	  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
+	  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
+	  for (int i = 0; i < 16; i++) {
+		  if ((dacValue & (1 << (15 - i))) == 0) {
+			  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
+		  } else {
+			  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);
+		  }
+		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
+		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+	  }
+	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin and execute command
+
 	  //HAL_TIM_Base_Start(&htim2);
 	#ifdef DISPLAY_ENABLE
 	  sprintf(counterPP, "CPS:%lu CNT:%lu", counterCC / ((HAL_GetTick() - oldTime) / 1000), counterALL);
