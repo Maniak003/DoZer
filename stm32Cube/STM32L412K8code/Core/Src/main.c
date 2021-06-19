@@ -47,6 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
 
 LPTIM_HandleTypeDef hlptim2;
 
@@ -61,14 +62,17 @@ DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE BEGIN PV */
 char counterPP[20];
 _Bool initFlag = 1, sleepFlag = 1, initUART = 1;
-uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0;
-uint16_t adcResult = 0;
+uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0, batteryInterval;
+uint16_t adc2Result = 0, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize] = {0};
 uint16_t spectrCRC;
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize] = {0};
 uint8_t	resolution = 0;
-uint16_t dacValue;
+uint16_t dacValue, logIndex = 0;
+
+logData logDat[logSize];
+
 //float cfgKoefRh;
 static union {
 	uint32_t uint;
@@ -248,6 +252,7 @@ int main(void)
   initDelay = oldTime;
   oldTimeAll = oldTime;
   sleepFlag = oldTime;
+  batteryInterval = 0;
   counterCC = 0;
 
   rwFlash(0); // Read config from flash.
@@ -268,24 +273,6 @@ int main(void)
 
   while (1)
   {
-	  /* DAC control */
-	  dacValue = 0xa070;  // Constant for test
-	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
-	  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
-	  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
-	  for (int i = 0; i < 16; i++) {
-		  if ((dacValue & (1 << (15 - i))) == 0) {
-			  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
-		  } else {
-			  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);
-		  }
-		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
-		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
-	  }
-	  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin and execute command
-
-	  //HAL_TIM_Base_Start(&htim2);
 	#ifdef DISPLAY_ENABLE
 	  sprintf(counterPP, "CPS:%lu CNT:%lu", counterCC / ((HAL_GetTick() - oldTime) / 1000), counterALL);
 	  counterCC = 0;
@@ -412,9 +399,6 @@ int main(void)
 		  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 		  sleepDelay = HAL_GetTick();
 		  sleepFlag = 1;
-		  /* Measure battery voltage */
-		  HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_RESET);
-		  HAL_ADC_Start(&hadc1);
 	  } else {
 	#ifdef DISPLAY_ENABLE
 		  HAL_Delay(500);
@@ -423,14 +407,39 @@ int main(void)
 		  // BT sleep control
 		  if (sleepFlag && (HAL_GetTick() - sleepDelay > SLEEPDALAY)) {
 			  sleepFlag = 0;
-			  //HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\n", 9, 1000);    //For JDY-10
-			  //HAL_Delay(200);
+			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\n", 9, 1000);    //For JDY-10
+			  HAL_Delay(200);
 			  HAL_UART_Transmit(&huart1, (uint8_t*) "AT+SLEEP\r\n", 10, 1000); //For JDY-19
 			  HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
 			  HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED.
 			  HAL_UART_DeInit(&huart1);
 			  initUART = 1;
 		  }
+	  }
+	  /*
+	   * Measure battery voltage and temperature
+	   */
+	  if ((HAL_GetTick() - batteryInterval > batteryMeasureInterval) || batteryInterval == 0) {
+		  HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_RESET); // Enable common pin
+		  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &adc1Result, 2);
+		  batteryInterval = HAL_GetTick();
+
+		  /* DAC LTC1662 control */
+		  dacValue = 0xa20f;  // Constant for test
+		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
+		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
+		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
+		  for (int i = 0; i < 16; i++) {
+			  if ((dacValue & (1 << (15 - i))) == 0) {
+				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
+			  } else {
+				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);
+			  }
+			  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
+			  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+		  }
+		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin and execute command
 	  }
 	  HAL_Delay(500);
     /* USER CODE END WHILE */
@@ -516,11 +525,11 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc1.Init.Resolution = ADC_RESOLUTION_8B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.LowPowerAutoWait = ENABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.NbrOfConversion = 2;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -550,8 +559,17 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+  while (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK);
 
   /* USER CODE END ADC1_Init 2 */
 
@@ -599,7 +617,7 @@ static void MX_ADC2_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_16;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_6CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_1;
   sConfig.Offset = 1;
@@ -608,7 +626,7 @@ static void MX_ADC2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC2_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+  while(HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED) != HAL_OK);
   /* USER CODE END ADC2_Init 2 */
 
 }
@@ -877,6 +895,9 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   /* DMA1_Channel5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);

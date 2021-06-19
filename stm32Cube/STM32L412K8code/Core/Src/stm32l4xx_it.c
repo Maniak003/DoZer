@@ -56,6 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern LPTIM_HandleTypeDef hlptim2;
@@ -203,6 +204,22 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+	// Battery voltage.
+	HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);  // Disable common pin
+	spectrData[4] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+  HAL_ADC_Stop_DMA(&hadc1);
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel5 global interrupt.
   */
 void DMA1_Channel5_IRQHandler(void)
@@ -222,22 +239,21 @@ void DMA1_Channel5_IRQHandler(void)
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
-	uint16_t batResult;
 	uint32_t nowInterval;
 	if( __HAL_ADC_GET_FLAG(&hadc2, ADC_ISR_EOC) != RESET) {
-	  adcResult = HAL_ADC_GetValue(&hadc2);
-	  if (adcResult > 0) {
-		  adcResult = adcResult & 0x0FFF;
+	  adc2Result = HAL_ADC_GetValue(&hadc2);
+	  if (adc2Result > 0) {
+		  adc2Result = adc2Result & 0x0FFF;
 		  if (resolution == 1) {
-			  adcResult = adcResult >> 2;			// 1024 channels
+			  adc2Result = adc2Result >> 2;			// 1024 channels
 		  } else {
 			  if (resolution == 2) {
-				  adcResult = adcResult >> 1;		// 2048 channels
+				  adc2Result = adc2Result >> 1;		// 2048 channels
 			  }										// else 4096 channels
 		  }
-		  adcResult = adcResult + reservDataSize;	// Reserved additional parameter in send buffer ( 12 bytes )
-		  if (spectrData[adcResult] < 0xFFFF)		// Check overflow in channel.
-			  spectrData[adcResult]++;
+		  adc2Result = adc2Result + reservDataSize;	// Reserved additional parameter in send buffer ( 12 bytes )
+		  if (spectrData[adc2Result] < 0xFFFF)		// Check overflow in channel.
+			  spectrData[adc2Result]++;
 		  counterCC++;
 		  counterALL++;
 
@@ -256,14 +272,6 @@ void ADC1_2_IRQHandler(void)
 			  HAL_TIM_Base_Start_IT(&htim15);		// Start timer for turn off LED.
 		  }
 	  }
-	}
-	// Battery voltage.
-	if( __HAL_ADC_GET_FLAG(&hadc1, ADC_ISR_EOC) != RESET) {
-		HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);
-		batResult = HAL_ADC_GetValue(&hadc1);
-		if ( batResult > 0 ) {
-			spectrData[4] = (spectrData[4] & 0xFF00) | (batResult & 0x00FF);
-		}
 	}
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
@@ -396,6 +404,18 @@ void LPTIM2_IRQHandler(void)
 		  }
 	  }
   }
+  /* Record log data */
+  if (oldAlarmLevel != alarmLevel) {
+	  logDat[logIndex].timeData = HAL_GetTick();
+	  logDat[logIndex].eventType = alarmLevel;
+	  logDat[logIndex].event_data = avgRadInterval;
+	  if (logIndex < logSize - 1) {
+		  logIndex++;
+	  } else {
+		  logIndex = 0;
+	  }
+  }
+  oldAlarmLevel = alarmLevel;
   //uint8_t s[100];
   //sprintf(s, "Avg: %d, Cnt: %d, alarm: %d\r\n", avgRadInterval, realCount, alarmLevel);
   //HAL_UART_Transmit(&huart1, s, strlen((char *)s), 1000);

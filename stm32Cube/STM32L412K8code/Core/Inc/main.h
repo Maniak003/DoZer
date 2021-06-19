@@ -34,6 +34,8 @@
 #define sizeCommand 20
 #define radBufferSize 50
 #define reservDataSize 6
+#define batteryMeasureInterval 20000
+#define logSize 500
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -63,15 +65,26 @@ HAL_StatusTypeDef	flash_ok;
 TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 char counterPP[20];
-uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount;
-uint32_t counterCC, counterALL, sleepDelay, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3;
-uint16_t adcResult;
+uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount, oldAlarmLevel;
+uint32_t counterCC, counterALL, sleepDelay, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
+uint16_t adc2Result, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize];
 uint16_t spectrCRC;
 uint8_t btCommand[sizeCommand];
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize];
 uint8_t	resolution;
+
+typedef struct {
+	uint32_t timeData;
+	uint8_t eventType;
+	uint32_t event_data;
+} logData;
+
+logData logDat[logSize];
+
+uint16_t logIndex;
+
 //float cfgKoefRh;
 
 /* USER CODE END EC */

@@ -74,7 +74,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public Handler h;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
-    public Button connIndicator;
+    public Button connIndicator, saveBtn;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -199,6 +199,11 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             /* Save format*/
             saveFormat = data.getIntExtra("CFGDATA15", 0);  // XML default
+            if (saveFormat == 0) {
+                saveBtn.setText("BqMON");
+            } else {
+                saveBtn.setText("SPE");
+            }
 
             correctA = data.getFloatArrayExtra("CFGDATA16")[0];
             correctB = data.getFloatArrayExtra("CFGDATA16")[1];
@@ -659,9 +664,14 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Save button to BqMonitor format
-        final Button saveBtn = findViewById(R.id.SaveBtn);
+        saveBtn = findViewById(R.id.SaveBtn);
         if (saveBtn != null) {
             saveBtn.setOnClickListener(v -> DH.saveFile());
+            if (saveFormat == 0) {
+                saveBtn.setText("BqMON");
+            } else {
+                saveBtn.setText("SPE");
+            }
         } else {
             Log.d("DoZer", "saveBtn not found");
         }
@@ -1194,7 +1204,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     */
     public class DrawAll {
         double countsAll, interval, oldValX, mastab, mastab2;
-        float batVoltage = 0,  maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
+        float batVoltage = 0, temperature = 0, maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         public float oldX = -1 , oldY = -1, penSize = 2;
         private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(),
@@ -1402,11 +1412,12 @@ public class FullscreenActivity extends AppCompatActivity  {
 
             actualPaint.setStrokeWidth(penSize);
             /*
-                Get time and counter from device
+                Get time, battery status, temperature and counter from device
              */
             countsAll = (char) (spectrData[4] << 8 | (spectrData[5] & 0xff));  // Total counts from device
             countsAll = countsAll + ((char) (spectrData[6] << 8 | (spectrData[7] & 0xff)) * 65536);
             batVoltage = (char) (spectrData[9] & 0xff);
+            temperature = (char) (spectrData[8] & 0xff);
             tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
             tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
 
@@ -1582,7 +1593,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                             batCapacity = 0;
                         }
                     }
-                    textStatistic1.setText(String.format("%.0f%% total: %.0f cps: %.0f", batCapacity, countsAll, findData[0]));
+                    textStatistic1.setText(String.format("%.0f %.0f%% total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]));
                     if (countsAll == 0) {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)");
                     } else {
