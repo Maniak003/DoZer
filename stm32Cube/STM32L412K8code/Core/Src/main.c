@@ -345,6 +345,7 @@ int main(void)
 					  if (btCommand[1] == '1')  { // Clear statistics
 						  for (int i = 0; i < 2050; i++) {
 							  spectrData[i] = 0;
+							  batteryInterval = 0;
 						  }
 						  oldTimeAll = HAL_GetTick();
 						  counterALL = 0;
@@ -551,7 +552,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 1;
@@ -600,7 +601,7 @@ static void MX_ADC2_Init(void)
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc2.Init.LowPowerAutoWait = DISABLE;
+  hadc2.Init.LowPowerAutoWait = ENABLE;
   hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.NbrOfConversion = 1;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
@@ -627,6 +628,12 @@ static void MX_ADC2_Init(void)
   }
   /* USER CODE BEGIN ADC2_Init 2 */
   while(HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED) != HAL_OK);
+  //uint32_t cal_dat = HAL_ADCEx_Calibration_GetValue(&hadc2, ADC_SINGLE_ENDED);
+  //uint32_t cal_dat = 0x7f;
+  //cal_dat += 1;
+  //HAL_ADCEx_Calibration_SetValue(&hadc2, ADC_SINGLE_ENDED, cal_dat);
+
+  //while(HAL_ADCEx_Calibration_Start(&hadc2, ADC_DIFFERENTIAL_ENDED) != HAL_OK);
   /* USER CODE END ADC2_Init 2 */
 
 }

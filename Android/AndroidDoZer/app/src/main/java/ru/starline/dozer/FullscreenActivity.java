@@ -200,9 +200,9 @@ public class FullscreenActivity extends AppCompatActivity  {
             /* Save format*/
             saveFormat = data.getIntExtra("CFGDATA15", 0);  // XML default
             if (saveFormat == 0) {
-                saveBtn.setText("BqMON");
+                saveBtn.setText(R.string.saveBtn1);
             } else {
-                saveBtn.setText("SPE");
+                saveBtn.setText(R.string.saveBtn2);
             }
 
             correctA = data.getFloatArrayExtra("CFGDATA16")[0];
@@ -668,9 +668,9 @@ public class FullscreenActivity extends AppCompatActivity  {
         if (saveBtn != null) {
             saveBtn.setOnClickListener(v -> DH.saveFile());
             if (saveFormat == 0) {
-                saveBtn.setText("BqMON");
+                saveBtn.setText(R.string.saveBtn1);
             } else {
-                saveBtn.setText("SPE");
+                saveBtn.setText(R.string.saveBtn2);
             }
         } else {
             Log.d("DoZer", "saveBtn not found");

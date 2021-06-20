@@ -210,12 +210,12 @@ void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
 	// Battery voltage.
+	HAL_ADC_Stop_DMA(&hadc1);
 	HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);  // Disable common pin
 	spectrData[4] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
-  HAL_ADC_Stop_DMA(&hadc1);
   /* USER CODE END DMA1_Channel1_IRQn 1 */
 }
 

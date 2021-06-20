@@ -11,4 +11,6 @@
     <string name="saveSetupBtn">Save</string>
     <string name="cancelBtn">Cancel</string>
     <string name="scanBtn">Scan</string>
+    <string name="saveBtn1">to BqMon</string>
+    <string name="saveBtn2">to SPE</string>
 </resources>
