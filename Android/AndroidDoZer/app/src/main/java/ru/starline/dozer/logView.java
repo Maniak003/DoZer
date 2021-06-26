@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -20,6 +21,9 @@ import java.io.IOException;
 public class logView extends AppCompatActivity {
     public TextView logTextView;
     private View mContentView;
+
+    public int logIndex;
+    public double[][] logArray;
 
     private void closeActivity() {
         this.finish();
@@ -35,12 +39,16 @@ public class logView extends AppCompatActivity {
                 colYellow =  new ForegroundColorSpan(Color.YELLOW),
                 colGreen = new ForegroundColorSpan(Color.GREEN);
 
-        logTextView.setText("");
-        String s = "01.01.2021 14:10 Power on Power level 98%\n";
+        logTextView.setText("", TextView.BufferType.SPANNABLE); // Clear all text
+        String s;
+        SpannableStringBuilder ss;
+
+        /*
+        s = "01.01.2021 14:10 Power on Power level 98%\n";
         logTextView.append(s);
 
         s = "01.01.2021 14:10 Radiation level 3 150uR/h\n";
-        SpannableString ss = new SpannableString(s);
+        ss = new SpannableString(s);
         ss.setSpan(colMagenta, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         logTextView.append(ss);
 
@@ -52,7 +60,8 @@ public class logView extends AppCompatActivity {
 
         s = "01.01.2021 14:10 Radiation level 1 32uR/h\n";
         ss =  new SpannableString(s);
-        ss.setSpan(colYellow, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+        ss.setSpan(colYellow, 0, s.length() - 1, Spanned.SPAN_COMPOSING);
+        logTextView.append(ss);
         logTextView.append(ss);
 
         s = "01.01.2021 14:10 Radiation normal 10uR/h\n";
@@ -62,6 +71,30 @@ public class logView extends AppCompatActivity {
 
         s = "01.01.2021 14:10 Power on Power level 97%\n";
         logTextView.append(s);
+         */
+
+        for ( int i = 0; i < logIndex; i++) {
+            s = String.valueOf(logArray[i][0]) + " " +  String.valueOf(logArray[i][1]) + " " + String.valueOf(logArray[i][2]) + "\n";
+            ss = new SpannableStringBuilder(s);
+            if (logArray[i][1] == 3) {
+                ss.setSpan(colMagenta, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                if (logArray[i][1] == 2) {
+                    ss.setSpan(colRED, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                } else {
+                    if (logArray[i][1] == 1) {
+                        ss.setSpan(colYellow, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    } else {
+                        if (logArray[i][1] == 0) {
+                            ss.setSpan(colGreen, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        } else {
+                            ss.setSpan(colMagenta, 0, s.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
+                }
+            }
+            logTextView.append(ss);
+        }
     }
 
     /*
@@ -85,6 +118,12 @@ public class logView extends AppCompatActivity {
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        reloadLog();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_view);
@@ -92,6 +131,13 @@ public class logView extends AppCompatActivity {
         logTextView = findViewById(R.id.logTextView);
         formatLayout();
 
+        Bundle arguments = getIntent().getExtras();
+        logIndex = arguments.getInt("LOGDATA0");
+        if (logIndex > 0) {
+            if (arguments != null) {
+                logArray = (double[][]) arguments.getSerializable("LOGDATA1");
+            }
+        }
 
         // Save & Exit button
         final Button exitBtn = findViewById(R.id.exitButton);

@@ -35,7 +35,7 @@
 #define radBufferSize 50
 #define reservDataSize 6
 #define batteryMeasureInterval 20000
-#define logSize 500
+#define logSize 200
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -83,7 +83,8 @@ typedef struct {
 
 logData logDat[logSize];
 
-uint16_t logIndex;
+uint8_t logIndex, logRecords;
+
 
 //float cfgKoefRh;
 

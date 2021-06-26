@@ -61,15 +61,16 @@ DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 char counterPP[20];
-_Bool initFlag = 1, sleepFlag = 1, initUART = 1;
+_Bool initFlag = 1, sleepFlag = 1, initUART = 1, logDataFlag = 0;
 uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0, batteryInterval;
 uint16_t adc2Result = 0, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize] = {0};
 uint16_t spectrCRC;
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize] = {0};
-uint8_t	resolution = 0;
-uint16_t dacValue, logIndex = 0;
+uint8_t	resolution = 0, logIndex = 0, logRecords = 0;
+uint16_t dacValue;
+
 
 logData logDat[logSize];
 
@@ -365,6 +366,8 @@ int main(void)
 							  Thr3 = (uint32_t) (tmpVal / (float)cfgLevel3);
 						  }
 						  rwFlash(1); // Write to flash
+					  } else if (btCommand[1] == '3') {  // Request log data.
+						  logDataFlag = 1;
 					  }
 				  }
 			  }
@@ -373,23 +376,61 @@ int main(void)
 		  /*
 		   *  Transmit data over BT.
 		   */
-		  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
-		  spectrData[0] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
-		  spectrData[1] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
-		  spectrData[2] = (uint16_t) (counterALL & 0xFFFF);
-		  spectrData[3] = (uint16_t) (counterALL >> 16);
-		  spectrCRC = 0;
-		  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
-		  j = 0;
-		  for ( int i = 0; i < 1042; i++) {
-			  lowSpectr = spectrData[i] & 0xFF;
-			  highSpectr = (spectrData[i] & 0xFF00) >> 8;
-			  spectrCRC = spectrCRC + lowSpectr + highSpectr;
-			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
-			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
-			  if ( j++ >= 9) {
+		  if (logDataFlag == 0) {  // Spectert data
+			  prefix[1] = 'B';
+			  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
+			  spectrData[0] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
+			  spectrData[1] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
+			  spectrData[2] = (uint16_t) (counterALL & 0xFFFF);
+			  spectrData[3] = (uint16_t) (counterALL >> 16);
+			  //spectrData[2] = 0;
+			  //spectrData[3] = 1;
+			  spectrCRC = 0;
+			  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+			  j = 0;
+			  for ( int i = 0; i < 1042; i++) {
+				  lowSpectr = spectrData[i] & 0xFF;
+				  highSpectr = (spectrData[i] & 0xFF00) >> 8;
+				  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+				  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+				  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+				  if ( j++ >= 9) {
+					  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+					  j = 0;
+				  }
+			  }
+		  } else {  // Log data
+			  logDataFlag = 0;	// Reset log data flag
+			  prefix[1] = 'L';
+			  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
+			  HAL_UART_Transmit(&huart1, &logRecords, 1, 1000); // Records count
+			  spectrCRC = logRecords;
+			  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
+			  j = 0;
+			  for (int i = 0; i < logRecords; i++) {
+				  lowSpectr = logDat[i].timeData & 0xFF;
+				  highSpectr = (logDat[i].timeData & 0xFF00) >> 8;
+				  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+				  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+				  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+				  lowSpectr = (logDat[i].timeData & 0xFF0000) >> 16;
+				  highSpectr = (logDat[i].timeData & 0xFF000000) >> 24;
+				  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+				  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+				  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+				  spectrCRC = spectrCRC + logDat[i].eventType;
+				  HAL_UART_Transmit(&huart1, &logDat[i].eventType, 1, 1000);
+				  lowSpectr = logDat[i].event_data & 0xFF;
+				  highSpectr = (logDat[i].event_data & 0xFF00) >> 8;
+				  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+				  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+				  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+				  lowSpectr = (logDat[i].event_data & 0xFF0000) >> 16;
+				  highSpectr = (logDat[i].event_data & 0xFF000000) >> 24;
+				  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+				  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+				  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
 				  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
-				  j = 0;
 			  }
 		  }
 		  /* Transmit CRC */

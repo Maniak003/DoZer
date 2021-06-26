@@ -70,8 +70,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     public Intent intent2;
     /* Colors */
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
-    public Button calibrateButton;
-    public Handler h;
+    public Button calibrateButton, logBtn;
+    public Handler h, h1;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
     public Button connIndicator, saveBtn;
@@ -82,12 +82,12 @@ public class FullscreenActivity extends AppCompatActivity  {
     public TextView textStatistic1, textStatistic2, textStatistic3, textStatistic4;
     public boolean connected = false;
     drawHistogram DH = new drawHistogram();
-    public byte[] spectrData = new byte[4096];
+    public byte[] spectrData = new byte[4096], logData = new byte[9 * 256];
     public int findDataSize = 210, firstCanal = 12, maxCanal = 2048;
     public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096], oldData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
-    public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15;
+    public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0;;
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
@@ -102,6 +102,10 @@ public class FullscreenActivity extends AppCompatActivity  {
     //public String MAC = "20:06:12:09:74:3E"; // F103
     //public String MAC = "A4:C1:38:05:49:8E";
     public String defMAC = "20:06:00:00:00:00", MAC = ""; // L412
+
+
+    public double[][] logArray = new double[256][3];
+
 
     private void formatLayout() {
         ActionBar actionBar = getSupportActionBar();
@@ -129,7 +133,10 @@ public class FullscreenActivity extends AppCompatActivity  {
     // Run logView activity
     public void logViewActivity() {
         Intent intent = new Intent(this, logView.class);
+        intent.putExtra("LOGDATA0", logIndex);
+        intent.putExtra("LOGDATA1", logArray);
         startActivityForResult(intent, 4);
+        logBtn.setEnabled(true);
     }
 
     @Override
@@ -625,11 +632,18 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Log button
-        final Button logBtn = findViewById(R.id.logBtn);
+        logBtn = findViewById(R.id.logBtn);
         if (logBtn != null) {
-            logBtn.setOnClickListener(v -> logViewActivity());
+            logBtn.setOnClickListener(v -> {
+                logBtn.setEnabled(false);
+                try {
+                    DA.requestLogData();
+                } catch (IOException e) {
+                    Log.d("DoZer", "Error request log data: " +  e.getMessage());
+                }
+            });
         } else {
-            Log.d("DoZer", "exitBtn not found");
+            Log.d("DoZer", "logBtn not found");
         }
 
         // Exit button
@@ -652,7 +666,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             });
         } else {
-            Log.d("DoZer", "gistoBtn not found");
+            Log.d("DoZer", "HistoBtn not found");
         }
 
         // Setup button
@@ -697,6 +711,26 @@ public class FullscreenActivity extends AppCompatActivity  {
             public void handleMessage(android.os.Message msg) {
                 // Redraw screen
                 DA.redraw();
+            }
+        };
+
+        /* Prepare log data */
+        h1 = new Handler(Looper.getMainLooper()) {  // LogActivity handler
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                double tmp = 0;
+                if ( logIndex > 0 ) {
+                    for (int i = 0; i < logIndex; i++) {
+                        tmp = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
+                        Log.d(TAG, "logIndex : " + logIndex + " index : " + i + " tm: " + tmp + " ld : "
+                          + (logData[i * 9 + 0] & 0xFF) + " " + (logData[i * 9 + 1] & 0xFF) + " " + (logData[i * 9 + 3] & 0xFF)  + " " + logData[i * 9 + 2] );
+
+                        logArray[i][0] = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
+                        logArray[i][1] = logData[i * 9 + 4];
+                        logArray[i][2] = (char) ((logData[i * 9 + 7] & 0xFF) << 8 | (logData[i * 9 + 8] & 0xFF)) + ((char) (logData[i * 9 + 6] & 0xFF | (logData[i * 9 + 5] & 0xFF) << 8) * 65536);
+                    }
+                    logViewActivity();
+                }
             }
         };
         formatLayout();
@@ -1048,9 +1082,15 @@ public class FullscreenActivity extends AppCompatActivity  {
                                     break;
                                 case 1:
                                     if (data[i2] == 'B') {
+                                        dataTpFlag = 0;     // For specter type
                                         startFlag++;
                                     } else {
-                                        startFlag = 0;
+                                        if ((data[i2] == 'L')) {
+                                            dataTpFlag = 1; // For log type
+                                            startFlag++;
+                                        } else {
+                                            startFlag = 0;
+                                        }
                                     }
                                     break;
                                 case 2:
@@ -1058,36 +1098,72 @@ public class FullscreenActivity extends AppCompatActivity  {
                                         startFlag++;
                                         //Log.i(TAG, "Start marker found.");
                                         bufferIndex = 0;
+                                        logIndex = 0;
                                         specrtCRC = 0;
                                     } else {
                                         startFlag = 0;
                                     }
                                     break;
                                 default:   // Start sequence found, data load.
-                                    if (bufferIndex < 2084) {
-                                        specrtCRC = specrtCRC + (char) (data[i2] & 0xFF);   // CRC
-                                    }
-                                    spectrData[bufferIndex++] = (byte) (data[i2] & 0xFF);
-                                    if (bufferIndex == 2086) {     //Transmission complete.
-                                        startFlag = 0;
-                                        double tmpCRC = (char) (spectrData[2084] << 8 | (spectrData[2085] & 0xFF));
-                                        specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Facking Java
-                                        //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
-                                        if (tmpCRC == specrtCRC) { // Update if CRC correct.
-                                            /* Debug */
-                                            //tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
-                                            //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
-                                            //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
-                                            //myView.invalidate();    // Redraw screen.
-                                            if ( DA != null ) {
-                                                // Redraw in thread
-                                                Thread t = new Thread(new Runnable() {
-                                                    public void run() {
-                                                        h.sendEmptyMessage(1);
-                                                        //DA.redraw();
+                                    if (dataTpFlag == 0) { // Load specter data
+                                        if (bufferIndex < 2084) {
+                                            specrtCRC = specrtCRC + (char) (data[i2] & 0xFF);   // CRC
+                                        }
+                                        spectrData[bufferIndex++] = (byte) (data[i2] & 0xFF);
+                                        if (bufferIndex == 2086) {     //Transmission complete.
+                                            startFlag = 0;
+                                            double tmpCRC = (char) (spectrData[2084] << 8 | (spectrData[2085] & 0xFF));
+                                            specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
+                                            //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                            if (tmpCRC == specrtCRC) { // Update if CRC correct.
+                                                /* Debug */
+                                                //tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
+                                                //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
+                                                //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
+                                                //myView.invalidate();    // Redraw screen.
+                                                if (DA != null) {
+                                                    // Redraw in thread
+                                                    Thread t = new Thread(new Runnable() {
+                                                        public void run() {
+                                                            h.sendEmptyMessage(1);
+                                                        }
+                                                    });
+                                                    t.start();
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        if (dataTpFlag == 1) {  // Load Log data.
+                                            //Log.i(TAG, "Log data : " + (int) (data[i2] & 0xFF));
+                                            if (logIndex == 0) {  // Log count initial ?
+                                                logIndex = data[i2];  // Get log array records
+                                                specrtCRC = (char) (data[i2] & 0xFF);   // CRC
+                                                //Log.i(TAG, "Initial log data : " + logIndex);
+                                                if (logIndex == 0) {  // If log array is empty
+                                                    startFlag = 0;
+                                                    logBtn.setEnabled(true);
+                                                }
+                                            } else { //
+                                                if (bufferIndex < logIndex * 9) {
+                                                    specrtCRC = specrtCRC + (char) (data[i2] & 0xFF);   // CRC
+                                                }
+                                                logData[bufferIndex++] = (byte) (data[i2] & 0xFF);
+                                                if (bufferIndex == logIndex * 9 + 2) {
+                                                    startFlag = 0;
+                                                    double tmpCRC = (char) (logData[logIndex * 9] << 8 | (logData[logIndex * 9 + 1] & 0xFF));
+                                                    specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
+                                                    Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                                    if (tmpCRC == specrtCRC) { // Update if CRC correct.
+                                                        // Redraw in thread
+                                                        Thread t = new Thread(new Runnable() {
+                                                            public void run() {
+                                                                h1.sendEmptyMessage(1);
+                                                            }
+                                                        });
+                                                        t.start();
+                                                        Log.i(TAG, "Log data load complete.");
                                                     }
-                                                });
-                                                t.start();
+                                                }
                                             }
                                         }
                                     }
@@ -1362,6 +1438,22 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
         }
 
+        // Request log data
+        public void requestLogData() throws IOException {
+            int CS = 0;
+            if (connected) {
+                                //01234567890123456789
+                byte[] sndData = "<3>.................".getBytes();
+                for (int i = 0; i < 18; i++) {
+                    CS = CS + (char) (sndData[i] & 0xFF);
+                }
+                // Check summ
+                sndData[18] = (byte) (CS & 0xFF);
+                sndData[19] = (byte) ((CS >> 8) & 0xFF);
+                BT.write(sndData);
+            }
+        }
+
 
         public void connectIndicator() {
             //
@@ -1428,7 +1520,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             mastabLog = 1;
             maxPoint = 1;
             maxPointLog = 0;
-            countsAll = 0;
+            //countsAll = 0;
             int j = 0;
             if ((foneActive == 1) && (tmpTime > 0) && (backgtoundTime > 0) ) {
                 mastab2 = tmpTime / (float) backgtoundTime;  // Calculate mashtab for background radiation
@@ -1438,7 +1530,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             for (int i = firstCanal; i < 2084; i++) {
                 double knf = 1;
                 tmpVal = (char) (spectrData[i] << 8 | (spectrData[++i] & 0xFF));
-                countsAll = countsAll + tmpVal;  // Total pulses
+                //countsAll = countsAll + tmpVal;  // Total pulses
                 /* Energy compensation calculate */
                 if (energyCompFlag == 1) {
                     knf = energyCalculate(j);

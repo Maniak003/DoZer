@@ -406,7 +406,7 @@ void LPTIM2_IRQHandler(void)
   }
   /* Record log data */
   if (oldAlarmLevel != alarmLevel) {
-	  logDat[logIndex].timeData = HAL_GetTick();
+	  logDat[logIndex].timeData = HAL_GetTick() / 1000;
 	  logDat[logIndex].eventType = alarmLevel;
 	  logDat[logIndex].event_data = avgRadInterval;
 	  if (logIndex < logSize - 1) {
@@ -414,8 +414,11 @@ void LPTIM2_IRQHandler(void)
 	  } else {
 		  logIndex = 0;
 	  }
+	  if (++logRecords > logSize) {
+		  logRecords = logSize;
+	  }
+	  oldAlarmLevel = alarmLevel;
   }
-  oldAlarmLevel = alarmLevel;
   //uint8_t s[100];
   //sprintf(s, "Avg: %d, Cnt: %d, alarm: %d\r\n", avgRadInterval, realCount, alarmLevel);
   //HAL_UART_Transmit(&huart1, s, strlen((char *)s), 1000);
