@@ -91,7 +91,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
-    public float curentTime, tmpTime;
+    public double curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0;
     public double correctA, correctB, correctC, backgtoundTime;
@@ -721,13 +721,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                 double tmp = 0;
                 if ( logIndex > 0 ) {
                     for (int i = 0; i < logIndex; i++) {
-                        tmp = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
-                        Log.d(TAG, "logIndex : " + logIndex + " index : " + i + " tm: " + tmp + " ld : "
-                          + (logData[i * 9 + 0] & 0xFF) + " " + (logData[i * 9 + 1] & 0xFF) + " " + (logData[i * 9 + 3] & 0xFF)  + " " + logData[i * 9 + 2] );
+                        //tmp = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
+                        //Log.d(TAG, "logIndex : " + logIndex + " index : " + i + " tm: " + tmp + " ld : "
+                        //  + (logData[i * 9 + 0] & 0xFF) + " " + (logData[i * 9 + 1] & 0xFF) + " " + (logData[i * 9 + 3] & 0xFF)  + " " + logData[i * 9 + 2] );
 
                         logArray[i][0] = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
                         logArray[i][1] = logData[i * 9 + 4];
-                        logArray[i][2] = (char) ((logData[i * 9 + 7] & 0xFF) << 8 | (logData[i * 9 + 8] & 0xFF)) + ((char) (logData[i * 9 + 6] & 0xFF | (logData[i * 9 + 5] & 0xFF) << 8) * 65536);
+                        logArray[i][2] = Math.round( 100000 * koeffR / ( (char) ((logData[i * 9 + 5] & 0xFF) << 8 | (logData[i * 9 + 6] & 0xFF)) + ((char) (logData[i * 9 + 8] & 0xFF | (logData[i * 9 + 7] & 0xFF) << 8) * 65536))) / 100;
                     }
                     logViewActivity();
                 }
@@ -1136,7 +1136,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                         if (dataTpFlag == 1) {  // Load Log data.
                                             //Log.i(TAG, "Log data : " + (int) (data[i2] & 0xFF));
                                             if (logIndex == 0) {  // Log count initial ?
-                                                logIndex = data[i2];  // Get log array records
+                                                logIndex = data[i2] + 1;  // Get log array records
                                                 specrtCRC = (char) (data[i2] & 0xFF);   // CRC
                                                 //Log.i(TAG, "Initial log data : " + logIndex);
                                                 if (logIndex == 0) {  // If log array is empty
@@ -1152,7 +1152,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                     startFlag = 0;
                                                     double tmpCRC = (char) (logData[logIndex * 9] << 8 | (logData[logIndex * 9 + 1] & 0xFF));
                                                     specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
-                                                    Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                                    //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                                     if (tmpCRC == specrtCRC) { // Update if CRC correct.
                                                         // Redraw in thread
                                                         Thread t = new Thread(new Runnable() {
@@ -1161,7 +1161,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                             }
                                                         });
                                                         t.start();
-                                                        Log.i(TAG, "Log data load complete.");
+                                                        //Log.i(TAG, "Log data load complete.");
                                                     }
                                                 }
                                             }

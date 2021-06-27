@@ -24,7 +24,8 @@
                 android:id="@+id/logTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:bufferType="spannable" />
+                android:bufferType="spannable"
+                android:textColor="#1AFF00" />
         </ScrollView>
 
         <LinearLayout
@@ -41,14 +42,6 @@
                 android:textAllCaps="false"
                 android:textColor="@color/button_text" />
 
-            <Button
-                android:id="@+id/reloadButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/button_color"
-                android:text="Rreload"
-                android:textAllCaps="false"
-                android:textColor="@color/button_text" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

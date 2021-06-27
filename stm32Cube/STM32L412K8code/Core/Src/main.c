@@ -69,7 +69,7 @@ uint16_t spectrCRC;
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize] = {0};
 uint8_t	resolution = 0, logIndex = 0, logRecords = 0;
-uint16_t dacValue;
+uint16_t dacValue, oldAlarmLevel = 4;
 
 
 logData logDat[logSize];
@@ -400,11 +400,25 @@ int main(void)
 				  }
 			  }
 		  } else {  // Log data
+			  uint32_t logTime = HAL_GetTick() / 1000;
+			  uint8_t emptyBuff[5] = {0};
 			  logDataFlag = 0;	// Reset log data flag
 			  prefix[1] = 'L';
 			  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
 			  HAL_UART_Transmit(&huart1, &logRecords, 1, 1000); // Records count
 			  spectrCRC = logRecords;
+			  /* Send current time */
+			  lowSpectr = logTime & 0xFF;
+			  highSpectr = (logTime & 0xFF00) >> 8;
+			  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+			  lowSpectr = (logTime & 0xFF0000) >> 16;
+			  highSpectr = (logTime & 0xFF000000) >> 24;
+			  spectrCRC = spectrCRC + lowSpectr + highSpectr;
+			  HAL_UART_Transmit(&huart1, &highSpectr, 1, 1000);
+			  HAL_UART_Transmit(&huart1, &lowSpectr, 1, 1000);
+			  HAL_UART_Transmit(&huart1, emptyBuff, 5, 1000);
 			  HAL_Delay(TRANSMIT_DALAY);  // Increase time delay if transmit error.
 			  j = 0;
 			  for (int i = 0; i < logRecords; i++) {
