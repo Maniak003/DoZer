@@ -68,12 +68,12 @@ char counterPP[20];
 uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount, oldAlarmLevel;
 uint32_t counterCC, counterALL, sleepDelay, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
 uint16_t adc2Result, adc1Result[2];
-uint16_t spectrData[4096 + reservDataSize];
+uint16_t spectrData[4096 + reservDataSize][2];
 uint16_t spectrCRC;
 uint8_t btCommand[sizeCommand];
 uint8_t indexBuffer;
 uint32_t radBuffer[radBufferSize];
-uint8_t	resolution;
+uint8_t	resolution, specterHistory;
 
 typedef struct {
 	uint32_t timeData;

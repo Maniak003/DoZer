@@ -10,7 +10,7 @@ stm32l4xx_it.c:188:6:SysTick_Handler	0	static
 stm32l4xx_it.c:209:6:DMA1_Channel1_IRQHandler	8	static
 stm32l4xx_it.c:225:6:DMA1_Channel5_IRQHandler	0	static
 stm32l4xx_it.c:239:6:ADC1_2_IRQHandler	16	static
-stm32l4xx_it.c:287:6:TIM1_BRK_TIM15_IRQHandler	8	static
-stm32l4xx_it.c:303:6:TIM1_UP_TIM16_IRQHandler	8	static
-stm32l4xx_it.c:318:6:TIM6_IRQHandler	8	static
-stm32l4xx_it.c:375:6:LPTIM2_IRQHandler	24	static
+stm32l4xx_it.c:291:6:TIM1_BRK_TIM15_IRQHandler	8	static
+stm32l4xx_it.c:307:6:TIM1_UP_TIM16_IRQHandler	8	static
+stm32l4xx_it.c:322:6:TIM6_IRQHandler	8	static
+stm32l4xx_it.c:379:6:LPTIM2_IRQHandler	24	static

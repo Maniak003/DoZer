@@ -262,6 +262,11 @@ public class FullscreenActivity extends AppCompatActivity  {
             gistoBtn.setText(getResources().getString(R.string.gistogramBtn));
             histogramFlag = 1;
         }
+        try {
+            DA.requestAlarmHistogram();
+        } catch (IOException e) {
+            Log.d("DoZer", "Error request log data: " +  e.getMessage());
+        }
     }
 
     // Callback request permission
@@ -657,7 +662,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             Log.d("DoZer", "exitBtn not found");
         }
 
-        // Specter / Dose toggle button
+        // Specter / Alarm specter toggle button
         final Button gistoBtn = findViewById(R.id.gistoBtn);
         if (gistoBtn != null) {
             gistoBtn.setOnClickListener(new View.OnClickListener() {
@@ -1129,6 +1134,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                         }
                                                     });
                                                     t.start();
+                                                    Log.i(TAG, "Specter data load complete.");
                                                 }
                                             }
                                         }
@@ -1442,8 +1448,24 @@ public class FullscreenActivity extends AppCompatActivity  {
         public void requestLogData() throws IOException {
             int CS = 0;
             if (connected) {
-                                //01234567890123456789
+                //01234567890123456789
                 byte[] sndData = "<3>.................".getBytes();
+                for (int i = 0; i < 18; i++) {
+                    CS = CS + (char) (sndData[i] & 0xFF);
+                }
+                // Check summ
+                sndData[18] = (byte) (CS & 0xFF);
+                sndData[19] = (byte) ((CS >> 8) & 0xFF);
+                BT.write(sndData);
+            }
+        }
+
+        // Request Alarm histogram data
+        public void requestAlarmHistogram() throws IOException {
+            int CS = 0;
+            if (connected) {
+                //01234567890123456789
+                byte[] sndData = "<4>.................".getBytes();
                 for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }

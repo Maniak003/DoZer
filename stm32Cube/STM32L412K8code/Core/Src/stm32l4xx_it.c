@@ -212,7 +212,7 @@ void DMA1_Channel1_IRQHandler(void)
 	// Battery voltage.
 	HAL_ADC_Stop_DMA(&hadc1);
 	HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);  // Disable common pin
-	spectrData[4] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
+	spectrData[4][specterHistory] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
@@ -252,8 +252,12 @@ void ADC1_2_IRQHandler(void)
 			  }										// else 4096 channels
 		  }
 		  adc2Result = adc2Result + reservDataSize;	// Reserved additional parameter in send buffer ( 12 bytes )
-		  if (spectrData[adc2Result] < 0xFFFF)		// Check overflow in channel.
-			  spectrData[adc2Result]++;
+		  if (spectrData[adc2Result][0] < 0xFFFF)		// Check overflow in channel.
+			  spectrData[adc2Result][0]++;
+		  if (alarmLevel != 0) {		// Record to alarm specter array
+			  if (spectrData[adc2Result][1] < 0xFFFF)		// Check overflow in alarm channel.
+				  spectrData[adc2Result][1]++;
+		  }
 		  counterCC++;
 		  counterALL++;
 
