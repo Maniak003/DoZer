@@ -62,7 +62,7 @@ DMA_HandleTypeDef hdma_usart1_rx;
 /* USER CODE BEGIN PV */
 char counterPP[20];
 _Bool initFlag = 1, sleepFlag = 1, initUART = 1, logDataFlag = 0;
-uint32_t counterCC = 0, counterALL = 0, sleepDelay, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0, batteryInterval;
+uint32_t counterCCAlarm = 0, counterCC = 0, counterALL = 0, sleepDelay, alarmTime = 0, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0, batteryInterval;
 uint16_t adc2Result = 0, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize][2] = {0};
 uint16_t spectrCRC;
@@ -347,6 +347,10 @@ int main(void)
 						  for (int i = 0; i < 2050; i++) {
 							  spectrData[i][specterHistory] = 0;
 							  batteryInterval = 0;
+							  if (specterHistory == 1) {
+								  counterCCAlarm = 0;
+								  alarmTime = 0;
+							  }
 						  }
 						  oldTimeAll = HAL_GetTick();
 						  counterALL = 0;
@@ -368,11 +372,10 @@ int main(void)
 						  rwFlash(1); // Write to flash
 					  } else if (btCommand[1] == '3') {  // Request log data.
 						  logDataFlag = 1;
-					  } else if (btCommand[1] == '4') {  // Request alarm specter array
-						  if  ( specterHistory == 0 )
-							  specterHistory = 1;
-						  else
-							  specterHistory = 0;
+					  } else if (btCommand[1] == '4') {  // Toggle to alarm specter array
+						  specterHistory = 1;
+					  } else if (btCommand[1] == '5') {  // Toggle to normal specter array
+						  specterHistory = 0;
 					  }
 				  }
 			  }
@@ -382,12 +385,20 @@ int main(void)
 		   *  Transmit data over BT.
 		   */
 		  if (logDataFlag == 0) {  // Spectert data
-			  prefix[1] = 'B';
+			  if (specterHistory == 0) {
+				  prefix[1] = 'B';		// Normal specter
+				  spectrData[0][specterHistory] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
+				  spectrData[1][specterHistory] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
+				  spectrData[2][specterHistory] = (uint16_t) (counterALL & 0xFFFF);
+				  spectrData[3][specterHistory] = (uint16_t) (counterALL >> 16);
+			  } else {
+				  prefix[1] = 'b';		// Alarm specter
+				  spectrData[0][specterHistory] = (uint16_t) (alarmTime & 0xFFFF); // Specter collection time.
+				  spectrData[1][specterHistory] = (uint16_t) (alarmTime >> 16);
+				  spectrData[2][specterHistory] = (uint16_t) (counterCCAlarm & 0xFFFF);
+				  spectrData[3][specterHistory] = (uint16_t) (counterCCAlarm >> 16);
+			  }
 			  HAL_UART_Transmit(&huart1, prefix, 3, 1000); // Start sequence.
-			  spectrData[0][specterHistory] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.
-			  spectrData[1][specterHistory] = (uint16_t) (((HAL_GetTick() - oldTimeAll) / 1000) >> 16);
-			  spectrData[2][specterHistory] = (uint16_t) (counterALL & 0xFFFF);
-			  spectrData[3][specterHistory] = (uint16_t) (counterALL >> 16);
 			  //spectrData[2] = 0;
 			  //spectrData[3] = 1;
 			  spectrCRC = 0;
@@ -486,13 +497,15 @@ int main(void)
 		  batteryInterval = HAL_GetTick();
 
 		  /* DAC LTC1662 control */
-		  dacValue = 0xa20f;  // Constant for test
+		  //dacValue = 0xa20f;  // Constant for test
+		  dacValue = 0x200;  // Constant for test
+		  uint16_t transmitData = 0xA000 | dacValue;
 		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
 		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
 		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
 		  for (int i = 0; i < 16; i++) {
-			  if ((dacValue & (1 << (15 - i))) == 0) {
+			  if ((transmitData & (1 << (15 - i))) == 0) {
 				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
 			  } else {
 				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);

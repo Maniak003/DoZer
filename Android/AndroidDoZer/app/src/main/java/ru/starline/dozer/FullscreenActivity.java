@@ -70,7 +70,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public Intent intent2;
     /* Colors */
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
-    public Button calibrateButton, logBtn;
+    public Button calibrateButton, logBtn, gistoBtn;
     public Handler h, h1;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
@@ -87,7 +87,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096], oldData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
-    public int histogramFlag = 1, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0;;
+    public int histogramFlag = 0, tmpHistoryCount = 0, tmpHistogramFlag, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0;;
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
@@ -254,16 +254,15 @@ public class FullscreenActivity extends AppCompatActivity  {
 
     // Change main screen
     public void selectTypeScreen() {
-        final Button gistoBtn = findViewById(R.id.gistoBtn);
+        gistoBtn.setEnabled(false);
+        tmpHistoryCount = 2;
         if ( histogramFlag == 1) {
-            gistoBtn.setText(getResources().getString(R.string.histiryBtn));
             histogramFlag = 0;
         } else {
-            gistoBtn.setText(getResources().getString(R.string.gistogramBtn));
             histogramFlag = 1;
         }
         try {
-            DA.requestAlarmHistogram();
+            DA.requestAlarmHistogram(histogramFlag);
         } catch (IOException e) {
             Log.d("DoZer", "Error request log data: " +  e.getMessage());
         }
@@ -663,7 +662,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Specter / Alarm specter toggle button
-        final Button gistoBtn = findViewById(R.id.gistoBtn);
+        gistoBtn = findViewById(R.id.gistoBtn);
         if (gistoBtn != null) {
             gistoBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -756,7 +755,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         textStatistic3 = findViewById(R.id.textStatistic3);
         textStatistic4 = findViewById(R.id.textStatistic4);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        selectTypeScreen();
+        //selectTypeScreen();
         // Check permission for write storage.
         int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -1086,9 +1085,14 @@ public class FullscreenActivity extends AppCompatActivity  {
                                     }
                                     break;
                                 case 1:
-                                    if (data[i2] == 'B') {
-                                        dataTpFlag = 0;     // For specter type
+                                    if (data[i2] == 'B' || data[i2] == 'b') {
+                                        dataTpFlag = 0;     // For specter or alarm specter type
                                         startFlag++;
+                                        if (data[i2] == 'B') {
+                                            tmpHistogramFlag = 0;
+                                        } else {
+                                            tmpHistogramFlag = 1;
+                                        }
                                     } else {
                                         if ((data[i2] == 'L')) {
                                             dataTpFlag = 1; // For log type
@@ -1126,6 +1130,16 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                                                 //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
                                                 //myView.invalidate();    // Redraw screen.
+                                                if ( ( ! gistoBtn.isEnabled()) && (tmpHistoryCount-- == 0)) {
+                                                    gistoBtn.setEnabled(true);
+                                                }
+                                                if (tmpHistogramFlag == 0) {
+                                                    histogramFlag = 0;
+                                                    gistoBtn.setText("History");
+                                                } else {
+                                                    histogramFlag = 1;
+                                                    gistoBtn.setText("Specter");
+                                                }
                                                 if (DA != null) {
                                                     // Redraw in thread
                                                     Thread t = new Thread(new Runnable() {
@@ -1461,11 +1475,16 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Request Alarm histogram data
-        public void requestAlarmHistogram() throws IOException {
+        public void requestAlarmHistogram( int oper) throws IOException {
             int CS = 0;
             if (connected) {
                 //01234567890123456789
                 byte[] sndData = "<4>.................".getBytes();
+                if ( oper == 1 ) {
+                    sndData[1] = '4';       //Toggle to alarm specter data
+                } else {
+                    sndData[1] = '5';       // Toggle to normal specter
+                }
                 for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }

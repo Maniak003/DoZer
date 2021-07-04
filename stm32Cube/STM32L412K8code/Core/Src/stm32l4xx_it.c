@@ -212,7 +212,8 @@ void DMA1_Channel1_IRQHandler(void)
 	// Battery voltage.
 	HAL_ADC_Stop_DMA(&hadc1);
 	HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);  // Disable common pin
-	spectrData[4][specterHistory] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
+	spectrData[4][0] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
+	spectrData[4][1] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
@@ -257,6 +258,7 @@ void ADC1_2_IRQHandler(void)
 		  if (alarmLevel != 0) {		// Record to alarm specter array
 			  if (spectrData[adc2Result][1] < 0xFFFF)		// Check overflow in alarm channel.
 				  spectrData[adc2Result][1]++;
+			  counterCCAlarm++;
 		  }
 		  counterCC++;
 		  counterALL++;
@@ -396,12 +398,15 @@ void LPTIM2_IRQHandler(void)
 	  avgRadInterval = avgRadInterval / realCount;
 	  if (avgRadInterval < Thr3) {
 			  alarmLevel = 3;			// Activate 3 alarm level
+			  alarmTime++;
 	  } else {
 		  if (avgRadInterval < Thr2) {
 				  alarmLevel = 2;		// Activate 2 alarm level
+				  alarmTime++;
 		  } else {
 			  if (avgRadInterval < Thr1) {
 					  alarmLevel = 1;	// Activate 1 alarm level
+					  alarmTime++;
 			  } else {
 				  alarmLevel = 0;		// Disable alarm sound
 			  }

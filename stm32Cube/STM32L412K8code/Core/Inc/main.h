@@ -66,7 +66,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 char counterPP[20];
 uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount, oldAlarmLevel;
-uint32_t counterCC, counterALL, sleepDelay, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
+uint32_t counterCCAlarm, counterCC, counterALL, sleepDelay, alarmTime, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
 uint16_t adc2Result, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize][2];
 uint16_t spectrCRC;
