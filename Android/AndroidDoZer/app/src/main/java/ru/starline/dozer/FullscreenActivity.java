@@ -1156,9 +1156,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                                         if (dataTpFlag == 1) {  // Load Log data.
                                             //Log.i(TAG, "Log data : " + (int) (data[i2] & 0xFF));
                                             if (logIndex == 0) {  // Log count initial ?
-                                                logIndex = data[i2] + 1;  // Get log array records
+                                                logIndex = (char) (data[i2]  & 0xFF) + 1;  // Get log array records
                                                 specrtCRC = (char) (data[i2] & 0xFF);   // CRC
-                                                //Log.i(TAG, "Initial log data : " + logIndex);
+                                                Log.i(TAG, "Initial log data : " + logIndex);
                                                 if (logIndex == 0) {  // If log array is empty
                                                     startFlag = 0;
                                                     logBtn.setEnabled(true);
@@ -1172,7 +1172,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                     startFlag = 0;
                                                     double tmpCRC = (char) (logData[logIndex * 9] << 8 | (logData[logIndex * 9 + 1] & 0xFF));
                                                     specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
-                                                    //Log.i(TAG, "tmpCRC : " + tmpCRC + ", spectrCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                                    Log.i(TAG, "tmpCRC : " + tmpCRC + ", LogCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                                     if (tmpCRC == specrtCRC) { // Update if CRC correct.
                                                         // Redraw in thread
                                                         Thread t = new Thread(new Runnable() {
@@ -1181,7 +1181,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                             }
                                                         });
                                                         t.start();
-                                                        //Log.i(TAG, "Log data load complete.");
+                                                        Log.i(TAG, "Log data load complete.");
+                                                    } else {
+                                                        Log.i(TAG, "Log data CRC error.");
                                                     }
                                                 }
                                             }
