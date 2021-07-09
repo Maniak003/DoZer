@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -322,7 +323,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 if (windSmooth > 1) {
                     smoothArray(foneData, windSmooth, foneIdx);
                 }
-                Log.d("DoZer", "Load foneData idx: " + foneIdx);
+                //Log.d("DoZer", "Load foneData idx: " + foneIdx);
                 fonBuf.close();
             } catch (IOException e) {
                 Toast.makeText(getBaseContext(), "Error read bgFile with: " + e.getMessage() , Toast.LENGTH_LONG).show();
@@ -362,7 +363,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 koeffData[2][2] = 1;
                 mainDet = determinant(koeffData);
                 if (mainDet != 0) {
-                    Log.d("DoZer", "Det: " + mainDet);
+                    //Log.d("DoZer", "Det: " + mainDet);
 
                     koeffData[0][0] = (double) calibrateData[0][1];
                     koeffData[1][0] = (double) calibrateData[1][1];
@@ -1158,7 +1159,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                             if (logIndex == 0) {  // Log count initial ?
                                                 logIndex = (char) (data[i2]  & 0xFF) + 1;  // Get log array records
                                                 specrtCRC = (char) (data[i2] & 0xFF);   // CRC
-                                                Log.i(TAG, "Initial log data : " + logIndex);
+                                                //Log.i(TAG, "Initial log data : " + logIndex);
                                                 if (logIndex == 0) {  // If log array is empty
                                                     startFlag = 0;
                                                     logBtn.setEnabled(true);
@@ -1172,7 +1173,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                     startFlag = 0;
                                                     double tmpCRC = (char) (logData[logIndex * 9] << 8 | (logData[logIndex * 9 + 1] & 0xFF));
                                                     specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
-                                                    Log.i(TAG, "tmpCRC : " + tmpCRC + ", LogCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                                    //Log.i(TAG, "tmpCRC : " + tmpCRC + ", LogCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                                     if (tmpCRC == specrtCRC) { // Update if CRC correct.
                                                         // Redraw in thread
                                                         Thread t = new Thread(new Runnable() {
@@ -1181,9 +1182,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                             }
                                                         });
                                                         t.start();
-                                                        Log.i(TAG, "Log data load complete.");
-                                                    } else {
-                                                        Log.i(TAG, "Log data CRC error.");
+                                                        //Log.i(TAG, "Log data load complete.");
+                                                    //} else {
+                                                    //    Log.i(TAG, "Log data CRC error.");
                                                     }
                                                 }
                                             }
@@ -1728,7 +1729,19 @@ public class FullscreenActivity extends AppCompatActivity  {
                             batCapacity = 0;
                         }
                     }
-                    textStatistic1.setText(String.format("%.0f %.0f%% total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]));
+                    String stats = "";
+                    if (batCapacity < 11) {  // Battery level is low
+                        stats = String.format("%.0f <font color=#C80000> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+
+                    } else {
+                        if (batCapacity < 50) {  // Battery level is warning
+                            stats = String.format("%.0f <font color=#ffff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+                        } else {  // Battery level is normal
+                            stats = String.format("%.0f <font color=#00ff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+                        }
+                    }
+                    textStatistic1.setText(Html.fromHtml(stats, stats.length() ));
+
                     if (countsAll == 0) {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)");
                     } else {
