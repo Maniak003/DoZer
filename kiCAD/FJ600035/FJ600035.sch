@@ -1,0 +1,211 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L My_Library:FJ60035 D1
+U 1 1 60F0222B
+P 5300 2950
+F 0 "D1" H 5200 3400 50  0000 R CNN
+F 1 "FJ60035" H 5200 3300 50  0000 R CNN
+F 2 "My-library:FJ60035" H 5300 2950 50  0001 C CNN
+F 3 "" H 5300 2950 50  0001 C CNN
+	1    5300 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L My_Library:FJ60035 D2
+U 1 1 60F02507
+P 6700 2950
+F 0 "D2" H 6600 3400 50  0000 R CNN
+F 1 "FJ60035" H 6600 3300 50  0000 R CNN
+F 2 "My-library:FJ60035" H 6700 2950 50  0001 C CNN
+F 3 "" H 6700 2950 50  0001 C CNN
+	1    6700 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L My_Library:FJ60035 D3
+U 1 1 60F027E1
+P 8150 2950
+F 0 "D3" H 8050 3400 50  0000 R CNN
+F 1 "FJ60035" H 8050 3300 50  0000 R CNN
+F 2 "My-library:FJ60035" H 8150 2950 50  0001 C CNN
+F 3 "" H 8150 2950 50  0001 C CNN
+	1    8150 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L My_Library:Conn J1
+U 1 1 60F0340F
+P 5300 2450
+F 0 "J1" V 5242 2402 50  0000 R CNN
+F 1 "Conn" V 5197 2402 50  0001 R CNN
+F 2 "My-library:SMD-CONN" H 5350 2300 50  0001 C CNN
+F 3 "~" H 5300 2450 50  0001 C CNN
+	1    5300 2450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L My_Library:Conn J2
+U 1 1 60F0390A
+P 5300 3450
+F 0 "J2" V 5242 3498 50  0000 L CNN
+F 1 "Conn" V 5287 3498 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 5350 3300 50  0001 C CNN
+F 3 "~" H 5300 3450 50  0001 C CNN
+	1    5300 3450
+	0    1    1    0   
+$EndComp
+$Comp
+L My_Library:Conn J4
+U 1 1 60F06301
+P 6700 2450
+F 0 "J4" V 6642 2402 50  0000 R CNN
+F 1 "Conn" V 6597 2402 50  0001 R CNN
+F 2 "My-library:SMD-CONN" H 6750 2300 50  0001 C CNN
+F 3 "~" H 6700 2450 50  0001 C CNN
+	1    6700 2450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L My_Library:Conn J5
+U 1 1 60F07EBE
+P 6700 3450
+F 0 "J5" V 6642 3498 50  0000 L CNN
+F 1 "Conn" V 6687 3498 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 6750 3300 50  0001 C CNN
+F 3 "~" H 6700 3450 50  0001 C CNN
+	1    6700 3450
+	0    1    1    0   
+$EndComp
+$Comp
+L My_Library:Conn J6
+U 1 1 60F08347
+P 7200 2950
+F 0 "J6" H 7228 2950 50  0000 L CNN
+F 1 "Conn" H 7228 2905 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 7250 2800 50  0001 C CNN
+F 3 "~" H 7200 2950 50  0001 C CNN
+	1    7200 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L My_Library:Conn J9
+U 1 1 60F086C1
+P 8650 2950
+F 0 "J9" H 8678 2950 50  0000 L CNN
+F 1 "Conn" H 8678 2905 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 8700 2800 50  0001 C CNN
+F 3 "~" H 8650 2950 50  0001 C CNN
+	1    8650 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L My_Library:Conn J7
+U 1 1 60F08A43
+P 8150 2450
+F 0 "J7" V 8092 2402 50  0000 R CNN
+F 1 "Conn" V 8047 2402 50  0001 R CNN
+F 2 "My-library:SMD-CONN" H 8200 2300 50  0001 C CNN
+F 3 "~" H 8150 2450 50  0001 C CNN
+	1    8150 2450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L My_Library:Conn J8
+U 1 1 60F08DA6
+P 8150 3450
+F 0 "J8" V 8092 3498 50  0000 L CNN
+F 1 "Conn" V 8137 3498 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 8200 3300 50  0001 C CNN
+F 3 "~" H 8150 3450 50  0001 C CNN
+	1    8150 3450
+	0    1    1    0   
+$EndComp
+$Comp
+L My_Library:Conn J3
+U 1 1 60F0A0D5
+P 5800 2950
+F 0 "J3" H 5828 2950 50  0000 L CNN
+F 1 "Conn" H 5828 2905 50  0001 L CNN
+F 2 "My-library:SMD-CONN" H 5850 2800 50  0001 C CNN
+F 3 "~" H 5800 2950 50  0001 C CNN
+	1    5800 2950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5300 2550 5300 2650
+Wire Wire Line
+	5300 3350 5300 3250
+Wire Wire Line
+	5700 2950 5600 2950
+Wire Wire Line
+	6700 2650 6700 2550
+Wire Wire Line
+	6700 3250 6700 3350
+Wire Wire Line
+	7000 2950 7100 2950
+Wire Wire Line
+	8150 2650 8150 2550
+Wire Wire Line
+	8450 2950 8550 2950
+Wire Wire Line
+	8150 3250 8150 3350
+Wire Wire Line
+	5600 2900 5600 2950
+Connection ~ 5600 2950
+Wire Wire Line
+	5600 2950 5600 3000
+Wire Wire Line
+	5350 2650 5300 2650
+Connection ~ 5300 2650
+Wire Wire Line
+	5300 2650 5250 2650
+Wire Wire Line
+	5350 3250 5300 3250
+Connection ~ 5300 3250
+Wire Wire Line
+	5300 3250 5250 3250
+Wire Wire Line
+	6750 2650 6700 2650
+Connection ~ 6700 2650
+Wire Wire Line
+	6700 2650 6650 2650
+Wire Wire Line
+	7000 2900 7000 2950
+Connection ~ 7000 2950
+Wire Wire Line
+	7000 2950 7000 3000
+Wire Wire Line
+	6750 3250 6700 3250
+Connection ~ 6700 3250
+Wire Wire Line
+	6700 3250 6650 3250
+Wire Wire Line
+	8100 3250 8150 3250
+Connection ~ 8150 3250
+Wire Wire Line
+	8150 3250 8200 3250
+Wire Wire Line
+	8450 3000 8450 2950
+Connection ~ 8450 2950
+Wire Wire Line
+	8450 2950 8450 2900
+Wire Wire Line
+	8100 2650 8150 2650
+Connection ~ 8150 2650
+Wire Wire Line
+	8150 2650 8200 2650
+$EndSCHEMATC

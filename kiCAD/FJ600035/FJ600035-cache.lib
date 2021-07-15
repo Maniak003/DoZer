@@ -1,0 +1,43 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# My_Library_Conn
+#
+DEF My_Library_Conn J 0 40 N N 1 F N
+F0 "J" 0 100 50 H V C CNN
+F1 "My_Library_Conn" 0 -100 50 H V C CNN
+F2 "My-library:SMD-CONN" 50 -150 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Connector*:*
+$ENDFPLIST
+DRAW
+A 0 0 20 901 -901 1 1 6 N 0 20 0 -20
+X ~ 1 -100 0 79 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# My_Library_FJ60035
+#
+DEF My_Library_FJ60035 D 0 40 Y Y 1 F N
+F0 "D" 0 0 50 H V C CNN
+F1 "My_Library_FJ60035" -250 -250 50 H V C CNN
+F2 "My-library:FJ60035" 0 400 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+C 0 0 206 0 1 0 N
+P 2 0 1 0 -100 150 100 150 N
+P 2 0 1 0 0 -100 0 -200 N
+P 2 0 1 0 0 150 0 -100 N
+P 2 0 1 0 0 150 0 200 N
+P 4 0 1 0 -100 -100 100 -100 0 150 -100 -100 N
+X ~ A1 -50 300 100 D 50 50 1 1 I
+X ~ C1 -50 -300 100 U 50 50 1 1 I
+X ~ C6 300 -50 100 L 50 50 1 1 I
+X ~ D1 50 -300 100 U 50 50 1 1 I
+X ~ D6 300 50 100 L 50 50 1 1 I
+X ~ F6 50 300 100 D 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library

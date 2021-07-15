@@ -1130,7 +1130,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 //tmpTime = (char) (spectrData[0] << 8 | (spectrData[1] & 0xff)); // Total time from device.
                                                 //tmpTime = tmpTime + ((char) (spectrData[2] << 8 | (spectrData[3] & 0xff)) * 65536);
                                                 //Log.i(TAG, "{0, 1, 2, 3} : " + (spectrData[0]  + spectrData[1] + spectrData[2] + spectrData[3]) + ", Time: " + tmpTime);
-                                                //myView.invalidate();    // Redraw screen.
                                                 if ( ( ! gistoBtn.isEnabled()) && (tmpHistoryCount-- == 0)) {
                                                     gistoBtn.setEnabled(true);
                                                 }
@@ -1149,7 +1148,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                         }
                                                     });
                                                     t.start();
-                                                    Log.i(TAG, "Specter data load complete.");
+                                                    //Log.i(TAG, "Specter data load complete.");
                                                 }
                                             }
                                         }
@@ -1742,10 +1741,16 @@ public class FullscreenActivity extends AppCompatActivity  {
                     }
                     textStatistic1.setText(Html.fromHtml(stats, stats.length() ));
 
+                    int D = (int) (tmpTime / 86400);
+                    int H = (int) ((tmpTime - D * 86400) / 3600);
+                    int M = (int) (tmpTime / 60 % 60);
+                    int S = (int) (tmpTime / 1 % 60);
+
                     if (countsAll == 0) {
                         textStatistic2.setText(String.format("time: %.0f avg: %.2f (100", tmpTime, acps) + "%)");
                     } else {
-                        textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f%%)", tmpTime, acps, 300 / Math.sqrt(countsAll)));
+                        //textStatistic2.setText(String.format("time: %.0f avg: %.2f (%.2f%%)", tmpTime, acps, 300 / Math.sqrt(countsAll)));
+                        textStatistic2.setText(String.format("%02d:%02d:%02d:%02d avg: %.2f (%.2f%%)", D, H, M, S, acps, 300 / Math.sqrt(countsAll)));
                     }
 
                     /* Текущее значение */
