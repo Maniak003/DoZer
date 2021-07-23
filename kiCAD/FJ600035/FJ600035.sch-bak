@@ -193,4 +193,19 @@ Wire Wire Line
 Connection ~ 6700 3250
 Wire Wire Line
 	6700 3250 6650 3250
+Wire Wire Line
+	8100 3250 8150 3250
+Connection ~ 8150 3250
+Wire Wire Line
+	8150 3250 8200 3250
+Wire Wire Line
+	8450 3000 8450 2950
+Connection ~ 8450 2950
+Wire Wire Line
+	8450 2950 8450 2900
+Wire Wire Line
+	8100 2650 8150 2650
+Connection ~ 8150 2650
+Wire Wire Line
+	8150 2650 8200 2650
 $EndSCHEMATC

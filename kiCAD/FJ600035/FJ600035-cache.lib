@@ -1,11 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# My_Library_Conn
+# FJ600035-rescue_Conn-My_Library
 #
-DEF My_Library_Conn J 0 40 N N 1 F N
+DEF FJ600035-rescue_Conn-My_Library J 0 40 N N 1 F N
 F0 "J" 0 100 50 H V C CNN
-F1 "My_Library_Conn" 0 -100 50 H V C CNN
+F1 "FJ600035-rescue_Conn-My_Library" 0 -100 50 H V C CNN
 F2 "My-library:SMD-CONN" 50 -150 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -17,11 +17,11 @@ X ~ 1 -100 0 79 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# My_Library_FJ60035
+# FJ600035-rescue_FJ60035-My_Library
 #
-DEF My_Library_FJ60035 D 0 40 Y Y 1 F N
+DEF FJ600035-rescue_FJ60035-My_Library D 0 40 Y Y 1 F N
 F0 "D" 0 0 50 H V C CNN
-F1 "My_Library_FJ60035" -250 -250 50 H V C CNN
+F1 "FJ600035-rescue_FJ60035-My_Library" -250 -250 50 H V C CNN
 F2 "My-library:FJ60035" 0 400 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
