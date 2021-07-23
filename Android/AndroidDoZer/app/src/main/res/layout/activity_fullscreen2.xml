@@ -61,7 +61,7 @@
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="105dp"
+                    android:layout_width="106dp"
                     android:layout_height="wrap_content"
                     android:text=" Level1"
                     android:textColor="@color/label_text" />
@@ -90,22 +90,26 @@
                 <EditText
                     android:id="@+id/editTextLevel1"
                     android:layout_width="107dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
                     android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:textColor="@color/edit_text" />
+                    android:inputType="number"
+                    android:textColor="@color/edit_text"
+                    android:textSize="14sp" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel1_S"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:textSize="8sp" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel1_V"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:textSize="8sp" />
             </LinearLayout>
 
             <TextView
@@ -124,9 +128,11 @@
                     android:id="@+id/editTextLevel2"
                     android:layout_width="107dp"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
                     android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:textColor="@color/edit_text" />
+                    android:inputType="number"
+                    android:textColor="@color/edit_text"
+                    android:textSize="14sp" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel2_S"
@@ -157,9 +163,11 @@
                     android:id="@+id/editTextLevel3"
                     android:layout_width="107dp"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
                     android:ems="10"
                     android:inputType="number"
-                    android:textColor="@color/edit_text" />
+                    android:textColor="@color/edit_text"
+                    android:textSize="14sp" />
 
                 <CheckBox
                     android:id="@+id/checkBoxLevel3_S"
@@ -185,6 +193,7 @@
                 android:id="@+id/editTextKoefR"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#717070"
                 android:ems="10"
                 android:inputType="numberDecimal"
                 android:textColor="@color/edit_text" />
@@ -224,38 +233,6 @@
                         android:textAllCaps="false" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Save format"
-                    android:textColor="@color/label_text" />
-
-                <RadioGroup
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal" >
-
-                    <RadioButton
-                        android:id="@+id/radioButtonSaveSPE"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="SPE"
-                        android:textColor="@color/edit_text"
-                        android:textSize="12sp" />
-
-                    <RadioButton
-                        android:id="@+id/radioButtonSaveXML"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="BqXML"
-                        android:textColor="@color/edit_text"
-                        android:textSize="12sp" />
-                </RadioGroup>
-
             </LinearLayout>
 
         </LinearLayout>
@@ -272,52 +249,74 @@
                 android:text="Correct: Ax^2 + Bx + C"
                 android:textColor="@color/label_text" />
 
-            <TextView
-                android:id="@+id/textView9"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="A"
-                android:textColor="@color/label_text" />
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/editTextCorrect_A"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/editTextCorrect_B"
-                android:textColor="@color/edit_text" />
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="A:"
+                    android:textColor="@color/label_text" />
 
-            <TextView
-                android:id="@+id/textView10"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="B"
-                android:textColor="@color/label_text" />
+                <EditText
+                    android:id="@+id/editTextCorrect_A"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextCorrect_B"
+                    android:textColor="@color/edit_text" />
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/editTextCorrect_B"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/editTextCorrect_C"
-                android:textColor="@color/edit_text" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView11"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="C"
-                android:textColor="@color/label_text" />
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B:"
+                    android:textColor="@color/label_text" />
 
-            <EditText
-                android:id="@+id/editTextCorrect_C"
+                <EditText
+                    android:id="@+id/editTextCorrect_B"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextCorrect_C"
+                    android:textColor="@color/edit_text" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:textColor="@color/edit_text" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="C:"
+                    android:textColor="@color/label_text" />
+
+                <EditText
+                    android:id="@+id/editTextCorrect_C"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextEnergi_A"
+                    android:textColor="@color/edit_text" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView17"
@@ -333,7 +332,7 @@
 
                 <RadioButton
                     android:id="@+id/radioButtonResolution1"
-                    android:layout_width="73dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="1024"
@@ -341,14 +340,14 @@
 
                 <RadioButton
                     android:id="@+id/radioButtonResolution2"
-                    android:layout_width="73dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2048"
                     android:textColor="@color/edit_text" />
 
                 <RadioButton
                     android:id="@+id/radioButtonResolution3"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="4096"
                     android:textColor="@color/edit_text" />
@@ -384,22 +383,22 @@
                     android:textColor="@color/edit_text" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/textView18"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Smooothing"
-                android:textColor="@color/label_text" />
-
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Smoothing:"
+                    android:textColor="@color/label_text" />
 
                 <CheckBox
                     android:id="@+id/checkBoxSmooth"
-                    android:layout_width="26dp"
-                    android:layout_height="37dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textSize="12sp" />
 
                 <EditText
@@ -407,11 +406,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:backgroundTint="#717070"
                     android:ems="10"
                     android:inputType="number"
                     android:text="3"
                     android:textColor="@color/edit_text"
-                    android:textSize="12sp" />
+                    android:textSize="18sp" />
 
             </LinearLayout>
 
@@ -435,73 +435,104 @@
                 android:layout_height="30dp"
                 android:text="Compensation" />
 
-            <TextView
-                android:id="@+id/textView13"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="A"
-                android:textColor="@color/label_text" />
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/editTextEnergi_A"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:text="0"
-                android:textColor="@color/edit_text"
-                android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/textView13"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="A:"
+                    android:textColor="@color/label_text" />
 
-            <TextView
-                android:id="@+id/textView14"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="B"
-                android:textColor="@color/label_text" />
+                <EditText
+                    android:id="@+id/editTextEnergi_A"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextEnergi_B"
+                    android:text="0"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/editTextEnergi_B"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:text="0"
-                android:textColor="@color/edit_text"
-                android:textSize="12sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView15"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="C"
-                android:textColor="@color/label_text" />
+                <TextView
+                    android:id="@+id/textView14"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B:"
+                    android:textColor="@color/label_text" />
 
-            <EditText
-                android:id="@+id/editTextEnergi_C"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:text="0"
-                android:textColor="@color/edit_text"
-                android:textSize="12sp" />
+                <EditText
+                    android:id="@+id/editTextEnergi_B"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextEnergi_C"
+                    android:text="0"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/textView16"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="D"
-                android:textColor="@color/label_text" />
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/editTextEnergi_D"
+                <TextView
+                    android:id="@+id/textView15"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="C:"
+                    android:textColor="@color/label_text" />
+
+                <EditText
+                    android:id="@+id/editTextEnergi_C"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:nextFocusDown="@+id/editTextEnergi_D"
+                    android:text="0"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                android:text="1"
-                android:textColor="@color/edit_text"
-                android:textSize="12sp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView16"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="D:"
+                    android:textColor="@color/label_text" />
+
+                <EditText
+                    android:id="@+id/editTextEnergi_D"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#717070"
+                    android:ems="10"
+                    android:inputType="numberDecimal"
+                    android:text="1"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView8"
@@ -520,7 +551,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="none"
+                    android:text="None"
                     android:textColor="@color/edit_text"
                     android:textSize="12sp" />
 
@@ -554,11 +585,44 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:backgroundTint="#717070"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:textColor="@color/edit_text"
                     android:textSize="12sp" />
             </LinearLayout>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save to"
+                    android:textColor="@color/label_text" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonSaveSPE"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SPE"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonSaveXML"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="BqXML"
+                    android:textColor="@color/edit_text"
+                    android:textSize="12sp" />
+            </RadioGroup>
 
         </LinearLayout>
 
