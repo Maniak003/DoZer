@@ -72,6 +72,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public CheckBox checkBoxSound;
     public CheckBox checkBoxMarker;
     public CheckBox smoothSpecter;
+    public CheckBox isotopLoad;
     public CheckBox energyCompensation;
     public RadioButton BGNone;
     public RadioButton BGDiff;
@@ -129,6 +130,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         checkBoxLevel2_V= findViewById(R.id.checkBoxLevel2_V);
         checkBoxLevel3_S = findViewById(R.id.checkBoxLevel3_S);
         checkBoxLevel3_V = findViewById(R.id.checkBoxLevel3_V);
+        isotopLoad = findViewById(R.id.isotopLoad);
         energyCompensation = findViewById(R.id.checkBoxEnergyComp);
         checkBoxLed = findViewById(R.id.checkBoxLed);
         checkBoxSound = findViewById(R.id.checkBoxSound);
@@ -365,6 +367,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 editTextEnergi_D.setText(tmpData);
             }
+            /* isotopes file load enable */
+            tmpData = PP.readProp("isotopLoad");
+            if (tmpData != null) {
+                isotopLoad.setChecked(tmpData.equals("1"));
+            }
+
             /* Energy compensation enable */
             tmpData = PP.readProp("energyCompFlag");
             if (tmpData != null) {
@@ -497,6 +505,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 prop.setProperty("energyCompFlag", "1");
             } else {
                 prop.setProperty("energyCompFlag", "0");
+            }
+            /* Load isotop flag */
+            if (isotopLoad.isChecked()) {
+                prop.setProperty("isotopLoad", "1");
+            } else {
+                prop.setProperty("isotopLoad", "0");
             }
 
             if (BGNone.isChecked()) {
@@ -721,6 +735,13 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 intent.putExtra("CFGDATA17", 1);  // Mark active
             } else {
                 intent.putExtra("CFGDATA17", 0);  // Mark not active
+            }
+
+            /* Load isotops flag */
+            if (isotopLoad.isChecked()) {
+                intent.putExtra("CFGDATA18", 1);  // Need looad data from file
+            } else {
+                intent.putExtra("CFGDATA18", 0);
             }
 
             setResult(1, intent);

@@ -415,6 +415,13 @@
 
             </LinearLayout>
 
+            <CheckBox
+                android:id="@+id/isotopLoad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Load isotops"
+                android:textColor="@color/edit_text" />
+
         </LinearLayout>
 
         <LinearLayout

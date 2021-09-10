@@ -221,7 +221,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -237,6 +236,7 @@ int main(void)
   MX_LPTIM2_Init();
   /* USER CODE BEGIN 2 */
   HAL_LPTIM_Counter_Stop_IT(&hlptim2);
+  //HAL_PWREx_EnableLowPowerRunMode();
   /* USER CODE END 2 */
 
   /* Infinite loop */

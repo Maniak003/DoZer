@@ -92,9 +92,11 @@ public class FullscreenActivity extends AppCompatActivity  {
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
+    public String[] isotopData = new String[255];
+    public int[] isotopDataIndex = new int[255];
     public double curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
-    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0;
+    public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
     public double correctA, correctB, correctC, backgtoundTime;
     public float koeffR = (float) 0.5310015898;
     //public String MAC = "20:07:12:18:74:9E";
@@ -218,7 +220,10 @@ public class FullscreenActivity extends AppCompatActivity  {
             correctC = data.getFloatArrayExtra("CFGDATA16")[2];
 
             Marker = data.getIntExtra("CFGDATA17", 0);
-
+            if (isotopLoadFlag < data.getIntExtra("CFGDATA18", 0)) {
+                readIsotopsFile("isotops.list");
+            }
+            isotopLoadFlag = data.getIntExtra("CFGDATA18", 0);
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + ", " + resData[0]
@@ -290,6 +295,36 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    /**/
+    public void readIsotopsFile(String isName) {
+        File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + isName);
+        if (bgFile.exists()) {
+            try {
+                BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
+                String tmpStr;
+                int idx, idx2 = 0;
+                /* Clear isotops data */
+                for (int ii = 0; ii < 255; ii++) {
+                    isotopDataIndex[ii] = 0;
+                    isotopData[ii] = "";
+                }
+                while ((tmpStr = fonBuf.readLine()) != null) {
+                    idx = tmpStr.indexOf(';');
+                    if (idx > 0 && idx < 255) {
+                        try {
+                            isotopDataIndex[idx2] = Integer.parseInt(tmpStr.substring(0, idx));
+                            isotopData[idx2++] = tmpStr.substring(idx + 1);
+                            //Log.d("DoZer", "IDX : " +isotopDataIndex[idx2 - 1] + " VAL : " + isotopData[idx2 - 1]);
+                        } catch (NumberFormatException nfe) {
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Toast.makeText(getBaseContext(), "Error read isotops File with: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -514,6 +549,15 @@ public class FullscreenActivity extends AppCompatActivity  {
             smoothSpecter = Integer.parseInt(kR);
         } else {
             smoothSpecter = 0;
+        }
+
+        /* isotops flag read */
+        kR = PP.readProp("isotopLoad");
+        if (kR != null && ! kR.isEmpty()) {
+            isotopLoadFlag = Integer.parseInt(kR);
+            readIsotopsFile("isotops.list");
+        } else {
+            isotopLoadFlag = 0;
         }
 
         /* Colors */
