@@ -212,8 +212,20 @@ void DMA1_Channel1_IRQHandler(void)
 	// Battery voltage.
 	HAL_ADC_Stop_DMA(&hadc1);
 	HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET);  // Disable common pin
-	spectrData[4][0] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
-	spectrData[4][1] = (adc1Result[1] << 8) | (adc1Result[0] & 0x00FF);
+
+	/* Battery level */
+	uint16_t batv;
+	if (adc1Result[0] < 785) {
+		batv = 0;
+	} else {
+		batv = adc1Result[0] - 785; // 3.2v -- 4.2v
+	}
+
+	/* Temperature*/
+	uint16_t temper = adc1Result[1] - 100;
+
+	spectrData[4][0] = (temper << 8) | (batv & 0x00FF); // Main specter
+	spectrData[4][1] = (temper << 8) | (batv & 0x00FF); // History specter
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */

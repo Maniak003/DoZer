@@ -1783,7 +1783,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                         acps = (float) (countsAll / tmpTime);
                     }
                     /* Battery capacity */
-                    float batCapacity =  (float) ((batVoltage - 192) * 1.7);
+                    Log.i(TAG, "Battery level (RAW) :" +  batVoltage);
+                    float batCapacity =  (float) (batVoltage / 2.39);
                     if (batCapacity > 100) {
                         batCapacity = 100;
                     } else {
