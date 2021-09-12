@@ -918,6 +918,10 @@ public class FullscreenActivity extends AppCompatActivity  {
         public final UUID BLUETOOTH_LE_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_SERVICE = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_CHAR_RW = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+        /* FSC - BT691 */
+        public final UUID BLUETOOTH_LE_BT691_SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb");
+        public final UUID BLUETOOTH_LE_BT691_CHAR_R = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
+        public final UUID BLUETOOTH_LE_BT691_CHAR_W = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
 
         /**
          * delegate device specific behaviour to inner class
@@ -961,13 +965,13 @@ public class FullscreenActivity extends AppCompatActivity  {
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
             Log.d(TAG, "Status: " + bluetooth.getState());
             if ( device == null ) {
-                Log.i(TAG, "Device: " + MAC + " not connected.");
+                Log.i(TAG, "Error: Device: " + MAC + " not connected.");
                 return;
             } else {
                 Log.i(TAG, "Try gatt connect.");
                 gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
                 if (gatt == null) {
-                    Log.i(TAG, "Gatt create failed.");
+                    Log.i(TAG, "Error: Gatt create failed.");
                     finish();
                 }
                 Log.i(TAG, "End init.");
@@ -981,7 +985,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.i(TAG, "Connect success.");
                     if (!gatt.discoverServices()) {
-                        Log.i(TAG, "Discover service failed.");
+                        Log.i(TAG, "Error: Discover service failed.");
                         finish();
                     }
                     if (!gatt.requestMtu(MAX_MTU)) {  // Изменяем MTU
@@ -1012,6 +1016,10 @@ public class FullscreenActivity extends AppCompatActivity  {
                 for (BluetoothGattService gattService : gatt.getServices()) {
                     if (gattService.getUuid().equals(BLUETOOTH_LE_CC254X_SERVICE)) {
                         delegate = new Cc245XDelegate();
+                    } else {
+                        if (gattService.getUuid().equals(BLUETOOTH_LE_BT691_SERVICE)) {
+                            delegate = new BT691Delegate();
+                        }
                     }
                     if ( delegate != null) {
                         sync = delegate.connectCharacteristics(gattService);
@@ -1033,7 +1041,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 if(descriptor.getCharacteristic() == readCharacteristic) {
                     Log.d(TAG,"writing read characteristic descriptor finished, status=" + status);
                     if (status != BluetoothGatt.GATT_SUCCESS) {
-                        Log.d(TAG,"Write characteristic failed.");
+                        Log.d(TAG,"Error: Write characteristic failed.");
                     } else {
                         connected = true;
                         //myView.invalidate();
@@ -1069,23 +1077,23 @@ public class FullscreenActivity extends AppCompatActivity  {
                     Log.d(TAG, "payload size " + payloadSize);
                 }
                 if ( writeCharacteristic == null ) {
-                    Log.d(TAG, "write characteristic not writable - 1");
+                    Log.d(TAG, "Error: write characteristic not writable - 1");
                     return;
                 } else {
                     int writeProperties = writeCharacteristic.getProperties();
                     if ((writeProperties & (BluetoothGattCharacteristic.PROPERTY_WRITE +     // Microbit,HM10-clone have WRITE
                             BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) == 0) { // HM10,TI uart,Telit have only WRITE_NO_RESPONSE
-                        Log.d(TAG, "write characteristic not writable - 2");
+                        Log.d(TAG, "Error: write characteristic not writable - 2");
                         return;
                     }
                 }
                 if(!gatt.setCharacteristicNotification(readCharacteristic,true)) {
-                    Log.d(TAG, "no notification for read characteristic");
+                    Log.d(TAG, "Error: no notification for read characteristic");
                     return;
                 }
                 BluetoothGattDescriptor readDescriptor = readCharacteristic.getDescriptor(BLUETOOTH_LE_CCCD);
                 if(readDescriptor == null) {
-                    Log.d(TAG, "no CCCD descriptor for read characteristic");
+                    Log.d(TAG, "Error: no CCCD descriptor for read characteristic");
                     return;
                 }
                 int readProperties = readCharacteristic.getProperties();
@@ -1096,12 +1104,12 @@ public class FullscreenActivity extends AppCompatActivity  {
                     Log.d(TAG, "enable read notification");
                     readDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 } else {
-                    Log.d(TAG, "no indication/notification for read characteristic ("+readProperties+")");
+                    Log.d(TAG, "Error: no indication/notification for read characteristic ("+readProperties+")");
                     return;
                 }
                 Log.d(TAG,"writing read characteristic descriptor");
                 if(!gatt.writeDescriptor(readDescriptor)) {
-                    Log.d(TAG, "read characteristic CCCD descriptor not writable");
+                    Log.d(TAG, "Error: read characteristic CCCD descriptor not writable");
                 }
                 // continues asynchronously in onDescriptorWrite()
             }
@@ -1249,6 +1257,17 @@ public class FullscreenActivity extends AppCompatActivity  {
                 Log.i(TAG, "Service cc254x uart");
                 readCharacteristic = gattService.getCharacteristic(BLUETOOTH_LE_CC254X_CHAR_RW);
                 writeCharacteristic = gattService.getCharacteristic(BLUETOOTH_LE_CC254X_CHAR_RW);
+                return true;
+            }
+        }
+
+        /* Parameters for FSC - BT961*/
+        private class BT691Delegate extends DeviceDelegate {
+            //@Override
+            boolean connectCharacteristics(BluetoothGattService gattService) {
+                Log.i(TAG, "Service BT691");
+                readCharacteristic = gattService.getCharacteristic(BLUETOOTH_LE_BT691_CHAR_R);
+                writeCharacteristic = gattService.getCharacteristic(BLUETOOTH_LE_BT691_CHAR_W);
                 return true;
             }
         }
