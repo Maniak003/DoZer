@@ -313,7 +313,7 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="#717070"
                     android:ems="10"
-                    android:inputType="numberDecimal"
+                    android:inputType="numberSigned|number|numberDecimal"
                     android:nextFocusDown="@+id/editTextEnergi_A"
                     android:textColor="@color/edit_text" />
             </LinearLayout>
