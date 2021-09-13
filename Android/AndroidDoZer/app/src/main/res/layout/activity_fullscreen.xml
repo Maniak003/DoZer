@@ -36,6 +36,14 @@
         android:gravity="right"
         android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/textIsotops"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textColor="@color/statistic_text" />
+
         <LinearLayout
             android:id="@+id/statisticLayoout"
             android:layout_width="250dp"
@@ -214,6 +222,7 @@
                 app:rippleColor="#FFFFFF" />
 
         </LinearLayout>
+
     </LinearLayout>
 
     <!-- This FrameLayout insets its children based on system windows using

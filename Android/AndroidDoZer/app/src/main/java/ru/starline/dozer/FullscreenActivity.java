@@ -80,7 +80,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
     public BluetoothGatt gatt;
-    public TextView textStatistic1, textStatistic2, textStatistic3, textStatistic4;
+    public TextView textStatistic1, textStatistic2, textStatistic3, textStatistic4, textIsotops;
     public boolean connected = false;
     drawHistogram DH = new drawHistogram();
     public byte[] spectrData = new byte[4096], logData = new byte[9 * 256];
@@ -313,7 +313,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 while ((tmpStr = fonBuf.readLine()) != null) {
                     idx = tmpStr.indexOf(';');
-                    if (idx > 0 && idx < 255) {
+                    if (idx >= 0) {
                         try {
                             isotopDataIndex[idx2] = Integer.parseInt(tmpStr.substring(0, idx));
                             isotopData[idx2++] = tmpStr.substring(idx + 1);
@@ -799,6 +799,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         textStatistic2 = findViewById(R.id.textStatistic2);
         textStatistic3 = findViewById(R.id.textStatistic3);
         textStatistic4 = findViewById(R.id.textStatistic4);
+        textIsotops = findViewById(R.id.textIsotops);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //selectTypeScreen();
         // Check permission for write storage.
@@ -1455,6 +1456,20 @@ public class FullscreenActivity extends AppCompatActivity  {
                     oldValX = (double) X / penSize;
                 } else {
                     oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
+                    if (isotopLoadFlag != 0) { // Need isotopes information
+                        for (int ii = 0; ii < 255; ii++) {
+                            if (isotopDataIndex[ii] == 0) {
+                                textIsotops.setText("");
+                                break;
+                            }
+                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 4) { // +/- 3kev
+                                if (tmpVal2 > 1) {
+                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
+                                }
+                                break;
+                            }
+                        }
+                    }
                 }
                 // Calculate index specter array
                 int i = (int) Math.floor(X / penSize ) ;
@@ -1783,7 +1798,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                         acps = (float) (countsAll / tmpTime);
                     }
                     /* Battery capacity */
-                    Log.i(TAG, "Battery level (RAW) :" +  batVoltage);
+                    //Log.i(TAG, "Battery level (RAW) :" +  batVoltage);
                     float batCapacity =  (float) (batVoltage / 2.39);
                     if (batCapacity > 100) {
                         batCapacity = 100;
