@@ -498,7 +498,7 @@ int main(void)
 
 		  /* DAC LTC1662 control */
 		  //dacValue = 0xa20f;  // Constant for test
-		  dacValue = 0x200;  // Constant for test
+		  dacValue = 0x400;  // Constant for test
 		  uint16_t transmitData = 0xA000 | dacValue;
 		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
 		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
