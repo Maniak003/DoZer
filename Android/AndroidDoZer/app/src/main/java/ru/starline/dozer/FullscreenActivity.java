@@ -916,6 +916,7 @@ public class FullscreenActivity extends AppCompatActivity  {
 
         // https://play.google.com/store/apps/details?id=com.telit.tiosample
         // https://www.telit.com/wp-content/uploads/2017/09/TIO_Implementation_Guide_r6.pdf
+        /* JDY - 10, 19, 23 */
         public final UUID BLUETOOTH_LE_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_SERVICE = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
         public final UUID BLUETOOTH_LE_CC254X_CHAR_RW = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
@@ -1211,7 +1212,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                             if (logIndex == 0) {  // Log count initial ?
                                                 logIndex = (char) (data[i2]  & 0xFF) + 1;  // Get log array records
                                                 specrtCRC = (char) (data[i2] & 0xFF);   // CRC
-                                                Log.i(TAG, "Initial log data : " + logIndex);
+                                                //Log.i(TAG, "Initial log data : " + logIndex);
                                                 if (logIndex == 0) {  // If log array is empty
                                                     startFlag = 0;
                                                     logBtn.setEnabled(true);
@@ -1225,7 +1226,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                     startFlag = 0;
                                                     double tmpCRC = (char) (logData[logIndex * 9] << 8 | (logData[logIndex * 9 + 1] & 0xFF));
                                                     specrtCRC = specrtCRC - (Math.floor(specrtCRC / 65536) * 65536);     // Fucking Java
-                                                    Log.i(TAG, "tmpCRC : " + tmpCRC + ", LogCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
+                                                    //Log.i(TAG, "tmpCRC : " + tmpCRC + ", LogCRC : " + specrtCRC + ", diff : " + (tmpCRC - specrtCRC));
                                                     if (tmpCRC == specrtCRC) { // Update if CRC correct.
                                                         // Redraw in thread
                                                         Thread t = new Thread(new Runnable() {
@@ -1234,9 +1235,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                             }
                                                         });
                                                         t.start();
-                                                        Log.i(TAG, "Log data load complete.");
+                                                        //Log.i(TAG, "Log data load complete.");
                                                     } else {
-                                                        Log.i(TAG, "Log data CRC error.");
+                                                        //Log.i(TAG, "Log data CRC error.");
                                                     }
                                                 }
                                             }
