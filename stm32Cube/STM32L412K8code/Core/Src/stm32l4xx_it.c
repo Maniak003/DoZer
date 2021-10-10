@@ -215,10 +215,10 @@ void DMA1_Channel1_IRQHandler(void)
 
 	/* Battery level */
 	uint16_t batv;
-	if (adc1Result[0] < 785) {
+	if (adc1Result[0] < 784) {
 		batv = 0;
 	} else {
-		batv = adc1Result[0] - 785; // 3.2v -- 4.2v
+		batv = adc1Result[0] - 784; // 3.2v -- 4.2v
 	}
 
 	/* Temperature*/
