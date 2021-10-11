@@ -1437,11 +1437,11 @@ public class FullscreenActivity extends AppCompatActivity  {
              if (oldX > 0) {
                  cursorHideFlag = 0;
                  cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
-                 cursorCanvas.drawLine(0, oldY, oldX, oldY, empt);
-                 cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, empt);
+                 cursorCanvas.drawLine(oldX - 3, oldY, oldX + 3, oldY, empt); // erase horizontal line
+                 cursorCanvas.drawText("" + round(tmpVal2), oldX, oldY, empt); //Erase counts text
                  cursorCanvas.save();
-                 cursorCanvas.rotate((float) 90, oldX, HSize - textVShift);
-                 cursorCanvas.drawText("" + round(oldValX), oldX, HSize - textVShift, empt);
+                 cursorCanvas.rotate((float) 90, oldX, oldY + 10 /*HSize - textVShift*/);
+                 cursorCanvas.drawText("" + round(oldValX), oldX, oldY + 10/*HSize - textVShift*/, empt);
                  cursorCanvas.restore();
              }
          }
@@ -1472,7 +1472,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                 textIsotops.setText("");
                                 break;
                             }
-                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 4) { // +/- 3kev
+                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
                                 if (tmpVal2 > 1) {
                                     textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
                                 }
@@ -1489,11 +1489,11 @@ public class FullscreenActivity extends AppCompatActivity  {
                     oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
                     if (X > 0 && oldY > 0) {
                         cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
-                        cursorCanvas.drawLine(0, oldY, X, oldY, curs); // Horizontal line
-                        cursorCanvas.drawText("" + round(tmpVal2), 1, oldY, curs);
+                        cursorCanvas.drawLine(X - 3, oldY, X + 3, oldY, curs); // Horizontal line
+                        cursorCanvas.drawText("" + round(tmpVal2), X, oldY, curs); // Counts
                         cursorCanvas.save();
-                        cursorCanvas.rotate((float) 90, X, HSize - textVShift);
-                        cursorCanvas.drawText("" + round(oldValX), X, HSize - textVShift, curs);
+                        cursorCanvas.rotate((float) 90, X, oldY + 10/*HSize - textVShift*/);
+                        cursorCanvas.drawText("" + round(oldValX), X, oldY + 10 /*HSize - textVShift*/, curs); // Energy
                         cursorCanvas.restore();
                         cursorImage.setImageBitmap(bitmap3);
                     }
