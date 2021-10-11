@@ -425,6 +425,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     intent2.putExtra("CFGDATA0",correctA);
                     intent2.putExtra("CFGDATA1",correctB);
                     intent2.putExtra("CFGDATA2",correctC);
+
                     startActivityForResult(intent2, 2);
                 }
             } else {
@@ -544,11 +545,19 @@ public class FullscreenActivity extends AppCompatActivity  {
             saveFormat = 0;
         }
 
+        /* Snooth specter parameters*/
         kR = PP.readProp("smoothSpectr");
         if (kR != null && ! kR.isEmpty()) {
             smoothSpecter = Integer.parseInt(kR);
         } else {
             smoothSpecter = 0;
+        }
+
+        kR = PP.readProp("smoothWindow");
+        if (kR != null && ! kR.isEmpty()) {
+            smoothWindow = Integer.parseInt(kR);
+        } else {
+            smoothWindow = 15;
         }
 
         /* isotops flag read */
@@ -767,7 +776,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         h1 = new Handler(Looper.getMainLooper()) {  // LogActivity handler
             @Override
             public void handleMessage(android.os.Message msg) {
-                double tmp = 0;
+                //double tmp = 0;
                 if ( logIndex > 0 ) {
                     for (int i = 0; i < logIndex; i++) {
                         //tmp = (char) ((logData[i * 9 + 0] & 0xFF) << 8 | (logData[i * 9 + 1] & 0xFF)) + ((char) (logData[i * 9 + 3] & 0xFF | (logData[i * 9 + 2] & 0xFF) << 8) * 65536);
