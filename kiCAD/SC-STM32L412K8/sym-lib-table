@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name SC-STM32L412K8-rescue)(type Legacy)(uri ${KIPRJMOD}/SC-STM32L412K8-rescue.lib)(options "")(descr ""))
-)
