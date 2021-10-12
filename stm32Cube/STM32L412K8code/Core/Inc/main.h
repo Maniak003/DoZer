@@ -105,10 +105,28 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Buzzer_Pin GPIO_PIN_3
+#define Buzzer_GPIO_Port GPIOA
+#define COM_Pin GPIO_PIN_6
+#define COM_GPIO_Port GPIOA
+#define BAT_LEVEL_Pin GPIO_PIN_7
+#define BAT_LEVEL_GPIO_Port GPIOA
+#define SiPM_Pin GPIO_PIN_1
+#define SiPM_GPIO_Port GPIOB
 #define DI_Pin GPIO_PIN_8
 #define DI_GPIO_Port GPIOA
+#define BT_TX_Pin GPIO_PIN_9
+#define BT_TX_GPIO_Port GPIOA
+#define BT_RX_Pin GPIO_PIN_10
+#define BT_RX_GPIO_Port GPIOA
+#define StartADC_Pin GPIO_PIN_11
+#define StartADC_GPIO_Port GPIOA
 #define CS_Pin GPIO_PIN_12
 #define CS_GPIO_Port GPIOA
+#define BT_Status_Pin GPIO_PIN_15
+#define BT_Status_GPIO_Port GPIOA
+#define LED_Pin GPIO_PIN_3
+#define LED_GPIO_Port GPIOB
 #define SC_Pin GPIO_PIN_4
 #define SC_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
