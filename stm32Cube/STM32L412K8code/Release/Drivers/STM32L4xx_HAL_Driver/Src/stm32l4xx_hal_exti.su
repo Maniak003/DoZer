@@ -1,5 +1,5 @@
 stm32l4xx_hal_exti.c:144:19:HAL_EXTI_SetConfigLine	20	static
-stm32l4xx_hal_exti.c:269:19:HAL_EXTI_GetConfigLine	20	static
+stm32l4xx_hal_exti.c:269:19:HAL_EXTI_GetConfigLine	16	static
 stm32l4xx_hal_exti.c:372:19:HAL_EXTI_ClearConfigLine	20	static
 stm32l4xx_hal_exti.c:438:19:HAL_EXTI_RegisterCallback	0	static
 stm32l4xx_hal_exti.c:464:19:HAL_EXTI_GetHandle	0	static
