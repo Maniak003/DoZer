@@ -321,7 +321,8 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
-	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);
+	HAL_TIM_OC_Stop(&htim2, TIM_CHANNEL_4);  // Sound off
+    HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_RESET); // Vibro off.
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim16);
@@ -354,6 +355,10 @@ void TIM6_IRQHandler(void)
 					  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
 					  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 				  }
+				  if ((cfgData & 0x2) != 0) { // Check enabled flag vibro level 1
+					  HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_SET); // Vibro on.
+					  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Vibro
+				  }
 			  }
 		  }
 		  break;
@@ -366,6 +371,10 @@ void TIM6_IRQHandler(void)
 						  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
 						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 					  }
+					  if ((cfgData & 0x8) != 0) { // Check enabled flag vibro level 2
+						  HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_SET); // Vibro on.
+						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Vibro
+					  }
 				  }
 			  }
 		  break;
@@ -377,6 +386,10 @@ void TIM6_IRQHandler(void)
 					  if ((cfgData & 0x10) != 0) { // Check enabled flag sound level 3
 						  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
 						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
+					  }
+					  if ((cfgData & 0x32) != 0) { // Check enabled flag vibro level 3
+						  HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_SET); // Vibro on.
+						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Vibro
 					  }
 				  }
 			  }

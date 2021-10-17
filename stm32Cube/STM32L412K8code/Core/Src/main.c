@@ -263,7 +263,8 @@ int main(void)
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim15); // Start timer for turn off LED
   //
-  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
+  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);  // Sound on
+  HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_SET); // Vibro on.
   __HAL_TIM_CLEAR_FLAG(&htim16, TIM_SR_UIF); // Clear flags
   HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 
@@ -766,7 +767,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 2;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 48;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -791,7 +792,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 20;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
@@ -998,10 +999,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, COM_Pin|DI_Pin|CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, Vibro_Pin|COM_Pin|DI_Pin|CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_Pin|SC_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : Vibro_Pin DI_Pin CS_Pin */
+  GPIO_InitStruct.Pin = Vibro_Pin|DI_Pin|CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : COM_Pin */
   GPIO_InitStruct.Pin = COM_Pin;
@@ -1009,13 +1017,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(COM_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : DI_Pin CS_Pin */
-  GPIO_InitStruct.Pin = DI_Pin|CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : StartADC_Pin */
   GPIO_InitStruct.Pin = StartADC_Pin;

@@ -24,6 +24,7 @@
 #define TRANSMIT_DALAY 20
 #define SLEEPDALAY 1000
 //#define LED_PULSE_ENABLE
+#define VIBRO_PIN GPIO_PIN_1
 #define LED_PIN GPIO_PIN_3
 #define COM_PIN GPIO_PIN_6
 #define SCK_DAC GPIO_PIN_4
@@ -105,6 +106,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Vibro_Pin GPIO_PIN_1
+#define Vibro_GPIO_Port GPIOA
 #define Buzzer_Pin GPIO_PIN_3
 #define Buzzer_GPIO_Port GPIOA
 #define COM_Pin GPIO_PIN_6
