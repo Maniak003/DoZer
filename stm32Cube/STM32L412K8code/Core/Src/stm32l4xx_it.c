@@ -341,7 +341,7 @@ void TIM6_IRQHandler(void)
   /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_IRQn 1 */
-  if ((cfgData & 0x15) > 0 ){  // Sound on.
+  if ((cfgData & 0x3F) > 0 ){  // Sound on.
 	  switch (alarmLevel) {
 	  case 0:
 		  alarmCount = 0;
@@ -387,7 +387,7 @@ void TIM6_IRQHandler(void)
 						  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_4);
 						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Buzzer
 					  }
-					  if ((cfgData & 0x32) != 0) { // Check enabled flag vibro level 3
+					  if ((cfgData & 0x20) != 0) { // Check enabled flag vibro level 3
 						  HAL_GPIO_WritePin(GPIOA, VIBRO_PIN, GPIO_PIN_SET); // Vibro on.
 						  HAL_TIM_Base_Start_IT(&htim16); // Start timer for turn off Vibro
 					  }
