@@ -1437,11 +1437,11 @@ public class FullscreenActivity extends AppCompatActivity  {
              if (oldX > 0) {
                  cursorHideFlag = 0;
                  cursorCanvas.drawLine(oldX, oldY, oldX, HSize, empt); // erase vertical line
-                 cursorCanvas.drawLine(oldX - 3, oldY, oldX + 3, oldY, empt); // erase horizontal line
-                 cursorCanvas.drawText("" + round(tmpVal2), oldX, oldY, empt); //Erase counts text
+                 cursorCanvas.drawLine(oldX - 5, oldY, oldX + 5, oldY, empt); // erase horizontal line
+                 cursorCanvas.drawText("" + round(tmpVal2), oldX - 5, oldY, empt); //Erase counts text
                  cursorCanvas.save();
-                 cursorCanvas.rotate((float) 90, oldX, oldY + 10 /*HSize - textVShift*/);
-                 cursorCanvas.drawText("" + round(oldValX), oldX, oldY + 10/*HSize - textVShift*/, empt);
+                 cursorCanvas.rotate((float) 90, oldX + 3, oldY + 10 /*HSize - textVShift*/);
+                 cursorCanvas.drawText("" + round(oldValX), oldX + 3, oldY + 10 /*HSize - textVShift*/, empt);
                  cursorCanvas.restore();
              }
          }
@@ -1489,11 +1489,11 @@ public class FullscreenActivity extends AppCompatActivity  {
                     oldY = (float) (HSize - log10(tmpVal2) * mastabLog);
                     if (X > 0 && oldY > 0) {
                         cursorCanvas.drawLine(X, oldY, X, HSize, curs);  // Vertical line
-                        cursorCanvas.drawLine(X - 3, oldY, X + 3, oldY, curs); // Horizontal line
-                        cursorCanvas.drawText("" + round(tmpVal2), X, oldY, curs); // Counts
+                        cursorCanvas.drawLine(X - 5, oldY, X + 5, oldY, curs); // Horizontal line
+                        cursorCanvas.drawText("" + round(tmpVal2), X - 5, oldY, curs); // Counts
                         cursorCanvas.save();
-                        cursorCanvas.rotate((float) 90, X, oldY + 10/*HSize - textVShift*/);
-                        cursorCanvas.drawText("" + round(oldValX), X, oldY + 10 /*HSize - textVShift*/, curs); // Energy
+                        cursorCanvas.rotate((float) 90, X + 3, oldY + 10/*HSize - textVShift*/);
+                        cursorCanvas.drawText("" + round(oldValX), X + 3, oldY + 10 /*HSize - textVShift*/, curs); // Energy
                         cursorCanvas.restore();
                         cursorImage.setImageBitmap(bitmap3);
                     }
