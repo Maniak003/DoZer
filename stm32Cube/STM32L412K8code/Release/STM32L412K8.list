@@ -809,7 +809,7 @@ Disassembly of section .text:
  80009b2:	2680      	movs	r6, #128	; 0x80
  80009b4:	e9c5 3400 	strd	r3, r4, [r5]
  80009b8:	4628      	mov	r0, r5
- 80009ba:	2328      	movs	r3, #40	; 0x28
+ 80009ba:	2338      	movs	r3, #56	; 0x38
  80009bc:	e9c5 3403 	strd	r3, r4, [r5, #12]
  80009c0:	61ae      	str	r6, [r5, #24]
  80009c2:	60ac      	str	r4, [r5, #8]
