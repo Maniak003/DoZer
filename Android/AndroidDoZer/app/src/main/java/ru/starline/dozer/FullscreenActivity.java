@@ -94,6 +94,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public int[][] calibrateData = new int[3][2];
     public String[] isotopData = new String[255];
     public int[] isotopDataIndex = new int[255];
+    public float[] isotopDataEff = new float[255];
     public double curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
@@ -305,7 +306,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             try {
                 BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
                 String tmpStr;
-                int idx, idx2 = 0;
+                int idx, idx2 = 0, idx3;
                 /* Clear isotops data */
                 for (int ii = 0; ii < 255; ii++) {
                     isotopDataIndex[ii] = 0;
@@ -313,12 +314,22 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
                 while ((tmpStr = fonBuf.readLine()) != null) {
                     idx = tmpStr.indexOf(';');
+                    idx3 = tmpStr.indexOf(';', idx + 1);
                     if (idx >= 0) {
                         try {
                             isotopDataIndex[idx2] = Integer.parseInt(tmpStr.substring(0, idx));
-                            isotopData[idx2++] = tmpStr.substring(idx + 1);
-                            //Log.d("DoZer", "IDX : " +isotopDataIndex[idx2 - 1] + " VAL : " + isotopData[idx2 - 1]);
+                            if (idx3 > 0) {
+                                isotopData[idx2] = tmpStr.substring(idx + 1, idx3);
+                                if (tmpStr.substring(idx3 + 1).length() > 0) {
+                                    isotopDataEff[idx2] = Float.parseFloat(tmpStr.substring(idx3 + 1));
+                                }
+                            } else {
+                                isotopData[idx2] = tmpStr.substring(idx + 1);
+                            }
+                            idx2++;
+                            //Log.d("DoZer", "IDX : " + isotopDataIndex[idx2 - 1] + " VAL : " + isotopData[idx2 - 1]);
                         } catch (NumberFormatException nfe) {
+                            //Log.d("DoZer", "Except: " + idx);
                         }
                     }
                 }
@@ -1474,7 +1485,27 @@ public class FullscreenActivity extends AppCompatActivity  {
                             }
                             if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
                                 if (tmpVal2 > 1) {
-                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
+                                    if (isotopDataEff[ii] > 0) {
+                                        /* For test activity isotopes calculation */
+                                        double actCPS = 0;
+                                        int deltaScan = 10;
+                                        int i = (int) Math.floor(X / penSize ) + (int) X - deltaScan;  // Fix me. Need calculate delta for resolution.
+                                        if ( i > 11 ) {
+                                            for (int jj = 0; jj < deltaScan * 2; jj++) {
+                                                actCPS = actCPS + resultData[i];  // Fix me. Need substraction fone.
+                                            }
+                                            if (countsAll > 0) {
+                                                double actIsotop = isotopDataEff[ii] * (actCPS / countsAll); // Calculate activity
+                                                textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq");
+                                            } else {
+                                                textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: N/A");
+                                            }
+                                        } else {
+                                            textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
+                                        }
+                                    } else {
+                                        textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
+                                    }
                                 }
                                 break;
                             }
