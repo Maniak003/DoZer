@@ -1478,33 +1478,40 @@ public class FullscreenActivity extends AppCompatActivity  {
                 } else {
                     oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
                     if (isotopLoadFlag != 0) { // Need isotopes information
-                        for (int ii = 0; ii < 255; ii++) {
-                            if (isotopDataIndex[ii] == 0) {
+                        for (int ii = 0; ii < 255; ii++) {   // Search isotopes of energy
+                            if (isotopDataIndex[ii] == 0) {  // Energy N/A
                                 textIsotops.setText("");
                                 break;
                             }
                             if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
                                 if (tmpVal2 > 1) {
+                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);  // If eff n/a.
                                     if (isotopDataEff[ii] > 0) {
                                         /* For test activity isotopes calculation */
                                         double actCPS = 0;
                                         int deltaScan = 10;
-                                        int i = (int) Math.floor(X / penSize ) + (int) X - deltaScan;  // Fix me. Need calculate delta for resolution.
-                                        if ( i > 11 ) {
-                                            for (int jj = 0; jj < deltaScan * 2; jj++) {
-                                                actCPS = actCPS + resultData[i];  // Fix me. Need substraction fone.
+                                        /* Calculate channel over energy */
+                                        double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[ii]);
+                                        if (DD > 0) {
+                                            double x1 = (-correctB + Math.sqrt(DD))  / (2 * correctA);
+                                            double x2 = (-correctB - Math.sqrt(DD))  / (2 * correctA) ;
+                                            if (x2 >= x1) {
+                                                x1 = x2;
                                             }
-                                            if (countsAll > 0) {
-                                                double actIsotop = isotopDataEff[ii] * (actCPS / countsAll); // Calculate activity
-                                                textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq");
-                                            } else {
-                                                textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: N/A");
+                                            //Log.d(TAG, " x1: " + x1 + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
+                                            int i = (int) round(x1 * penSize)  - deltaScan;  // Fix me. Need calculate delta for resolution.
+                                            if (i > 11) {
+                                                for (int jj = 0; jj < deltaScan * 2; jj++) {
+                                                    actCPS = actCPS + resultData[i];  // Fix me. Need substraction fone.
+                                                }
+                                                if (countsAll > 0) {
+                                                    double actIsotop = isotopDataEff[ii] * (actCPS / countsAll); // Calculate activity
+                                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq");
+                                                } else {
+                                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: N/A");
+                                                }
                                             }
-                                        } else {
-                                            textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
                                         }
-                                    } else {
-                                        textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);
                                     }
                                 }
                                 break;
