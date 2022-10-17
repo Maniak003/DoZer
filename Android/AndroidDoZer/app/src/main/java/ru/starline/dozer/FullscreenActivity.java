@@ -2112,7 +2112,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                         "<PresetTime>" + round(tmpTime) + "</PresetTime>\n" +
                         "<EnergySpectrum>\n" +
                         "<NumberOfChannels>1024</NumberOfChannels>\n" +
-                        "<ChannelPitch>0.0221</ChannelPitch>\n" +
+                        /* Correct by Am6er */
+                        /*"<ChannelPitch>0.0221</ChannelPitch>\n" +*/
+                        "<ChannelPitch>1</ChannelPitch>\n" +
                         "<EnergyCalibration>\n" +
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
                         "<Coefficients>\n" +  //correctA
