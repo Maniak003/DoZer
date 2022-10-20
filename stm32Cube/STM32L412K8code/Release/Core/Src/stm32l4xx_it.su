@@ -8,9 +8,9 @@ stm32l4xx_it.c:162:6:DebugMon_Handler	0	static
 stm32l4xx_it.c:175:6:PendSV_Handler	0	static
 stm32l4xx_it.c:188:6:SysTick_Handler	0	static
 stm32l4xx_it.c:209:6:DMA1_Channel1_IRQHandler	8	static
-stm32l4xx_it.c:238:6:DMA1_Channel5_IRQHandler	0	static
-stm32l4xx_it.c:252:6:ADC1_2_IRQHandler	16	static
-stm32l4xx_it.c:305:6:TIM1_BRK_TIM15_IRQHandler	8	static
-stm32l4xx_it.c:321:6:TIM1_UP_TIM16_IRQHandler	8	static
-stm32l4xx_it.c:338:6:TIM6_IRQHandler	8	static
-stm32l4xx_it.c:410:6:LPTIM2_IRQHandler	24	static
+stm32l4xx_it.c:239:6:DMA1_Channel5_IRQHandler	0	static
+stm32l4xx_it.c:253:6:ADC1_2_IRQHandler	16	static
+stm32l4xx_it.c:306:6:TIM1_BRK_TIM15_IRQHandler	8	static
+stm32l4xx_it.c:322:6:TIM1_UP_TIM16_IRQHandler	8	static
+stm32l4xx_it.c:339:6:TIM6_IRQHandler	8	static
+stm32l4xx_it.c:411:6:LPTIM2_IRQHandler	24	static

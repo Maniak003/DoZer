@@ -253,6 +253,14 @@ int main(void)
   ssd1306_Init();
   #endif
   //uint16_t tmpData;
+  /*
+   * Температура с учетом калибровки
+   * (TS_CAL2_TEMP - TS_CAL1_TEMP) / (TS_CAL2 - TS_CAL1) * (TS_DATA - TS_CAL1) + 30
+   *
+   * */
+  temperatureKoeff1 = (TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP) / (*(__IO uint16_t*) TEMPSENSOR_CAL2_ADDR - *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR);
+  temperatureKoeff2 = 30 - temperatureKoeff1 * *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR;
+
   uint32_t initDelay, oldTime = HAL_GetTick();
   initDelay = oldTime;
   oldTimeAll = oldTime;
@@ -552,7 +560,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_7;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -563,7 +571,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV8;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV16;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
