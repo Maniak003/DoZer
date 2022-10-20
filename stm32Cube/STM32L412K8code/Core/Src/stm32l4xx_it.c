@@ -222,9 +222,9 @@ void DMA1_Channel1_IRQHandler(void)
 	}
 
 	/* Temperature*/
-	//uint16_t temper = adc1Result[1] - 100;
 
-	uint16_t temper = temperatureKoeff1 *  adc1Result[1] + temperatureKoeff2;
+	uint16_t temper = (uint16_t) ( temperatureKoeff1 * (float) adc1Result[1] * 4 + temperatureKoeff2);
+	//uint16_t temper = (uint16_t) (((float) adc1Result[1] / 1024 * 3 - 0.76f) / 2.5f + 30);
 	spectrData[4][0] = (temper << 8) | (batv & 0x00FF); // Main specter
 	spectrData[4][1] = (temper << 8) | (batv & 0x00FF); // History specter
   /* USER CODE END DMA1_Channel1_IRQn 0 */

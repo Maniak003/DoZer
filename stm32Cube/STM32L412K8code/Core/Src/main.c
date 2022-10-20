@@ -258,8 +258,8 @@ int main(void)
    * (TS_CAL2_TEMP - TS_CAL1_TEMP) / (TS_CAL2 - TS_CAL1) * (TS_DATA - TS_CAL1) + 30
    *
    * */
-  temperatureKoeff1 = (TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP) / (*(__IO uint16_t*) TEMPSENSOR_CAL2_ADDR - *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR);
-  temperatureKoeff2 = 30 - temperatureKoeff1 * *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR;
+  temperatureKoeff1 = (float) (TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP) / (float) (*TEMPSENSOR_CAL2_ADDR - *TEMPSENSOR_CAL1_ADDR);
+  temperatureKoeff2 = 30 - temperatureKoeff1 * (float) ( *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR);
 
   uint32_t initDelay, oldTime = HAL_GetTick();
   initDelay = oldTime;
