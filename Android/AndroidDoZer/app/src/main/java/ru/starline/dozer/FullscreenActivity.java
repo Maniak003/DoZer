@@ -1857,13 +1857,13 @@ public class FullscreenActivity extends AppCompatActivity  {
                     }
                     String stats = "";
                     if (batCapacity < 11) {  // Battery level is low
-                        stats = String.format("%.0f <font color=#C80000> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+                        stats = String.format("%.0f&#176C <font color=#C80000> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
 
                     } else {
                         if (batCapacity < 50) {  // Battery level is warning
-                            stats = String.format("%.0f <font color=#ffff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+                            stats = String.format("%.0f&#176C <font color=#ffff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
                         } else {  // Battery level is normal
-                            stats = String.format("%.0f <font color=#00ff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
+                            stats = String.format("%.0f&#176C <font color=#00ff00> %.0f%%</font> total: %.0f cps: %.0f", temperature, batCapacity, countsAll, findData[0]);
                         }
                     }
                     textStatistic1.setText(Html.fromHtml(stats, stats.length() ));
