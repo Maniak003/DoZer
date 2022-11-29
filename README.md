@@ -4,7 +4,8 @@
     <meta charset="utf-8">
   </head>
     <body class="logged-in env-production page-responsive page-blob" style="word-wrap: break-word;">
-      <p> DoZer Scintillation gamma spectrometer based on SiPM Sensl FC60035 & NaI(Tl).</p>
+      <a href="https://play.google.com/store/apps/details?id=ru.starline.dozer" rel="nofollow">Application download</a>
+      <p> DoZer Scintillation gamma spectrometer based on SiPM Sensl FC60035/FJ60035 & NaI(Tl).</p>
       <a href="https://github.com/Maniak003/DoZer/wiki/Description" rel="nofollow">
         <img src="https://github.com/Maniak003/DoZer/blob/main/picture/Screenshot_20210717-224149.png" alt="Th-232" style="max-width: 100%;">
       </a>
