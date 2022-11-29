@@ -2,6 +2,7 @@ package ru.starline.dozer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -39,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -856,7 +858,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 5000);
+            timer.schedule(mTimerTask, 5000, 1000);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -864,7 +866,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         public void run () {
             if ( connected ) {
                 //String str = "<DATA>";
-                //Log.i(TAG, "Timer tick.");
+                Log.i(TAG, "Timer tick.");
                 //try {
                 //    BT.write(str.getBytes());
                 //} catch (IOException e) {
@@ -885,7 +887,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.d(TAG, "onRestart.");
+        //Log.d(TAG, "onRestart.");
         formatLayout();
     }
 
@@ -980,23 +982,23 @@ public class FullscreenActivity extends AppCompatActivity  {
             Log.d(TAG, "...Установка соединенния...");
             //bluetooth = BluetoothAdapter.getDefaultAdapter();
             if  ( ! bluetooth.isEnabled()) {
-                Log.d(TAG, "Bluetooth disabled. Exit.");
+                //Log.d(TAG, "Bluetooth disabled. Exit.");
                 Toast.makeText(getBaseContext(), "BlueTooth disable ? \nProgram terminated.", Toast.LENGTH_LONG).show();
                 finish();
             }
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
-            Log.d(TAG, "Status: " + bluetooth.getState());
+            //Log.d(TAG, "Status: " + bluetooth.getState());
             if ( device == null ) {
                 Log.i(TAG, "Error: Device: " + MAC + " not connected.");
                 return;
             } else {
-                Log.i(TAG, "Try gatt connect.");
+                //Log.i(TAG, "Try gatt connect.");
                 gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
                 if (gatt == null) {
-                    Log.i(TAG, "Error: Gatt create failed.");
+                    //Log.i(TAG, "Error: Gatt create failed.");
                     finish();
                 }
-                Log.i(TAG, "End init.");
+                //Log.i(TAG, "End init.");
             }
         }
 
