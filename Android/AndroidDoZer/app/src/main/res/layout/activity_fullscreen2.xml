@@ -429,117 +429,33 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView12"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Energ-comp: Ax^3+Bx^2+Cx+D"
-                android:textColor="@color/label_text" />
-
             <CheckBox
                 android:id="@+id/checkBoxEnergyComp"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:text="Compensation" />
+                android:text="Energy compensation"
+                android:textColor="@color/edit_text"
+                android:visibility="visible" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView13"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="A:"
-                    android:textColor="@color/label_text" />
-
-                <EditText
-                    android:id="@+id/editTextEnergi_A"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#717070"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:nextFocusDown="@+id/editTextEnergi_B"
-                    android:text="0"
-                    android:textColor="@color/edit_text"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                android:orientation="horizontal"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="B:"
-                    android:textColor="@color/label_text" />
-
-                <EditText
-                    android:id="@+id/editTextEnergi_B"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#717070"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:nextFocusDown="@+id/editTextEnergi_C"
-                    android:text="0"
-                    android:textColor="@color/edit_text"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                android:orientation="horizontal"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView15"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="C:"
-                    android:textColor="@color/label_text" />
-
-                <EditText
-                    android:id="@+id/editTextEnergi_C"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#717070"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:nextFocusDown="@+id/editTextEnergi_D"
-                    android:text="0"
-                    android:textColor="@color/edit_text"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                android:orientation="horizontal"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView16"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="D:"
-                    android:textColor="@color/label_text" />
-
-                <EditText
-                    android:id="@+id/editTextEnergi_D"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#717070"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:text="1"
-                    android:textColor="@color/edit_text"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                android:orientation="horizontal"/>
 
             <TextView
                 android:id="@+id/textView8"
@@ -630,6 +546,22 @@
                     android:textColor="@color/edit_text"
                     android:textSize="12sp" />
             </RadioGroup>
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HV power coeff"
+                android:textColor="@color/edit_text" />
+
+            <EditText
+                android:id="@+id/editTextPowerCoeff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:textColor="@color/edit_text"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

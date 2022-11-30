@@ -118,9 +118,9 @@ void bebe(void) {
  */
 void rwFlash(uint8_t rwFlag) {
 	uint32_t pageAdr = 0x800F800; // Begin of 31 page, last page flash for STM32L412K8.
-	uint32_t magicKey;
+	uint16_t magicKey;
 	uint64_t dataForSave;
-	magicKey = *(__IO uint32_t*) pageAdr;
+	magicKey = *(__IO uint16_t*) pageAdr;
 	if ((magicKey != 0x1234) || (rwFlag == 1)) { // rwFlag == 1 for wrtite data to flash
 		magicKey = 0x1234;
 		if (rwFlag == 0) { // For first initial
@@ -128,6 +128,7 @@ void rwFlash(uint8_t rwFlag) {
 			cfgLevel1 = 0;
 			cfgLevel2 = 0;
 			cfgLevel3 = 0;
+			powerCoeff = 256;
 		}
 		FLASH_EraseInitTypeDef EraseInitStruct;
 		uint32_t PAGEError = 0;
@@ -141,26 +142,27 @@ void rwFlash(uint8_t rwFlag) {
 		  flash_ok = HAL_FLASH_Unlock();
 		}
 		if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) == HAL_OK) {
-			dataForSave = (uint64_t) (magicKey | (((uint64_t) cfgData << 32) & 0xFFFFFFFF00000000) | (((uint64_t) cfgLevel1 << 48) & 0xFFFF000000000000));
+
+			dataForSave = (uint64_t) (magicKey | (((uint32_t) powerCoeff << 16) & 0xFFFF0000 ) | (((uint64_t) cfgData << 32) & 0xFFFFFFFF00000000) | (((uint64_t) cfgLevel1 << 48) & 0xFFFF000000000000));
 			flash_ok = HAL_ERROR;
 			while(flash_ok != HAL_OK){
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr, dataForSave); // Write  magic key into Flash
 			}
-			//uint32_t tmpInt = *((uint32_t *) &cfgKoefRh);
-			//dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) tmpInt << 32);
+
 			dataForSave = (uint64_t) (cfgLevel2 | (cfgLevel3 << 16) | (uint64_t) cfgKoef.uint << 32);
 			flash_ok = HAL_ERROR;
-			while(flash_ok != HAL_OK){
+			while(flash_ok != HAL_OK) {
 				flash_ok = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, pageAdr + 8, dataForSave); // Write Level2, Level3
 			}
 		}
 		// Lock flash
 		flash_ok = HAL_ERROR;
-		while(flash_ok != HAL_OK){
+		while(flash_ok != HAL_OK) {
 			flash_ok = HAL_FLASH_Lock();
 		}
 		bebe();
 	} else {
+		powerCoeff = *(__IO uint16_t*) (pageAdr + 2);
 		cfgData = *(__IO uint16_t*) (pageAdr + 4);
 		resolution = (uint8_t) (cfgData >> 8 & 0x3);
 		cfgLevel1 = *(__IO uint16_t*) (pageAdr + 6);
@@ -168,8 +170,6 @@ void rwFlash(uint8_t rwFlag) {
 		cfgLevel3 = *(__IO uint16_t*) (pageAdr + 10);
 		uint32_t koefAddr = pageAdr + 12;
 		cfgKoef.uint = *(__IO uint32_t*) (koefAddr);
-		//uint32_t ddd = *(__IO uint32_t*) (koefAddr);
-		//cfgKoefRh = *(float*) &ddd;
 		if (cfgKoef.flt > 0) {
 			float tmpVal = cfgKoef.flt * 1000;
 			Thr1 = (uint32_t) (tmpVal / (float)cfgLevel1);
@@ -271,6 +271,9 @@ int main(void)
 
   rwFlash(0); // Read config from flash.
 
+  if (powerCoeff == 0 || powerCoeff > 4095) {
+	  powerCoeff = 60;
+  }
   HAL_GPIO_WritePin(GPIOB, LED_PIN, GPIO_PIN_SET); // LED on.
   HAL_GPIO_WritePin(GPIOA, COM_PIN, GPIO_PIN_SET); // Com pin disable
   __HAL_TIM_CLEAR_FLAG(&htim15, TIM_SR_UIF); // Clear flags
@@ -377,6 +380,7 @@ int main(void)
 						  cfgLevel3 = ((btCommand[10] << 8) & 0xFF00) | btCommand[9];
 						  //cfgKoefRh = *(float *) &btCommand[11];
 						  cfgKoef.uint = (uint32_t) (btCommand[11] | (uint32_t) btCommand[12] << 8 | (uint32_t) btCommand[13] << 16 | (uint32_t) btCommand[14] << 24);
+						  powerCoeff = (uint16_t) (btCommand[15] | (uint16_t) btCommand[16] << 8);
 						  if (cfgKoef.flt > 0) {
 							  //float tmpVal = cfgKoefRh * 1000;
 							  float tmpVal = cfgKoef.flt * 1000;
@@ -511,24 +515,28 @@ int main(void)
 		  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &adc1Result, 2);
 		  batteryInterval = HAL_GetTick();
 
-		  /* DAC LTC1662 control */
-		  //dacValue = 0xa20f;  // Constant for test
-		  dacValue = 0x400;  // Constant for test
-		  uint16_t transmitData = 0xA000 | dacValue;
-		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
-		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
-		  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
-		  for (int i = 0; i < 16; i++) {
-			  if ((transmitData & (1 << (15 - i))) == 0) {
-				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
-			  } else {
-				  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);
-			  }
+		  /*
+		   * DAC LTC1662 control
+		   * Less value, more voltage.
+		   */
+		  if (dacValue != powerCoeff) {
+			  dacValue = powerCoeff;  // Constant for test
+			  uint16_t transmitData = 0xA000 | dacValue;
+			  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin
 			  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
 			  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_RESET);		// Enable CS pin
+			  for (int i = 0; i < 16; i++) {
+				  if ((transmitData & (1 << (15 - i))) == 0) {
+					  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_RESET);
+				  } else {
+					  HAL_GPIO_WritePin(GPIOA, SDI_DAC, GPIO_PIN_SET);
+				  }
+				  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_SET);		// Pulse on SCK pin
+				  HAL_GPIO_WritePin(GPIOB, SCK_DAC, GPIO_PIN_RESET);
+			  }
+			  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin and execute command
 		  }
-		  HAL_GPIO_WritePin(GPIOA, CS_DAC, GPIO_PIN_SET);		// Disable CS pin and execute command
 	  }
 	  HAL_Delay(500);
     /* USER CODE END WHILE */

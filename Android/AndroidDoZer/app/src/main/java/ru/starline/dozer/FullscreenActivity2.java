@@ -57,10 +57,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public TextView editTextCorrect_A;
     public TextView editTextCorrect_B;
     public TextView editTextCorrect_C;
-    public TextView editTextEnergi_A;
-    public TextView editTextEnergi_B;
-    public TextView editTextEnergi_C;
-    public TextView editTextEnergi_D;
+    public TextView editTextPowerCoeff;
+    //public TextView editTextEnergi_A;
+    //public TextView editTextEnergi_B;
+    //public TextView editTextEnergi_C;
+    //public TextView editTextEnergi_D;
     public TextView editTextBackgroundFile;
     public CheckBox checkBoxLevel1_S;
     public CheckBox checkBoxLevel1_V;
@@ -120,10 +121,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         editTextCorrect_A = findViewById(R.id.editTextCorrect_A);
         editTextCorrect_B = findViewById(R.id.editTextCorrect_B);
         editTextCorrect_C = findViewById(R.id.editTextCorrect_C);
-        editTextEnergi_A = findViewById(R.id.editTextEnergi_A);
-        editTextEnergi_B = findViewById(R.id.editTextEnergi_B);
-        editTextEnergi_C = findViewById(R.id.editTextEnergi_C);
-        editTextEnergi_D = findViewById(R.id.editTextEnergi_D);
+        editTextPowerCoeff =  findViewById(R.id.editTextPowerCoeff);
+        //editTextEnergi_A = findViewById(R.id.editTextEnergi_A);
+        //editTextEnergi_B = findViewById(R.id.editTextEnergi_B);
+        //editTextEnergi_C = findViewById(R.id.editTextEnergi_C);
+        //editTextEnergi_D = findViewById(R.id.editTextEnergi_D);
         checkBoxLevel1_S = findViewById(R.id.checkBoxLevel1_S);
         checkBoxLevel1_V= findViewById(R.id.checkBoxLevel1_V);
         checkBoxLevel2_S = findViewById(R.id.checkBoxLevel2_S);
@@ -358,15 +360,16 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             buttonFonHistogram.setBackgroundColor(colorFoneHistogram);
 
             editTextBackgroundFile.setText(PP.readProp("BgrdFlName"));
-            editTextEnergi_A.setText(PP.readProp("Energi_A"));
-            editTextEnergi_B.setText(PP.readProp("Energi_B"));
-            editTextEnergi_C.setText(PP.readProp("Energi_C"));
-            tmpData = PP.readProp("Energi_D");
-            if (tmpData == null) {
-                editTextEnergi_D.setText("1");
-            } else {
-                editTextEnergi_D.setText(tmpData);
-            }
+            editTextPowerCoeff.setText(PP.readProp("PowerCoeff"));
+            //editTextEnergi_A.setText(PP.readProp("Energi_A"));
+            //editTextEnergi_B.setText(PP.readProp("Energi_B"));
+            //editTextEnergi_C.setText(PP.readProp("Energi_C"));
+            //tmpData = PP.readProp("Energi_D");
+            //if (tmpData == null) {
+            //    editTextEnergi_D.setText("1");
+            //} else {
+            //    editTextEnergi_D.setText(tmpData);
+            //}
             /* isotopes file load enable */
             tmpData = PP.readProp("isotopLoad");
             if (tmpData != null) {
@@ -492,10 +495,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             prop.setProperty("Correct_A", editTextCorrect_A.getText().toString());
             prop.setProperty("Correct_B", editTextCorrect_B.getText().toString());
             prop.setProperty("Correct_C", editTextCorrect_C.getText().toString());
-            prop.setProperty("Energi_A", editTextEnergi_A.getText().toString());
-            prop.setProperty("Energi_B", editTextEnergi_B.getText().toString());
-            prop.setProperty("Energi_C", editTextEnergi_C.getText().toString());
-            prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
+            prop.setProperty("PowerCoeff", editTextPowerCoeff.getText().toString());
+            //prop.setProperty("Energi_A", editTextEnergi_A.getText().toString());
+            //prop.setProperty("Energi_B", editTextEnergi_B.getText().toString());
+            //prop.setProperty("Energi_C", editTextEnergi_C.getText().toString());
+            //prop.setProperty("Energi_D", editTextEnergi_D.getText().toString());
             prop.setProperty("BgrdFlName", editTextBackgroundFile.getText().toString());
             prop.setProperty("colorLinHhistogram", String.valueOf(colorLineHistogram));
             prop.setProperty("colorLogHhistogram", String.valueOf(colorLogHistogram));
@@ -743,6 +747,14 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             } else {
                 intent.putExtra("CFGDATA18", 0);
             }
+
+            /* HV power correction coefficient */
+            if (editTextPowerCoeff.getText() != null && editTextPowerCoeff.getText().length() > 0) {
+                intent.putExtra( "CFGDATA19", Integer.parseInt(editTextPowerCoeff.getText().toString()));
+            } else {
+                intent.putExtra( "CFGDATA19", 255);
+            }
+
 
             setResult(1, intent);
         }

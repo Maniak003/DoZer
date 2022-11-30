@@ -73,11 +73,10 @@ public class FullscreenActivity extends AppCompatActivity  {
     public Intent intent2;
     /* Colors */
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
-    public Button calibrateButton, logBtn, gistoBtn;
+    public Button calibrateButton, logBtn, gistoBtn, connIndicator, saveBtn, setupBtn;
     public Handler h, h1;
     public Props PP;
     public ImageView mainImage, historyDoze, cursorImage;
-    public Button connIndicator, saveBtn;
     public int HSize, WSize;
     public double oldCounts = 0, specrtCRC;
     public getBluetooth BT;
@@ -102,6 +101,8 @@ public class FullscreenActivity extends AppCompatActivity  {
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
     public double correctA, correctB, correctC, backgtoundTime;
     public float koeffR = (float) 0.5310015898;
+    public int powerCoeff;
+    private long CLICK_WAIT = 3000, last_click_time = System.currentTimeMillis();
     //public String MAC = "20:07:12:18:74:9E";
     //public String MAC = "20:06:03:20:02:A9";
     //public String MAC = "20:06:03:20:02:B3";
@@ -227,6 +228,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 readIsotopsFile("isotops.list");
             }
             isotopLoadFlag = data.getIntExtra("CFGDATA18", 0);
+            powerCoeff = data.getIntExtra("CFGDATA19", 255);
 
             Log.d("DoZer", "onActivityResult: " + resultCode
                     + " CFGDATA1: " + resData[1] + ", " + resData[0]
@@ -516,6 +518,13 @@ public class FullscreenActivity extends AppCompatActivity  {
         if (kR != null && ! kR.isEmpty()) {
             koeffR = Float.parseFloat(kR);
         }
+        // HV power coeff
+        kR = PP.readProp("PowerCoeff");
+        if (kR != null && ! kR.isEmpty()) {
+            powerCoeff = Integer.parseInt(kR);
+        } else {
+            powerCoeff = 256;
+        }
         // Correction coefficients
         kR = PP.readProp("Correct_A");
         if (kR != null && ! kR.isEmpty()) {
@@ -741,11 +750,17 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
 
         // Setup button
-        final Button setupBtn = findViewById(R.id.setupBtn);
+        setupBtn = findViewById(R.id.setupBtn);
         if (setupBtn != null) {
-            setupBtn.setOnClickListener(v -> setupActivity());
+            setupBtn.setOnClickListener(v -> {
+                if (System.currentTimeMillis() - last_click_time > CLICK_WAIT) {
+                    Log.d(TAG, "setupBtn PRESSED. LCT: " + last_click_time);
+                    last_click_time = System.currentTimeMillis();
+                    setupActivity();
+                }
+            });
         } else {
-            Log.d("DoZer", "Setup not found");
+            Log.d(TAG, "Setup not found");
         }
 
         // Save button to BqMonitor format
@@ -858,7 +873,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 1000);
+            timer.schedule(mTimerTask, 5000, 1100);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -866,7 +881,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         public void run () {
             if ( connected ) {
                 //String str = "<DATA>";
-                Log.i(TAG, "Timer tick.");
+                //Log.i(TAG, "Timer tick.");
                 //try {
                 //    BT.write(str.getBytes());
                 //} catch (IOException e) {
@@ -1007,7 +1022,7 @@ public class FullscreenActivity extends AppCompatActivity  {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "Connect success.");
+                    Log.i(TAG, "Gatt connect success.");
                     if (!gatt.discoverServices()) {
                         Log.i(TAG, "Error: Discover service failed.");
                         finish();
@@ -1067,6 +1082,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     if (status != BluetoothGatt.GATT_SUCCESS) {
                         Log.d(TAG,"Error: Write characteristic failed.");
                     } else {
+                        Log.i(TAG, "Connect success.");
                         connected = true;
                         //myView.invalidate();
                         if (DA != null) {
@@ -1128,7 +1144,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                     Log.d(TAG, "enable read notification");
                     readDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 } else {
-                    Log.d(TAG, "Error: no indication/notification for read characteristic ("+readProperties+")");
+                    Log.d(TAG, "Error: no indication/notification for read characteristic (" + readProperties + ")");
                     return;
                 }
                 Log.d(TAG,"writing read characteristic descriptor");
@@ -1323,8 +1339,9 @@ public class FullscreenActivity extends AppCompatActivity  {
          *  Передача данных
          */
         void write(byte[] data) throws IOException {
-            if( /*canceled ||*/ !connected || writeCharacteristic == null)
+            if( /*canceled ||*/ !connected || writeCharacteristic == null) {
                 throw new IOException("not connected");
+            }
             byte[] data0;
             synchronized (writeBuffer) {
                 if(data.length <= payloadSize) {
@@ -1487,7 +1504,6 @@ public class FullscreenActivity extends AppCompatActivity  {
                             }
                             if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
                                 if (tmpVal2 > 1) {
-                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);  // If eff n/a.
                                     if (isotopDataEff[ii] > 0) {
                                         /* For test activity isotopes calculation */
                                         double actCPS = 0;
@@ -1502,18 +1518,28 @@ public class FullscreenActivity extends AppCompatActivity  {
                                             }
                                             //Log.d(TAG, " x1: " + x1 + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
                                             int i = (int) round(x1 * penSize)  - deltaScan;  // Fix me. Need calculate delta for resolution.
+                                            float foneActiv = (resultData[i] + resultData[i + deltaScan * 2]) * deltaScan;
                                             if (i > 11) {
                                                 for (int jj = 0; jj < deltaScan * 2; jj++) {
-                                                    actCPS = actCPS + resultData[i];  // Fix me. Need substraction fone.
+                                                    actCPS = actCPS + resultData[i + jj];  // Fix me. Need substraction fone.
                                                 }
+                                                if (actCPS - foneActiv < 0) {
+                                                    actCPS = 0;
+                                                } else {
+                                                    actCPS = actCPS - foneActiv;
+                                                }
+                                                String tmpStr;
                                                 if (countsAll > 0) {
                                                     double actIsotop = isotopDataEff[ii] * (actCPS / countsAll); // Calculate activity
-                                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq");
+                                                    tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq";
                                                 } else {
-                                                    textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: N/A");
+                                                    tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii];
                                                 }
+                                                textIsotops.setText(tmpStr);
                                             }
                                         }
+                                    } else {
+                                        textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);  // If eff n/a.
                                     }
                                 }
                                 break;
@@ -1559,6 +1585,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                 sndData[12] = cfgData[10];
                 sndData[13] = cfgData[9];
                 sndData[14] = cfgData[8];
+                sndData[15] = (byte) (powerCoeff & 0xFF);
+                sndData[16] = (byte) ((powerCoeff >> 8) & 0xFF);
+                Log.i(TAG, "CP: " + powerCoeff + " 15: " + sndData[15] + " 16: " +  sndData[16]);
                 for (int i = 0; i < 18; i++) {
                     CS = CS + (char) (sndData[i] & 0xFF);
                 }
