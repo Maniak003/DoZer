@@ -37,6 +37,7 @@
 #define reservDataSize 6
 #define batteryMeasureInterval 20000
 #define logSize 200
+#define ADC_REF_VOLTAGE 3.0f
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/

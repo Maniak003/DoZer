@@ -260,7 +260,7 @@ int main(void)
    * */
   temperatureKoeff1 = (float) (TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP) / (float) (*TEMPSENSOR_CAL2_ADDR - *TEMPSENSOR_CAL1_ADDR);
   temperatureKoeff2 = 30 - temperatureKoeff1 * (float) ( *(__IO uint16_t*) TEMPSENSOR_CAL1_ADDR);
-  temperatureKoeff1 = temperatureKoeff1 * 4;	// ADC 10 разрядов.
+  temperatureKoeff1 = temperatureKoeff1 * 4 * ADC_REF_VOLTAGE / 3.0f;	// ADC 10 разрядов, default Vref = 3v.
 
   uint32_t initDelay, oldTime = HAL_GetTick();
   initDelay = oldTime;
