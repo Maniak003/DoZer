@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -72,7 +73,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public DrawAll DA = new DrawAll();
     public Intent intent2;
     /* Colors */
-    public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
+    public int colorLineHistogram, colorMarkLineHistogram, colorLogHistogram, colorMarkLogHistogram, colorFoneHistogram;
     public Button calibrateButton, logBtn, gistoBtn, connIndicator, saveBtn, setupBtn;
     public Handler h, h1;
     public Props PP;
@@ -89,7 +90,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public float[] findData = new float[findDataSize], foneData = new float[4096], resultData = new float[4096], oldData = new float[4096];
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
-    public int histogramFlag = 0, tmpHistoryCount = 0, tmpHistogramFlag, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0;;
+    public int histogramFlag = 0, tmpHistoryCount = 0, tmpHistogramFlag, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0, resolutionPercent = 26, markChannel = 0;
     public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
@@ -99,7 +100,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public double curentTime, tmpTime;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
-    public double correctA, correctB, correctC, backgtoundTime;
+    public double correctA = 0.002299445205487397, correctB = 1.8747785983638028, correctC = -2.491035017126366, backgtoundTime;
     public float koeffR = (float) 0.5310015898;
     public int powerCoeff;
     private long CLICK_WAIT = 3000, last_click_time = System.currentTimeMillis();
@@ -303,7 +304,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    /**/
+    /* Загрузка файла изотопов */
     public void readIsotopsFile(String isName) {
         File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + isName);
         if (bgFile.exists()) {
@@ -500,7 +501,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         }
     }
 
-    @SuppressLint({"ClickableViewAccessibility", "HandlerLeak"})
+    @SuppressLint({"ClickableViewAccessibility", "HandlerLeak", "NewApi"})
     public void initApplication() {
         //
         //  Read configuration
@@ -873,7 +874,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 1100);
+            timer.schedule(mTimerTask, 5000, 1500);
         }
     }
     class MyTimerTask extends TimerTask {
@@ -1408,7 +1409,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         double countsAll, interval, oldValX, mastab, mastab2;
         float batVoltage = 0, temperature = 0, maxPoint, tmpVal, tmpVal2, mastabLog, maxPointLog, pen2Size = 1, pen3Size = 1, hsizeFindData = 100;
         public float oldX = -1 , oldY = -1, penSize = 2;
-        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
+        private Paint curs = new Paint(), empt = new Paint(), p = new Paint(), pMark = new Paint(), pMarkLog = new Paint(), pm = new Paint(), pLog = new Paint(), pTextR1 = new Paint(), pTextR2 = new Paint(),
                 emptFindData = new Paint(), pTextR3 = new Paint(), pInd = new Paint(),
                 pFindData = new Paint(), pFindData1 = new Paint(), pFindData2 = new Paint(), pFindData3 = new Paint(),
                 pBackground = new Paint(), actualPaint = new Paint();
@@ -1492,6 +1493,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 oldX = X;
                 oldY = Y;
                 // Calculate Energy over channel.
+                markChannel = 0;
                 if ( correctB == 0) {
                     oldValX = (double) X / penSize;
                 } else {
@@ -1503,11 +1505,9 @@ public class FullscreenActivity extends AppCompatActivity  {
                                 break;
                             }
                             if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
-                                if (tmpVal2 > 1) {
+                                if (tmpVal2 > 1) {      /* Известна активность для изотопа ? */
                                     if (isotopDataEff[ii] > 0) {
-                                        /* For test activity isotopes calculation */
                                         double actCPS = 0;
-                                        int deltaScan = 10;
                                         /* Calculate channel over energy */
                                         double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[ii]);
                                         if (DD > 0) {
@@ -1517,10 +1517,11 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 x1 = x2;
                                             }
                                             //Log.d(TAG, " x1: " + x1 + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
-                                            int i = (int) round(x1 * penSize)  - deltaScan;  // Fix me. Need calculate delta for resolution.
-                                            float foneActiv = (resultData[i] + resultData[i + deltaScan * 2]) * deltaScan;
+                                            markChannel = (int) x1;
+                                            int i = (int) x1 - resolutionPercent;  // Fix me. Need calculate delta for resolution.
+                                            float foneActiv = (resultData[i] + resultData[i + resolutionPercent * 2]) * resolutionPercent;
                                             if (i > 11) {
-                                                for (int jj = 0; jj < deltaScan * 2; jj++) {
+                                                for (int jj = 0; jj < resolutionPercent * 2; jj++) {
                                                     actCPS = actCPS + resultData[i + jj];  // Fix me. Need substraction fone.
                                                 }
                                                 if (actCPS - foneActiv < 0) {
@@ -1530,7 +1531,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 }
                                                 String tmpStr;
                                                 if (countsAll > 0) {
-                                                    double actIsotop = isotopDataEff[ii] * (actCPS / countsAll); // Calculate activity
+                                                    double actIsotop = isotopDataEff[ii] * (actCPS / tmpTime); // Calculate activity
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq";
                                                 } else {
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii];
@@ -1678,9 +1679,19 @@ public class FullscreenActivity extends AppCompatActivity  {
             p.setColor(colorLineHistogram);
             p.setStrokeWidth(penSize);
 
+            // Линейная гистограмма автоселект
+            colorMarkLineHistogram = 0xFFF82800;
+            pMark.setColor(colorMarkLineHistogram);
+            pMark.setStrokeWidth(penSize);
+
             // For markers
             pm.setColor(Color.argb(200, 255, 40, 40));
             pm.setStrokeWidth(penSize);
+
+            // Логарифмическая гистограмма автоселект
+            colorMarkLogHistogram = 0x64F83C00;
+            pMarkLog.setColor(colorMarkLogHistogram);
+            pMarkLog.setStrokeWidth(penSize);
 
             // Логарифмическая гистограмма
             pLog.setColor(colorLogHistogram);
@@ -1793,18 +1804,33 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
-            float X, Y;
+            float X, Y, my1 = 0, my2 = 0, myLog1 = 0, myLog2 = 0, k = 0, kLog = 0;
+            if ( markChannel > 0 ) {
+                my1 = (float) (HSize - resultData[markChannel - resolutionPercent] * mastab);
+                my2 = (float) (HSize - resultData[markChannel + resolutionPercent] * mastab);
+                myLog1 = (float) (HSize - Math.log10(resultData[markChannel - resolutionPercent]) * mastabLog);
+                myLog2 = (float) (HSize - Math.log10(resultData[markChannel + resolutionPercent]) * mastabLog);
+                k = (my2 - my1) / (resolutionPercent * 2);
+                kLog =  (myLog2 - myLog1) / (resolutionPercent * 2);
+            }
             for (int i = 0; i < maxCanal / 2; i++) {
                 X = i * penSize - 2;
-                canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, HSize, pLog);
-                canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, HSize, p);
+                canvas.drawLine(X, (float) (HSize - Math.log10(resultData[i]) * mastabLog), X, HSize, pLog);
+                canvas.drawLine(X, (float) (HSize - resultData[i] * mastab), X, HSize, p);
+                /* Выделение активности */
+                if (( markChannel > 0 ) && (Math.abs(markChannel - i ) <= resolutionPercent )) {
+                    canvas.drawLine(X, (float) (HSize - Math.log10(resultData[i]) * mastabLog), X, myLog1 + kLog * (i - markChannel + resolutionPercent), pMarkLog);
+                    canvas.drawLine(X, (float) (HSize - resultData[i] * mastab), X, my1 + k * (i - markChannel + resolutionPercent) , pMark);
+                }
+                /* Выделение изменений */
                 if (Marker == 1 && resultData[i] > oldData[i] && oldData[i] != 0) {  // delta marker
                     canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, (float)(HSize - Math.log10(resultData[i]) * mastabLog + 5), actualPaint);
                     canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, (float) (HSize - resultData[i] * mastab + 5), actualPaint);
                 }
                 oldData[i] = resultData[i];
             }
-
+            canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, my1, (markChannel + resolutionPercent ) * penSize - 2, my2, pMark);
+            canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, myLog1, (markChannel + resolutionPercent ) * penSize - 2, myLog2, pMarkLog);
             /*
                 Draw background radiation
              */
