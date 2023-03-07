@@ -97,7 +97,7 @@ public class FullscreenActivity extends AppCompatActivity  {
     public String[] isotopData = new String[255];
     public int[] isotopDataIndex = new int[255];
     public float[] isotopDataEff = new float[255];
-    public double curentTime, tmpTime;
+    public double curentTime, tmpTime, actIsotop = 0;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
     public double correctA = 0.002299445205487397, correctB = 1.8747785983638028, correctC = -2.491035017126366, backgtoundTime;
@@ -1522,7 +1522,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                             float foneActiv = (resultData[i] + resultData[i + resolutionPercent * 2]) * resolutionPercent;
                                             if (i > 11) {
                                                 for (int jj = 0; jj < resolutionPercent * 2; jj++) {
-                                                    actCPS = actCPS + resultData[i + jj];  // Fix me. Need substraction fone.
+                                                    actCPS = actCPS + resultData[i + jj];
                                                 }
                                                 if (actCPS - foneActiv < 0) {
                                                     actCPS = 0;
@@ -1531,7 +1531,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                 }
                                                 String tmpStr;
                                                 if (countsAll > 0) {
-                                                    double actIsotop = isotopDataEff[ii] * (actCPS / tmpTime); // Calculate activity
+                                                    actIsotop = isotopDataEff[ii] * (actCPS / tmpTime); // Calculate activity
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq";
                                                 } else {
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii];
@@ -1804,8 +1804,8 @@ public class FullscreenActivity extends AppCompatActivity  {
                 }
             }
 
-            float X, Y, my1 = 0, my2 = 0, myLog1 = 0, myLog2 = 0, k = 0, kLog = 0;
-            if ( markChannel > 0 ) {
+            float X, Y = 0, my1 = 0, my2 = 0, myLog1 = 0, myLog2 = 0, k = 0, kLog = 0, YLog = 0, YLog2 = 0, Y2 = 0;
+            if ( (markChannel > 0) && (actIsotop > 0)) {
                 my1 = (float) (HSize - resultData[markChannel - resolutionPercent] * mastab);
                 my2 = (float) (HSize - resultData[markChannel + resolutionPercent] * mastab);
                 myLog1 = (float) (HSize - Math.log10(resultData[markChannel - resolutionPercent]) * mastabLog);
@@ -1815,22 +1815,28 @@ public class FullscreenActivity extends AppCompatActivity  {
             }
             for (int i = 0; i < maxCanal / 2; i++) {
                 X = i * penSize - 2;
-                canvas.drawLine(X, (float) (HSize - Math.log10(resultData[i]) * mastabLog), X, HSize, pLog);
-                canvas.drawLine(X, (float) (HSize - resultData[i] * mastab), X, HSize, p);
+                YLog = (float) (HSize - Math.log10(resultData[i]) * mastabLog);
+                Y = (float) (HSize - resultData[i] * mastab);
+                canvas.drawLine(X, YLog, X, HSize, pLog);
+                canvas.drawLine(X, Y, X, HSize, p);
                 /* Выделение активности */
-                if (( markChannel > 0 ) && (Math.abs(markChannel - i ) <= resolutionPercent )) {
-                    canvas.drawLine(X, (float) (HSize - Math.log10(resultData[i]) * mastabLog), X, myLog1 + kLog * (i - markChannel + resolutionPercent), pMarkLog);
-                    canvas.drawLine(X, (float) (HSize - resultData[i] * mastab), X, my1 + k * (i - markChannel + resolutionPercent) , pMark);
+                if ((actIsotop > 0) && ( markChannel > 0 ) && (Math.abs(markChannel - i ) < resolutionPercent )) {
+                    YLog2 = myLog1 + kLog * (i - markChannel + resolutionPercent);
+                    Y2 = my1 + k * (i - markChannel + resolutionPercent);
+                    if (Y < Y2) {  /* Отрисовка верхней части гистограммы */
+                        canvas.drawLine(X, YLog, X, YLog2, pMarkLog);
+                        canvas.drawLine(X, Y, X, Y2, pMark);
+                    }
                 }
                 /* Выделение изменений */
                 if (Marker == 1 && resultData[i] > oldData[i] && oldData[i] != 0) {  // delta marker
-                    canvas.drawLine(X, (float)  (HSize - Math.log10(resultData[i]) * mastabLog), X, (float)(HSize - Math.log10(resultData[i]) * mastabLog + 5), actualPaint);
-                    canvas.drawLine(X, (float) (HSize -  resultData[i] * mastab), X, (float) (HSize - resultData[i] * mastab + 5), actualPaint);
+                    canvas.drawLine(X, YLog, X, (float)(HSize - Math.log10(resultData[i]) * mastabLog + 5), actualPaint);
+                    canvas.drawLine(X, Y, X, (float) (HSize - resultData[i] * mastab + 5), actualPaint);
                 }
                 oldData[i] = resultData[i];
             }
-            canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, my1, (markChannel + resolutionPercent ) * penSize - 2, my2, pMark);
-            canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, myLog1, (markChannel + resolutionPercent ) * penSize - 2, myLog2, pMarkLog);
+            //canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, my1, (markChannel + resolutionPercent ) * penSize - 2, my2, actualPaint);
+            //canvas.drawLine((markChannel - resolutionPercent ) * penSize - 2, myLog1, (markChannel + resolutionPercent ) * penSize - 2, myLog2, actualPaint);
             /*
                 Draw background radiation
              */
