@@ -11,15 +11,15 @@ android {
             keyPassword 'gfhjkm123'
         }
     }
-    compileSdkVersion 31
+    compileSdkVersion 33
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "ru.starline.dozer"
         minSdkVersion 26
-        targetSdkVersion 31
-        versionCode 4
-        versionName "1.1"
+        targetSdkVersion 33
+        versionCode 5
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.DoZer
