@@ -65,15 +65,15 @@ _Bool initFlag = 1, sleepFlag = 1, initUART = 1, logDataFlag = 0;
 uint32_t counterCCAlarm = 0, counterCC = 0, counterALL = 0, sleepDelay, alarmTime = 0, oldInterval = 0, avgRadInterval, Thr1 = 0, Thr2 = 0, Thr3 = 0, batteryInterval;
 uint16_t adc2Result = 0, adc1Result[2];
 uint16_t spectrData[4096 + reservDataSize][2] = {0};
-uint16_t spectrCRC;
+uint16_t spectrCRC, cfgData, cfgLevel1, cfgLevel2, cfgLevel3, powerCoeff, alarmLevel, alarmCount;
 uint8_t indexBuffer;
-uint32_t radBuffer[radBufferSize] = {0};
+uint32_t radBuffer[radBufferSize] = {0}, oldTimeAll;
 uint8_t	resolution = 0, logIndex = 0, logRecords = 0, specterHistory = 0;
 uint16_t dacValue, oldAlarmLevel = 4;
-
+HAL_StatusTypeDef	flash_ok;
 
 logData logDat[logSize];
-
+float temperatureKoeff1, temperatureKoeff2;
 //float cfgKoefRh;
 static union {
 	uint32_t uint;
@@ -403,7 +403,7 @@ int main(void)
 		  /*
 		   *  Transmit data over BT.
 		   */
-		  if (logDataFlag == 0) {  // Spectert data
+		  if (logDataFlag == 0) {  // Specter data
 			  if (specterHistory == 0) {
 				  prefix[1] = 'B';		// Normal specter
 				  spectrData[0][specterHistory] = (uint16_t) ((HAL_GetTick() - oldTimeAll) / 1000); // Specter collection time.

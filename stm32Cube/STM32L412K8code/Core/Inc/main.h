@@ -63,20 +63,16 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-HAL_StatusTypeDef	flash_ok;
-TIM_HandleTypeDef htim2;
-UART_HandleTypeDef huart1;
-char counterPP[20];
-float temperatureKoeff1, temperatureKoeff2;
-uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount, oldAlarmLevel;
-uint32_t counterCCAlarm, counterCC, counterALL, sleepDelay, alarmTime, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
-uint16_t powerCoeff, adc2Result, adc1Result[2];
-uint16_t spectrData[4096 + reservDataSize][2];
-uint16_t spectrCRC;
-uint8_t btCommand[sizeCommand];
-uint8_t indexBuffer;
-uint32_t radBuffer[radBufferSize];
-uint8_t	resolution, specterHistory;
+extern HAL_StatusTypeDef	flash_ok;
+extern TIM_HandleTypeDef htim2;
+extern UART_HandleTypeDef huart1;
+extern char counterPP[20];
+extern float temperatureKoeff1, temperatureKoeff2;
+extern uint16_t cfgLevel1, cfgLevel2, cfgLevel3, cfgData, alarmLevel, alarmCount, oldAlarmLevel;
+extern uint32_t counterCCAlarm, counterCC, counterALL, sleepDelay, alarmTime, oldTimeAll, oldInterval, avgRadInterval, Thr1, Thr2, Thr3, batteryInterval;
+extern uint16_t powerCoeff, adc2Result, adc1Result[2], spectrData[4096 + reservDataSize][2], spectrCRC;
+extern uint8_t btCommand[sizeCommand], indexBuffer, resolution, specterHistory;
+extern uint32_t radBuffer[radBufferSize];
 
 typedef struct {
 	uint32_t timeData;
@@ -84,10 +80,9 @@ typedef struct {
 	uint32_t event_data;
 } logData;
 
-logData logDat[logSize];
+extern logData logDat[logSize];
 
-uint8_t logIndex, logRecords;
-
+extern uint8_t logIndex, logRecords;
 
 //float cfgKoefRh;
 

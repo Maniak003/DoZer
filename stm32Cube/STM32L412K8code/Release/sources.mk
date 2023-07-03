@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
+# Toolchain: GNU Tools for STM32 (10.3-2021.10)
 ################################################################################
 
 ELF_SRCS := 
@@ -14,17 +14,19 @@ C_SRCS :=
 CPP_SRCS := 
 S_UPPER_SRCS := 
 O_SRCS := 
+CYCLO_FILES := 
 OBJDUMP_LIST := 
 C_UPPER_DEPS := 
 S_DEPS := 
 C_DEPS := 
-OBJCOPY_BIN := 
 CC_DEPS := 
 SIZE_OUTPUT := 
 C++_DEPS := 
+SU_FILES := 
 EXECUTABLES := 
 OBJS := 
 CXX_DEPS := 
+MAP_FILES := 
 S_UPPER_DEPS := 
 CPP_DEPS := 
 
