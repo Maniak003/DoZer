@@ -874,7 +874,7 @@ public class FullscreenActivity extends AppCompatActivity  {
         Timer timer = new Timer();
         TimerTask mTimerTask = new MyTimerTask();
         public void startTimer() {
-            timer.schedule(mTimerTask, 5000, 1500);
+            timer.schedule(mTimerTask, 1000, 15000);
         }
     }
     class MyTimerTask extends TimerTask {
