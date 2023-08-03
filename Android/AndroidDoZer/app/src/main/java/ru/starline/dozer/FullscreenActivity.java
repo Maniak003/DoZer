@@ -1497,6 +1497,7 @@ public class FullscreenActivity extends AppCompatActivity  {
                 if ( correctB == 0) {
                     oldValX = (double) X / penSize;
                 } else {
+                    /* Расчитываем энергию по положению курсора */
                     oldValX = Math.pow((X / penSize), 2) * correctA + ((double) X / penSize) * correctB + correctC;
                     if (isotopLoadFlag != 0) { // Need isotopes information
                         for (int ii = 0; ii < 255; ii++) {   // Search isotopes of energy
@@ -1504,24 +1505,24 @@ public class FullscreenActivity extends AppCompatActivity  {
                                 textIsotops.setText("");
                                 break;
                             }
-                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // +/- 3kev
-                                if (tmpVal2 > 1) {      /* Известна активность для изотопа ? */
-                                    if (isotopDataEff[ii] > 0) {
+                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // Сравниваем текущую энергию с табличной на расхождение не более 3kev
+                                if (tmpVal2 > 1) {      /* Счетчик канала больше 1 */
+                                    if (isotopDataEff[ii] > 0) {  /* Есть табличное значение активности изотопа ? */
                                         double actCPS = 0;
                                         /* Calculate channel over energy */
-                                        double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[ii]);
-                                        if (DD > 0) {
-                                            double x1 = (-correctB + Math.sqrt(DD))  / (2 * correctA);
-                                            double x2 = (-correctB - Math.sqrt(DD))  / (2 * correctA) ;
-                                            if (x2 >= x1) {
-                                                x1 = x2;
-                                            }
-                                            //Log.d(TAG, " x1: " + x1 + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
-                                            markChannel = (int) x1;
-                                            int i = (int) x1 - resolutionPercent;  // Fix me. Need calculate delta for resolution.
-                                            float foneActiv = (resultData[i] + resultData[i + resolutionPercent * 2]) * resolutionPercent;
-                                            if (i > 11) {
-                                                for (int jj = 0; jj < resolutionPercent * 2; jj++) {
+                                        //double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[ii]);
+                                        //if (DD > 0) {
+                                        //    double x1 = (-correctB + Math.sqrt(DD))  / (2 * correctA);
+                                        //    double x2 = (-correctB - Math.sqrt(DD))  / (2 * correctA) ;
+                                        //    if (x2 >= x1) {
+                                        //        x1 = x2;
+                                        //    }
+                                        markChannel = (int) (X / penSize); /* Определяем выбранный канал по положению курсора */
+                                        Log.d(TAG, " x1: " + markChannel + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
+                                        int i = markChannel - resolutionPercent;  // Fix me. Need calculate delta for resolution.
+                                        float foneActiv = (resultData[i] + resultData[i + resolutionPercent * 2]) * resolutionPercent; // Расчет фоновой активности
+                                        if (i > 11) {
+                                                for (int jj = 0; jj < resolutionPercent * 2; jj++) { //  Расчет суммарной активности
                                                     actCPS = actCPS + resultData[i + jj];
                                                 }
                                                 if (actCPS - foneActiv < 0) {
@@ -1530,16 +1531,16 @@ public class FullscreenActivity extends AppCompatActivity  {
                                                     actCPS = actCPS - foneActiv;
                                                 }
                                                 String tmpStr;
-                                                if (countsAll > 0) {
+                                                if (countsAll > 0) { /* Достаточно данных для расчета активности ? */
                                                     actIsotop = isotopDataEff[ii] * (actCPS / tmpTime); // Calculate activity
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii] + ", act: " + round(actIsotop) + "Bq";
-                                                } else {
+                                                } else {  /* Показываем только название и энергию */
                                                     tmpStr = isotopDataIndex[ii] + "kev : " + isotopData[ii];
                                                 }
                                                 textIsotops.setText(tmpStr);
-                                            }
                                         }
-                                    } else {
+                                        //}
+                                    } else {  /* Показываем только название и энергию */
                                         textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);  // If eff n/a.
                                     }
                                 }
