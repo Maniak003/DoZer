@@ -125,6 +125,7 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOB
 #define SC_Pin GPIO_PIN_4
 #define SC_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
@@ -134,5 +135,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
