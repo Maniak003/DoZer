@@ -1,9 +1,11 @@
 package ru.starline.dozer;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
@@ -16,6 +18,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -33,6 +36,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.content.Context;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -45,10 +49,10 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class FullscreenActivity2 extends AppCompatActivity  {
+public class FullscreenActivity2 extends AppCompatActivity {
     public Props PP;
     //public ColorPicker cp;
-    public  scanLE sLE = new scanLE();
+    public scanLE sLE = new scanLE();
     public TextView editTextMAC;
     public TextView editTextKoefR;
     public TextView editTextLevel1;
@@ -90,10 +94,12 @@ public class FullscreenActivity2 extends AppCompatActivity  {
     public TextView smoothWindow;
     public int colorLineHistogram, colorLogHistogram, colorFoneHistogram;
     public View mContentView;
+    public Context context;
 
     private void closeActivity() {
         this.finish();
     }
+
     private void formatLayoutSet() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -101,8 +107,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         }
         mContentView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN
-              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         );
     }
 
@@ -121,15 +127,15 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         editTextCorrect_A = findViewById(R.id.editTextCorrect_A);
         editTextCorrect_B = findViewById(R.id.editTextCorrect_B);
         editTextCorrect_C = findViewById(R.id.editTextCorrect_C);
-        editTextPowerCoeff =  findViewById(R.id.editTextPowerCoeff);
+        editTextPowerCoeff = findViewById(R.id.editTextPowerCoeff);
         //editTextEnergi_A = findViewById(R.id.editTextEnergi_A);
         //editTextEnergi_B = findViewById(R.id.editTextEnergi_B);
         //editTextEnergi_C = findViewById(R.id.editTextEnergi_C);
         //editTextEnergi_D = findViewById(R.id.editTextEnergi_D);
         checkBoxLevel1_S = findViewById(R.id.checkBoxLevel1_S);
-        checkBoxLevel1_V= findViewById(R.id.checkBoxLevel1_V);
+        checkBoxLevel1_V = findViewById(R.id.checkBoxLevel1_V);
         checkBoxLevel2_S = findViewById(R.id.checkBoxLevel2_S);
-        checkBoxLevel2_V= findViewById(R.id.checkBoxLevel2_V);
+        checkBoxLevel2_V = findViewById(R.id.checkBoxLevel2_V);
         checkBoxLevel3_S = findViewById(R.id.checkBoxLevel3_S);
         checkBoxLevel3_V = findViewById(R.id.checkBoxLevel3_V);
         isotopLoad = findViewById(R.id.isotopLoad);
@@ -148,10 +154,11 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         smoothWindow = findViewById(R.id.editTextSmoothWindow);
         saveSPE = findViewById(R.id.radioButtonSaveSPE);
         saveXML = findViewById(R.id.radioButtonSaveXML);
+        Context context = getApplicationContext();
 
         /* Color dialog for fone histogram */
         buttonFonHistogram = findViewById(R.id.buttonFonColor);
-        if(buttonFonHistogram != null) {
+        if (buttonFonHistogram != null) {
             buttonFonHistogram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -172,7 +179,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
         /* Color dialog for log histogram */
         buttonLogHistogram = findViewById(R.id.buttonLogHistogram);
-        if(buttonLogHistogram != null) {
+        if (buttonLogHistogram != null) {
             buttonLogHistogram.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -196,7 +203,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         if (mainColor != null) {
             mainColor.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public  void onClick(View v) {
+                public void onClick(View v) {
                     Log.d("DoZer", "Main color clicked.");
                     ColorPickerDialog CD = new ColorPickerDialog(FullscreenActivity2.this,
                             new ColorPickerDialog.OnColorChangedListener() {
@@ -220,7 +227,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                 @Override
                 public void onClick(View v) {
                     Log.d("DoZer", "Pressed scan BLE.");
-                    if (sLE.scanRunning ) {
+                    if (sLE.scanRunning) {
                         sLE.stopScanLE();
                     } else {
                         sLE.startScanLE();
@@ -237,7 +244,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             saveExitBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Log.d("DoZer", "Pressed setup save & exit.");
-                    if (sLE.scanRunning ) { // Stop scanning if active.
+                    if (sLE.scanRunning) { // Stop scanning if active.
                         sLE.stopScanLE();
                     }
                     try {
@@ -258,7 +265,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             cancelBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Log.d("DoZer", "Pressed setup cancel.");
-                    if (sLE.scanRunning ) {
+                    if (sLE.scanRunning) {
                         sLE.stopScanLE();
                     }
                     closeActivity();
@@ -288,20 +295,20 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
             String tStr;
             tStr = PP.readProp("Level1");
-            if (tStr != null && ! tStr.isEmpty()) {
+            if (tStr != null && !tStr.isEmpty()) {
                 editTextLevel1.setText(tStr);
             } else {
                 editTextLevel1.setText("30");
             }
 
             tStr = PP.readProp("Level2");
-            if (tStr != null && ! tStr.isEmpty()) {
+            if (tStr != null && !tStr.isEmpty()) {
                 editTextLevel2.setText(tStr);
             } else {
                 editTextLevel2.setText("60");
             }
             tStr = PP.readProp("Level3");
-            if (tStr != null && ! tStr.isEmpty()) {
+            if (tStr != null && !tStr.isEmpty()) {
                 editTextLevel3.setText(tStr);
             } else {
                 editTextLevel3.setText("100");
@@ -336,7 +343,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
             /* Colors */
             tmpData = PP.readProp("colorLinHhistogram");
-            if (tmpData == null ) {
+            if (tmpData == null) {
                 colorLineHistogram = 0xFF2828FF;
             } else {
                 colorLineHistogram = Integer.parseInt(tmpData);
@@ -344,7 +351,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             mainColor.setBackgroundColor(colorLineHistogram);
 
             tmpData = PP.readProp("colorLogHhistogram");
-            if (tmpData == null ) {
+            if (tmpData == null) {
                 colorLogHistogram = 0x64283CFF;
             } else {
                 colorLogHistogram = Integer.parseInt(tmpData);
@@ -352,7 +359,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             buttonLogHistogram.setBackgroundColor(colorLogHistogram);
 
             tmpData = PP.readProp("colorFoneHhistogram");
-            if (tmpData == null ) {
+            if (tmpData == null) {
                 colorFoneHistogram = 0x6428FF28;
             } else {
                 colorFoneHistogram = Integer.parseInt(tmpData);
@@ -468,8 +475,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         super.onPostCreate(savedInstanceState);
         formatLayoutSet();
     }
+
     public class Props {
-        public  String readProp(String key) throws IOException {
+        public String readProp(String key) throws IOException {
             String fname = "device.properties";
             Properties prop = new Properties();
             FileInputStream fis = null;
@@ -615,7 +623,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             if (radioButtonResolution1.isChecked()) {
                 prop.setProperty("Resolution", "1");
                 propBitData = propBitData + 256;
-            } else  if (radioButtonResolution2.isChecked()) {
+            } else if (radioButtonResolution2.isChecked()) {
                 prop.setProperty("Resolution", "2");
                 propBitData = propBitData + 512;
             } else {
@@ -674,7 +682,7 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             intent.putExtra("CFGDATA5", tmpdata2);
 
             String tmpdata3;
-            if(editTextMAC.getText().toString().isEmpty()) {
+            if (editTextMAC.getText().toString().isEmpty()) {
                 tmpdata3 = "20:06:11:11:66:CD";
             } else {
                 tmpdata3 = editTextMAC.getText().toString();
@@ -750,9 +758,9 @@ public class FullscreenActivity2 extends AppCompatActivity  {
 
             /* HV power correction coefficient */
             if (editTextPowerCoeff.getText() != null && editTextPowerCoeff.getText().length() > 0) {
-                intent.putExtra( "CFGDATA19", Integer.parseInt(editTextPowerCoeff.getText().toString()));
+                intent.putExtra("CFGDATA19", Integer.parseInt(editTextPowerCoeff.getText().toString()));
             } else {
-                intent.putExtra( "CFGDATA19", 255);
+                intent.putExtra("CFGDATA19", 255);
             }
 
 
@@ -771,6 +779,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             scanBLEBTN.setTextColor(0xFF506C35);
             scanBLEBTN.setText("Scan");
             if (scanner != null) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                }
                 scanner.stopScan(scanCallback);
                 scanRunning = false;
             }
@@ -790,8 +800,10 @@ public class FullscreenActivity2 extends AppCompatActivity  {
                     .build();
 
             filters = null;
-            if(scanner !=null) {
+            if (scanner != null) {
                 scanRunning = true;
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                }
                 scanner.startScan(filters, scanSettings, scanCallback);
                 Log.d("DoZer", "Scan started.");
             } else {
@@ -803,6 +815,8 @@ public class FullscreenActivity2 extends AppCompatActivity  {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 BluetoothDevice device = result.getDevice();
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                }
                 String devName = device.getName();
                 if (devName != null && devName.equalsIgnoreCase("DoZer")) {
                     editTextMAC.setText(device.getAddress());
@@ -838,8 +852,6 @@ public class FullscreenActivity2 extends AppCompatActivity  {
         private OnColorChangedListener mListener;
         private int mInitialColor, mDefaultColor;
         private String mKey;
-
-
 
         private class ColorPickerView extends View {
             private Paint mPaint;

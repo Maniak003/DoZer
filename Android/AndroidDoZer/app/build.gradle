@@ -12,7 +12,6 @@ android {
         }
     }
     compileSdkVersion 33
-    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "ru.starline.dozer"
@@ -35,9 +34,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'ru.starline.dozer'
 }
 
 dependencies {
+    //classpath("com.android.tools.build:gradle:7.0.0") for Gradle 7+
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
     implementation 'com.google.android.material:material:1.1.0'
