@@ -3218,7 +3218,7 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+vibro" (id 1) (at 161.29 67.31 90))
-    (property "Footprint" "My-library:SMD-CONN" (id 2) (at 161.29 68.58 0)
+    (property "Footprint" "lib:conn_mini" (id 2) (at 161.29 68.58 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 161.29 68.58 0)
@@ -4021,7 +4021,7 @@
       (reference "J12") (unit 1) (value "+2.8v") (footprint "lib:conn_mini")
     )
     (path "/00000000-0000-0000-0000-00006052b033"
-      (reference "J13") (unit 1) (value "+vibro") (footprint "My-library:SMD-CONN")
+      (reference "J13") (unit 1) (value "+vibro") (footprint "lib:conn_mini")
     )
     (path "/00000000-0000-0000-0000-000061532825"
       (reference "J14") (unit 1) (value "gndBT") (footprint "My-library:SMD-CONN")
