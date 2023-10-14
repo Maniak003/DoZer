@@ -656,7 +656,7 @@
     (property "Reference" "C3" (id 0) (at 187.325 82.55 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "10u" (id 1) (at 187.325 84.455 0)
+    (property "Value" ".1" (id 1) (at 187.325 84.455 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (id 2) (at 187.6552 90.805 0)
@@ -777,7 +777,7 @@
       (reference "C2") (unit 1) (value "0.1") (footprint "Capacitor_SMD:C_0402_1005Metric")
     )
     (path "/9f4ad8a6-a390-4e8a-9ab7-c3c65e61ff5e"
-      (reference "C3") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_0402_1005Metric")
+      (reference "C3") (unit 1) (value ".1") (footprint "Capacitor_SMD:C_0402_1005Metric")
     )
     (path "/48cc1b0e-2414-4ac6-840b-68be1b3a53dc"
       (reference "C4") (unit 1) (value "10u") (footprint "Capacitor_SMD:C_0805_2012Metric")
