@@ -18,8 +18,8 @@ android {
         applicationId "ru.starline.dozer"
         minSdkVersion 26
         targetSdkVersion 34
-        versionCode 7
-        versionName "1.4"
+        versionCode 8
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.DoZer
