@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:backgroundTint="#000000"
+    android:foregroundTint="#000000"
+    android:theme="@style/ThemeOverlay.DoZer.FullscreenContainer"
+    tools:context=".FullscreenActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <ImageView
+        android:id="@+id/mainImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000"
+        android:backgroundTint="#00000000" />
+
+    <ImageView
+        android:id="@+id/cursorImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000"
+        android:backgroundTint="#00000000"
+        android:foregroundTint="#000000"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textIsotops"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textColor="@color/statistic_text" />
+
+        <LinearLayout
+            android:id="@+id/statisticLayoout"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:backgroundTint="#00000000"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textStatistic1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/statistic_text" />
+
+            <TextView
+                android:id="@+id/textStatistic2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/statistic_text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textStatistic3"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/statistic_text" />
+
+                <TextView
+                    android:id="@+id/textStatistic4"
+                    android:layout_width="125dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/statistic_text" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/historyDose"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:adjustViewBounds="false"
+                android:background="#00000000"
+                android:backgroundTint="#00000000"
+                android:backgroundTintMode="screen"
+                android:defaultFocusHighlightEnabled="false"
+                android:focusableInTouchMode="false"
+                android:focusedByDefault="false"
+                android:foregroundTint="#000000" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="90dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|end"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/connectIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:backgroundTint="#FF0000" />
+
+            <Button
+                android:id="@+id/SaveBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:foregroundTint="#7BBA59"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/SaveBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                android:textSize="12sp"
+                app:rippleColor="#FFFFFF"
+                app:strokeColor="#79A34E" />
+
+            <Button
+                android:id="@+id/clearBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/clearBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/gistoBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/gistogramBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/setupBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/setupBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/logBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/logBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonCalibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/button_color"
+                    android:insetTop="2dp"
+                    android:insetRight="2dp"
+                    android:insetBottom="2dp"
+                    android:text="1"
+                    android:textColor="@color/button_text" />
+
+                <Button
+                    android:id="@+id/buttonCancelCalibrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/button_color"
+                    android:insetLeft="2dp"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:text="X"
+                    android:textColor="@color/button_text" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/exitBtn"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/button_color"
+                android:insetTop="2dp"
+                android:insetBottom="2dp"
+                android:text="@string/exitBtn"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:rippleColor="#FFFFFF" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+</FrameLayout>

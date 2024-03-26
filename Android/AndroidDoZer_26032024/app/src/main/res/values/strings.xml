@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">DoZer</string>
+    <string name="SaveBtn">Save</string>
+    <string name="clearBtn">Clear</string>
+    <string name="gistogramBtn">Specter</string>
+    <string name="histiryBtn">History</string>
+    <string name="setupBtn">Setup</string>
+    <string name="exitBtn">Exit</string>
+    <string name="logBtn">Log</string>
+    <string name="title_activity_fullscreen2">Setup</string>
+    <string name="saveSetupBtn">Save</string>
+    <string name="cancelBtn">Cancel</string>
+    <string name="scanBtn">Scan</string>
+    <string name="saveBtn1">BqMon</string>
+    <string name="saveBtn2">SPE</string>
+</resources>
