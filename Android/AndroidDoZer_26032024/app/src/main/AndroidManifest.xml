@@ -19,6 +19,8 @@
         android:maxSdkVersion="34"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
         android:maxSdkVersion="34"/>
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"

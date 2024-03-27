@@ -695,15 +695,22 @@ public class FullscreenActivity extends AppCompatActivity {
         /*
             Проверяем поддержку Bluetooth
          */
+        Log.d(TAG, "AppStart - 2");
         BT.bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (BT.bluetooth == null) { // Bluetooth отсутствует
             Toast.makeText(getApplicationContext(), "Bluetooth disabled ?", Toast.LENGTH_LONG).show();
         } else {
+            Log.d(TAG, "AppStart - 3");
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                Log.d(TAG, "AppStart - 4");
                 if (BT.bluetooth.isEnabled()) {
+                    Log.d(TAG, "AppStart - 5");
                     BT.initLeDevice();
+                    Log.d(TAG, "AppStart - 6");
                     tmFull.startTimer();
+                    Log.d(TAG, "AppStart - 7");
                 } else {
+                    Log.d(TAG, "AppStart - 8");
                     // Bluetooth выключен. Предложим пользователю включить его.
                     startActivityForResult(BT.enableBtIntent, 3);
                     /*
@@ -736,7 +743,6 @@ public class FullscreenActivity extends AppCompatActivity {
             }
             return true;
         });
-
         /* Button listeners */
         /* Calibrate button */
         calibrateButton = findViewById(R.id.buttonCalibrate);
@@ -898,11 +904,14 @@ public class FullscreenActivity extends AppCompatActivity {
         int permissionStatus7 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES);
         int permissionStatus8 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO);
         int permissionStatus9 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO);
+        int permissionStatus10 = ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES);
+        Log.d(TAG, "permissionStatus10 : " + String.valueOf(permissionStatus10));
         if (permissionStatus1 == PackageManager.PERMISSION_DENIED
             && permissionStatus2 == PackageManager.PERMISSION_DENIED) {
             if (permissionStatus7 == PackageManager.PERMISSION_GRANTED
                && permissionStatus8 == PackageManager.PERMISSION_GRANTED
-               && permissionStatus9 == PackageManager.PERMISSION_GRANTED) {
+               && permissionStatus9 == PackageManager.PERMISSION_GRANTED
+               && permissionStatus10 == PackageManager.PERMISSION_GRANTED) {
                 permissionStatus1 = PackageManager.PERMISSION_GRANTED;
                 permissionStatus2 = PackageManager.PERMISSION_GRANTED;
             }
@@ -913,6 +922,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 && permissionStatus4 == PackageManager.PERMISSION_GRANTED
                 && permissionStatus5 == PackageManager.PERMISSION_GRANTED
                 && permissionStatus6 == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "AppStart - 1");
             initApplication();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{
@@ -924,7 +934,8 @@ public class FullscreenActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO,
-                    Manifest.permission.READ_MEDIA_AUDIO}, 200);
+                    Manifest.permission.READ_MEDIA_AUDIO /*,
+                    Manifest.permission.NEARBY_WIFI_DEVICES*/}, 200);
         }
     }
 
@@ -1078,7 +1089,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 finish();
             }
             device = bluetooth.getRemoteDevice(MAC);  // Подключаемся по MAC адресу.
-            Log.d(TAG, "Status: " + bluetooth.getState());
+            Log.d(TAG, "Status : " + bluetooth.getState());
             if (device == null) {
                 Log.i(TAG, "Error: Device: " + MAC + " not connected.");
                 return;
