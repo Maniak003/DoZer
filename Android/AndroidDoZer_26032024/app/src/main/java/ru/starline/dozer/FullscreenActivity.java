@@ -1,5 +1,7 @@
 package ru.starline.dozer;
 
+import static android.os.Environment.DIRECTORY_DOCUMENTS;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -77,6 +79,7 @@ import static java.lang.Math.round;
 public class FullscreenActivity extends AppCompatActivity {
     public DrawAll DA = new DrawAll();
     public Intent intent2;
+    //public static final String WRITE_EXTERNAL_STORAGE = "android.permission.WRITE_EXTERNAL_STORAGE";
     /* Colors */
     public int colorLineHistogram, colorMarkLineHistogram, colorLogHistogram, colorMarkLogHistogram, colorFoneHistogram;
     public Button calibrateButton, logBtn, gistoBtn, connIndicator, saveBtn, setupBtn;
@@ -100,8 +103,10 @@ public class FullscreenActivity extends AppCompatActivity {
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
     public String[] isotopData = new String[255];
+    public String IsotopList = "isotops.list";
     public int[] isotopDataIndex = new int[255];
     public float[] isotopDataEff = new float[255];
+    public int[] isotopDataChan = new int[255];
     public double curentTime, tmpTime, actIsotop = 0;
     public float tmpFindData, Trh1 = 40, Trh2 = 60, Trh3 = 100;
     public int colorNormal = 0xFF00FF00, colorWarning = 0xFFFFFF00, colorAlarm = 0xFFFF0000, colorAlert = 0xFF8B008B, energyCompFlag = 0, saveFormat = 0, Marker = 0, isotopLoadFlag = 0;
@@ -312,8 +317,11 @@ public class FullscreenActivity extends AppCompatActivity {
 
     /* Загрузка файла изотопов */
     public void readIsotopsFile(String isName) {
-        File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + isName);
+        //File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + isName);
+        File bgFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/" + isName);
+        //Log.d(TAG, "Try open file: " + Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + isName);
         if (bgFile.exists()) {
+            Log.d(TAG, "File found: " + isName);
             try {
                 BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
                 String tmpStr;
@@ -322,6 +330,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 for (int ii = 0; ii < 255; ii++) {
                     isotopDataIndex[ii] = 0;
                     isotopData[ii] = "";
+                    isotopDataChan[ii] = 0;
                 }
                 while ((tmpStr = fonBuf.readLine()) != null) {
                     idx = tmpStr.indexOf(';');
@@ -331,29 +340,47 @@ public class FullscreenActivity extends AppCompatActivity {
                             isotopDataIndex[idx2] = Integer.parseInt(tmpStr.substring(0, idx));
                             if (idx3 > 0) {
                                 isotopData[idx2] = tmpStr.substring(idx + 1, idx3);
-                                if (tmpStr.substring(idx3 + 1).length() > 0) {
+                                if ( ! tmpStr.substring(idx3 + 1).isEmpty()) {
+                                    /* Активность изотопа */
                                     isotopDataEff[idx2] = Float.parseFloat(tmpStr.substring(idx3 + 1));
+                                    if (correctA != 0 && correctB != 1 && correctC != 0) {  // Если определен полином: канал в энергию - сохраним канал.
+                                        /* Calculate channel over energy */
+                                        double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[idx2]);
+                                        if (DD > 0) {
+                                            double x1 = (-correctB + Math.sqrt(DD)) / (2 * correctA);
+                                            double x2 = (-correctB - Math.sqrt(DD)) / (2 * correctA);
+                                            if (x2 >= x1) {
+                                                x1 = x2;
+                                            }
+                                            isotopDataChan[idx2] = (int) x1;
+                                        }
+                                    }
                                 }
                             } else {
                                 isotopData[idx2] = tmpStr.substring(idx + 1);
                             }
+                            //Log.d(TAG, "IDX : " + isotopDataIndex[idx2] + " VAL : " + isotopData[idx2] + " CHN: " + isotopDataChan[idx2]);
                             idx2++;
-                            //Log.d("DoZer", "IDX : " + isotopDataIndex[idx2 - 1] + " VAL : " + isotopData[idx2 - 1]);
                         } catch (NumberFormatException nfe) {
                             //Log.d("DoZer", "Except: " + idx);
                         }
                     }
                 }
             } catch (IOException e) {
+                Log.d(TAG, "Error open file: " + isName);
                 Toast.makeText(getBaseContext(), "Error read isotops File with: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
+        } else {
+            Log.d(TAG, "File not found: " + isName);
         }
     }
 
     /* Load background data from file */
     public void readBackgroundFile(String flname) {
-        File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + flname);
+        //File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + flname);
+        File bgFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/" + flname);
         if (bgFile.exists()) {
+            Log.d(TAG, "File found: " + bgFile.getAbsolutePath() );
             try {
                 BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
                 String tmpStr;
@@ -363,11 +390,11 @@ public class FullscreenActivity extends AppCompatActivity {
                     foneData[ii] = 0;
                 }
                 while ((tmpStr = fonBuf.readLine()) != null) {
-                    if (tmpStr.indexOf("<DataPoint>") >= 0) {
+                    if (tmpStr.contains("<DataPoint>")) {
                         tmpStr = tmpStr.replace("<DataPoint>", "").replace("</DataPoint>", "");
                         foneData[foneIdx++] = Integer.parseInt(tmpStr);
                     } else {
-                        if (tmpStr.indexOf("<MeasurementTime>") >= 0) { // Measurment time value
+                        if (tmpStr.contains("<MeasurementTime>")) { // Measurment time value
                             tmpStr = tmpStr.replace("<MeasurementTime>", "").replace("</MeasurementTime>", "");
                             backgtoundTime = Integer.parseInt(tmpStr);
                             Log.d("DoZer", "backgtoundTime: " + backgtoundTime);
@@ -376,8 +403,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
                 float sm;
                 /* Сглаживание методом скользящего простого среднего */
-                int windSmooth = 0;
-                if (windSmooth > 1) {
+                int windSmooth = 0;  /* Если требуется сглаживание, установить  windSmooth = нечетное, больше или равно 3 */
+                if (windSmooth > 2) {
                     smoothArray(foneData, windSmooth, foneIdx);
                 }
                 //Log.d("DoZer", "Load foneData idx: " + foneIdx);
@@ -447,10 +474,10 @@ public class FullscreenActivity extends AppCompatActivity {
                     intent2.putExtra("CFGDATA0", correctA);
                     intent2.putExtra("CFGDATA1", correctB);
                     intent2.putExtra("CFGDATA2", correctC);
-
+                    /* Переходим в setup с новыми значениями полинома преобразования */
                     startActivityForResult(intent2, 2);
                 }
-            } else {
+            } else { /* Следующее значение для калибровки */
                 builder.setTitle("Enter energy for chanal " + (int) (DA.oldX / DA.penSize) + ", point: " + calibrateIndex);
                 // Set up the input
                 final EditText input = new EditText(this);
@@ -594,7 +621,7 @@ public class FullscreenActivity extends AppCompatActivity {
         kR = PP.readProp("isotopLoad");
         if (kR != null && !kR.isEmpty()) {
             isotopLoadFlag = Integer.parseInt(kR);
-            readIsotopsFile("isotops.list");
+            readIsotopsFile(IsotopList);
         } else {
             isotopLoadFlag = 0;
         }
@@ -666,7 +693,7 @@ public class FullscreenActivity extends AppCompatActivity {
         }
         BT = new getBluetooth();
         /*
-            Проверяет поддержку Bluetooth
+            Проверяем поддержку Bluetooth
          */
         BT.bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (BT.bluetooth == null) { // Bluetooth отсутствует
@@ -678,9 +705,6 @@ public class FullscreenActivity extends AppCompatActivity {
                     tmFull.startTimer();
                 } else {
                     // Bluetooth выключен. Предложим пользователю включить его.
-                    /*
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    }*/
                     startActivityForResult(BT.enableBtIntent, 3);
                     /*
                     ActivityResultLauncher<Intent> startAFR = registerForActivityResult(
@@ -798,7 +822,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 saveBtn.setText(R.string.saveBtn2);
             }
         } else {
-            Log.d("DoZer", "saveBtn not found");
+            Log.d(TAG, "saveBtn not found");
         }
 
         // Clear button
@@ -813,7 +837,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Log.d("DoZer", "clearBtn not found");
+            Log.d(TAG, "clearBtn not found");
         }
 
         // Handler for redraw in main context
@@ -852,8 +876,6 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "StartAPP-1");
-        //context = getApplicationContext();
         setContentView(R.layout.activity_fullscreen);
         mContentView = findViewById(R.id.mainLayout);
         mainImage = findViewById(R.id.mainImage);
@@ -865,9 +887,7 @@ public class FullscreenActivity extends AppCompatActivity {
         textStatistic3 = findViewById(R.id.textStatistic3);
         textStatistic4 = findViewById(R.id.textStatistic4);
         textIsotops = findViewById(R.id.textIsotops);
-        Log.d(TAG, "StartAPP-2");
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //selectTypeScreen();
         // Check permission for write storage.
         int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -878,7 +898,6 @@ public class FullscreenActivity extends AppCompatActivity {
         int permissionStatus7 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES);
         int permissionStatus8 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO);
         int permissionStatus9 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO);
-        Log.d(TAG, "StartAPP-3");
         if (permissionStatus1 == PackageManager.PERMISSION_DENIED
             && permissionStatus2 == PackageManager.PERMISSION_DENIED) {
             if (permissionStatus7 == PackageManager.PERMISSION_GRANTED
@@ -894,28 +913,18 @@ public class FullscreenActivity extends AppCompatActivity {
                 && permissionStatus4 == PackageManager.PERMISSION_GRANTED
                 && permissionStatus5 == PackageManager.PERMISSION_GRANTED
                 && permissionStatus6 == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "StartAPP-4");
             initApplication();
-            Log.d(TAG, "StartAPP-5");
         } else {
-            Log.d(TAG, "StartAPP-6");
-            Log.d(TAG, "permissionStatus1 : " + String.valueOf(permissionStatus1));
-            Log.d(TAG, "permissionStatus2 : " + String.valueOf(permissionStatus2));
-            Log.d(TAG, "permissionStatus3 : " + String.valueOf(permissionStatus3));
-            Log.d(TAG, "permissionStatus4 : " + String.valueOf(permissionStatus4));
-            Log.d(TAG, "permissionStatus5 : " + String.valueOf(permissionStatus5));
-            Log.d(TAG, "permissionStatus6 : " + String.valueOf(permissionStatus6));
-            Log.d(TAG, "permissionStatus7 : " + String.valueOf(permissionStatus7));
-            Log.d(TAG, "permissionStatus8 : " + String.valueOf(permissionStatus8));
-            Log.d(TAG, "permissionStatus9 : " + String.valueOf(permissionStatus9));
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_ADMIN,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION}, 200);
-            Log.d(TAG, "StartAPP-7");
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.READ_MEDIA_AUDIO}, 200);
         }
     }
 
@@ -941,13 +950,7 @@ public class FullscreenActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (connected) {
-                //String str = "<DATA>";
-                //Log.i(TAG, "Timer tick.");
-                //try {
-                //    BT.write(str.getBytes());
-                //} catch (IOException e) {
-                //    Log.i(TAG, "Write error : " + e.getMessage());
-                //}
+                // BT connected
             } else {
                 if (BT == null) {
                     BT = new getBluetooth();
@@ -1049,21 +1052,8 @@ public class FullscreenActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission")
         public void destroyDevice() {
             if (gatt == null) {
-                //Toast.makeText(getBaseContext(), "BlueTooth disabled ?.", Toast.LENGTH_LONG).show();
                 finish();
             } else {
-                /*
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d(TAG, "...Permission deny2...");
-                    //return;
-                }*/
                 gatt.disconnect();
                 gatt.close();
                 if (delegate != null)
@@ -1093,20 +1083,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 Log.i(TAG, "Error: Device: " + MAC + " not connected.");
                 return;
             } else {
-                //int grnt = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT);
-                //Log.i(TAG, "Try gatt connect. Grant: " +  String.valueOf(grnt) );
-                /*
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d(TAG, "...Permission deny3...");
-                    //return;
-                }*/
                 gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
                 if (gatt == null) {
                     Log.i(TAG, "Error: Gatt create failed.");
@@ -1167,18 +1143,6 @@ public class FullscreenActivity extends AppCompatActivity {
                     }
                 }
                 if (sync) {
-                    /*
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        Log.d(TAG, "...Permission deny5...");
-                        //return;
-                    }*/
                     if (!gatt.requestMtu(MAX_MTU))
                         Log.d(TAG, "Error set MTU.");
                 }
@@ -1188,8 +1152,6 @@ public class FullscreenActivity extends AppCompatActivity {
             @Override
             public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
                 delegate.onDescriptorWrite(gatt, descriptor, status);
-                //if( canceled)
-                //    return;
                 if (descriptor.getCharacteristic() == readCharacteristic) {
                     Log.d(TAG, "writing read characteristic descriptor finished, status=" + status);
                     if (status != BluetoothGatt.GATT_SUCCESS) {
@@ -1242,18 +1204,6 @@ public class FullscreenActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                /*
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d(TAG, "...Permission deny6...");
-                    //return;
-                }*/
                 if (!gatt.setCharacteristicNotification(readCharacteristic, true)) {
                     Log.d(TAG, "Error: no notification for read characteristic");
                     return;
@@ -1497,18 +1447,6 @@ public class FullscreenActivity extends AppCompatActivity {
             }
             if (data0 != null) {
                 writeCharacteristic.setValue(data0);
-                /*
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d(TAG, "...Permission deny8...");
-                    //return;
-                }*/
                 if (!gatt.writeCharacteristic(writeCharacteristic)) {
                     Log.d(TAG, "Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
@@ -1534,18 +1472,6 @@ public class FullscreenActivity extends AppCompatActivity {
             }
             if (data != null) {
                 writeCharacteristic.setValue(data);
-                /*
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d(TAG, "...Permission deny9...");
-                    //return;
-                }*/
                 if (!gatt.writeCharacteristic(writeCharacteristic)) {
                     Log.d(TAG, "Write Characteristic error");
                     //onSerialIoError(new IOException("write failed"));
@@ -1665,19 +1591,11 @@ public class FullscreenActivity extends AppCompatActivity {
                                 textIsotops.setText("");
                                 break;
                             }
-                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // Сравниваем текущую энергию с табличной на расхождение не более 3kev
+                            if (Math.abs(isotopDataIndex[ii] - oldValX) < 5) { // Сравниваем текущую энергию с табличной
                                 if (tmpVal2 > 1) {      /* Счетчик канала больше 1 */
-                                    if (isotopDataEff[ii] > 0) {  /* Есть табличное значение активности изотопа ? */
+                                    if (isotopDataEff[ii] > 0 && isotopDataChan[ii] > 0) {  /* Есть табличное значение активности изотопа ? */
                                         double actCPS = 0;
-                                        /* Calculate channel over energy */
-                                        //double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[ii]);
-                                        //if (DD > 0) {
-                                        //    double x1 = (-correctB + Math.sqrt(DD))  / (2 * correctA);
-                                        //    double x2 = (-correctB - Math.sqrt(DD))  / (2 * correctA) ;
-                                        //    if (x2 >= x1) {
-                                        //        x1 = x2;
-                                        //    }
-                                        markChannel = (int) (X / penSize); /* Определяем выбранный канал по положению курсора */
+                                        markChannel = isotopDataChan[ii]; /* Канал изотопа */
                                         Log.d(TAG, " x1: " + markChannel + " A: " + correctA + " B:" + correctB + " C:" + (correctC - isotopDataIndex[ii]));
                                         int i = markChannel - resolutionPercent;  // Fix me. Need calculate delta for resolution.
                                         float foneActiv = (resultData[i] + resultData[i + resolutionPercent * 2]) * resolutionPercent; // Расчет фоновой активности
@@ -1699,7 +1617,6 @@ public class FullscreenActivity extends AppCompatActivity {
                                                 }
                                                 textIsotops.setText(tmpStr);
                                         }
-                                        //}
                                     } else {  /* Показываем только название и энергию */
                                         textIsotops.setText(isotopDataIndex[ii] + "kev : " + isotopData[ii]);  // If eff n/a.
                                     }
@@ -2263,19 +2180,24 @@ public class FullscreenActivity extends AppCompatActivity {
                 return;
             }
             try {
-                File SDPath = Environment.getExternalStorageDirectory();
-                File direct = new File(SDPath.getAbsolutePath() + "/DoZer");
-                Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+                //File SDPath = Environment.getExternalStorageDirectory();
+                //File direct = new File(SDPath.getAbsolutePath() + "/DoZer");
+                String SDPath = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath();
+                File direct = new File(SDPath + "/DoZer");
+                //Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+                Log.d(TAG, "SD Path: " +  SDPath + "/DoZer");
                 if(!direct.exists()) {
                     if(direct.mkdir()) {  // Создаем каталог если его нет;
-                        Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+                        //Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+                        Log.d(TAG, "SD Path: " +  SDPath + "/DoZer");
                     } else {
                         Log.d(TAG, "Create dir error.");
                         Toast.makeText(getBaseContext(), "Directory create error. ", Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
-                File myFile = new File( SDPath.getAbsolutePath() + "/DoZer/" + fileName + ".xml");
+                //File myFile = new File( SDPath.getAbsolutePath() + "/DoZer/" + fileName + ".xml");
+                File myFile = new File( SDPath + "/DoZer/" + fileName + ".xml");
                 if (myFile.createNewFile()) {  // Create new file if not exist
                     Log.d(TAG, "File create Ok.");
                 } else {
@@ -2352,10 +2274,7 @@ public class FullscreenActivity extends AppCompatActivity {
                         "<ChannelPitch>1</ChannelPitch>\n" +
                         "<EnergyCalibration>\n" +
                         "<PolynomialOrder>2</PolynomialOrder>\n" +
-                        "<Coefficients>\n" +  //correctA
-                        //"<Coefficient>6.03265776105158</Coefficient>\n" +
-                        //"<Coefficient>1.99778118743629</Coefficient>\n" +
-                        //"<Coefficient>0.0025257686806495</Coefficient>\n" +
+                        "<Coefficients>\n" +
                         "<Coefficient>" + correctC + "</Coefficient>\n" +
                         "<Coefficient>" + correctB + "</Coefficient>\n" +
                         "<Coefficient>" + correctA + "</Coefficient>\n" +
