@@ -298,6 +298,8 @@ public class FullscreenActivity extends AppCompatActivity {
             if (permissions.length > 0 && grantResults.length > 0) {
                 boolean flg = true;
                 for (int ii = 0; ii < grantResults.length; ii++) {
+                    /* Debug */
+                    Log.d(TAG, "permissionStatus1 : " + permissions[ii] + " result : " + grantResults[ii]);
                     if (grantResults[ii] != PackageManager.PERMISSION_GRANTED) {
                         flg = false;
                     }
@@ -340,7 +342,7 @@ public class FullscreenActivity extends AppCompatActivity {
                             isotopDataIndex[idx2] = Integer.parseInt(tmpStr.substring(0, idx));
                             if (idx3 > 0) {
                                 isotopData[idx2] = tmpStr.substring(idx + 1, idx3);
-                                if ( ! tmpStr.substring(idx3 + 1).isEmpty()) {
+                                if (!tmpStr.substring(idx3 + 1).isEmpty()) {
                                     /* Активность изотопа */
                                     isotopDataEff[idx2] = Float.parseFloat(tmpStr.substring(idx3 + 1));
                                     if (correctA != 0 && correctB != 1 && correctC != 0) {  // Если определен полином: канал в энергию - сохраним канал.
@@ -367,8 +369,8 @@ public class FullscreenActivity extends AppCompatActivity {
                     }
                 }
             } catch (IOException e) {
-                Log.d(TAG, "Error open file: " + isName);
-                Toast.makeText(getBaseContext(), "Error read isotops File with: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Error open file: " + isName + " whith:  " + e.getMessage());
+                Toast.makeText(getBaseContext(), "Error isotops File: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         } else {
             Log.d(TAG, "File not found: " + isName);
@@ -380,7 +382,7 @@ public class FullscreenActivity extends AppCompatActivity {
         //File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + flname);
         File bgFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/" + flname);
         if (bgFile.exists()) {
-            Log.d(TAG, "File found: " + bgFile.getAbsolutePath() );
+            Log.d(TAG, "File found: " + bgFile.getAbsolutePath());
             try {
                 BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
                 String tmpStr;
@@ -490,7 +492,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String m_Text = input.getText().toString();
-                        if (m_Text != null && m_Text.length() > 0) {
+                        if (m_Text != null && !m_Text.isEmpty()) {
                             calibrateData[calibrateIndex - 1][0] = (int) (DA.oldX / DA.penSize); // Chanel
                             calibrateData[calibrateIndex - 1][1] = Integer.parseInt(m_Text); // Energy
                             calibrateIndex++;
@@ -894,48 +896,70 @@ public class FullscreenActivity extends AppCompatActivity {
         textStatistic4 = findViewById(R.id.textStatistic4);
         textIsotops = findViewById(R.id.textIsotops);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        // Check permission for write storage.
-        int permissionStatus1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int permissionStatus2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permissionStatus3 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-        int permissionStatus4 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int permissionStatus5 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH);
-        int permissionStatus6 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN);
-        int permissionStatus7 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES);
-        int permissionStatus8 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO);
-        int permissionStatus9 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO);
-        int permissionStatus10 = ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES);
-        Log.d(TAG, "permissionStatus10 : " + String.valueOf(permissionStatus10));
-        if (permissionStatus1 == PackageManager.PERMISSION_DENIED
-            && permissionStatus2 == PackageManager.PERMISSION_DENIED) {
-            if (permissionStatus7 == PackageManager.PERMISSION_GRANTED
-               && permissionStatus8 == PackageManager.PERMISSION_GRANTED
-               && permissionStatus9 == PackageManager.PERMISSION_GRANTED
-               && permissionStatus10 == PackageManager.PERMISSION_GRANTED) {
-                permissionStatus1 = PackageManager.PERMISSION_GRANTED;
-                permissionStatus2 = PackageManager.PERMISSION_GRANTED;
-            }
-        }
-        if ((permissionStatus1 == PackageManager.PERMISSION_GRANTED)
-                && (permissionStatus2 == PackageManager.PERMISSION_GRANTED)
-                && permissionStatus3 == PackageManager.PERMISSION_GRANTED
-                && permissionStatus4 == PackageManager.PERMISSION_GRANTED
-                && permissionStatus5 == PackageManager.PERMISSION_GRANTED
-                && permissionStatus6 == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "AppStart - 1");
-            initApplication();
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Log.d(TAG, "BLE support.");
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.BLUETOOTH,
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO,
-                    Manifest.permission.READ_MEDIA_AUDIO /*,
-                    Manifest.permission.NEARBY_WIFI_DEVICES*/}, 200);
+            Log.d(TAG, "BLE not support.");
+        }
+
+        // Check permission for write storage.
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if( ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
+                //&& ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "AppStart - 1");
+                initApplication();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.NEARBY_WIFI_DEVICES,
+                        Manifest.permission.BLUETOOTH,
+                        Manifest.permission.BLUETOOTH_ADMIN,
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.BLUETOOTH_ADVERTISE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        //Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO
+                }, 200);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
+
+                Log.d(TAG, "AppStart - 1");
+                initApplication();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.BLUETOOTH,
+                        Manifest.permission.BLUETOOTH_ADMIN,
+                        //Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                }, 200);
+
+            }
         }
     }
 
@@ -1078,7 +1102,7 @@ public class FullscreenActivity extends AppCompatActivity {
         /*
                 Настройка BLE.
         */
-        @SuppressLint("MissingPermission")
+        //@SuppressLint("MissingPermission")
         public void initLeDevice() {
             writeBuffer = new ArrayList<>();    // Буфер для передачи.
             Log.d(TAG, "...Установка соединенния...");
@@ -1094,12 +1118,19 @@ public class FullscreenActivity extends AppCompatActivity {
                 Log.i(TAG, "Error: Device: " + MAC + " not connected.");
                 return;
             } else {
+                Log.i(TAG, "Try gatt.");
+                if (android.os.Build.VERSION.SDK_INT > 32 && ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    Log.i(TAG, "Failed permission.");
+                    return;
+                }
                 gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
                 if (gatt == null) {
                     Log.i(TAG, "Error: Gatt create failed.");
                     finish();
                 }
-                //Log.i(TAG, "End init.");
+                Log.i(TAG, "End init bluetooth.");
             }
         }
 
