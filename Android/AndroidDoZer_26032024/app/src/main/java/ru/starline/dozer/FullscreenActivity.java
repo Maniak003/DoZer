@@ -6,6 +6,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Instrumentation;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -15,6 +16,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,11 +29,14 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.DocumentsContract;
+import android.provider.DocumentsProvider;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -45,6 +50,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -54,13 +61,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -237,7 +249,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
             Marker = data.getIntExtra("CFGDATA17", 0);
             if (isotopLoadFlag < data.getIntExtra("CFGDATA18", 0)) {
-                readIsotopsFile("isotops.list");
+                loadIsotop();
+                //readIsotopsFile("isotops.list");
             }
             isotopLoadFlag = data.getIntExtra("CFGDATA18", 0);
             powerCoeff = data.getIntExtra("CFGDATA19", 255);
@@ -317,18 +330,124 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    /* Загрузка файла изотопов */
+
+    /* Activity result for openDocumet */
+    ActivityResultLauncher<String> openDocumentActivity = registerForActivityResult(
+            //new ActivityResultContracts.GetContent(),
+            new ActivityResultContracts.GetContent(),
+            this::readIsotopesDocument );
+
+    private void readIsotopesDocument(Uri pickerInitialUri) {
+        Log.d(TAG, pickerInitialUri.toString());
+        String cont = getApplicationContext().toString();
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(pickerInitialUri);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputStream)));
+            String line;
+            Log.d(TAG, "URI: " + pickerInitialUri.toString());
+            while ((line = reader.readLine()) != null) {
+                //Log.d(TAG, line);
+            }
+        } catch (IOException e) {
+
+        }
+    }
+
+    private void openDocument(Uri pickerInitialUri) {
+        //Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        //intent.addCategory(Intent.ACTION_PICK_ACTIVITY);
+        intent.setType("*/*");
+        //intent.putExtra(Intent.EXTRA_TITLE, pickerInitialUri);
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+        openDocumentActivity.launch("*/*");
+    }
+    /* Загрузка массива изотопов */
+    public void loadIsotop() {
+        for (int ii = 0; ii < 255; ii++) {
+            isotopDataIndex[ii] = 0;
+            isotopData[ii] = "";
+            isotopDataEff[ii] = 0;
+            isotopDataChan[ii] = 0;
+        }
+        isotopDataIndex[0] = 26;   isotopData[0] = "Am-241";
+        isotopDataIndex[1] = 26;   isotopData[1] = "Am-241";
+        isotopDataIndex[2] = 30;   isotopData[2] = "I-131";
+        isotopDataIndex[3] = 32;   isotopData[3] = "Cs-137, Ba-137";
+        isotopDataIndex[4] = 35;   isotopData[4] = "I-125";
+        isotopDataIndex[5] = 55;   isotopData[5] = "Lu-176";
+        isotopDataIndex[6] = 59;   isotopData[6] = "Am-241";
+        isotopDataIndex[7] = 75;   isotopData[7] = "Pa-234m, U-238";
+        isotopDataIndex[8] = 81;   isotopData[8] = "Xe-133";
+        isotopDataIndex[9] = 141;  isotopData[9] = "Tc-99";
+        isotopDataIndex[10] = 160; isotopData[10] = "I-123";
+        isotopDataIndex[11] = 171; isotopData[11] = "In-111";
+        isotopDataIndex[12] = 186; isotopData[12] = "Ra-226, Bi-214, Pb-214";
+        isotopDataIndex[13] = 190; isotopData[13] = "U-235, U-238, Pa-234m";
+        isotopDataIndex[14] = 202; isotopData[14] = "Lu-176";
+        isotopDataIndex[15] = 208; isotopData[15] = "Lu-177";
+        isotopDataIndex[16] = 238; isotopData[16] = "Th-232, Ac-228, Tl-208";
+        isotopDataIndex[17] = 242; isotopData[17] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[18] = 245; isotopData[18] = "In-111";
+        isotopDataIndex[19] = 295; isotopData[19] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[20] = 296; isotopData[20] = "Ir-192";
+        isotopDataIndex[21] = 307; isotopData[21] = "Lu-176";
+        isotopDataIndex[22] = 308; isotopData[22] = "Ir-192";
+        isotopDataIndex[23] = 317; isotopData[23] = "Ir-192";
+        isotopDataIndex[24] = 338; isotopData[24] = "Pb-212, Th-232, Ac-228, Tl-208";
+        isotopDataIndex[25] = 351; isotopData[25] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[26] = 364; isotopData[26] = "I-131";
+        isotopDataIndex[27] = 392; isotopData[27] = "In-113m";
+        isotopDataIndex[28] = 412; isotopData[28] = "Au-198";
+        isotopDataIndex[29] = 468; isotopData[29] = "Ir-192";
+        isotopDataIndex[30] = 511; isotopData[30] = "Annihilation";
+        isotopDataIndex[31] = 538; isotopData[31] = "Pb-212,Th-232,Ac-228";
+        isotopDataIndex[32] = 583; isotopData[32] = "Tl-208, Th-232, Ac-228";
+        isotopDataIndex[33] = 609; isotopData[33] = "Ra-226, Pb-214, Bi-214";
+        // Calculate channel over energy
+        isotopDataIndex[34] = 662; isotopData[34] = "Ba-137, Cs-137"; isotopDataEff[34] = 838;
+        double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[34]);
+        if (DD > 0) {
+            double x1 = (-correctB + Math.sqrt(DD)) / (2 * correctA);
+            double x2 = (-correctB - Math.sqrt(DD)) / (2 * correctA);
+            if (x2 >= x1) {
+                x1 = x2;
+            }
+            isotopDataChan[34] = (int) x1;
+        }
+        isotopDataIndex[35] = 750;  isotopData[35] = "U-238, U-235, Pa-234m";
+        isotopDataIndex[36] = 911;  isotopData[36] = "Th-232, Pb-212, Ac-228, Tl-208";
+        isotopDataIndex[37] = 920;  isotopData[37] = "Tl-201";
+        isotopDataIndex[38] = 1001; isotopData[38] = "U-238, U-235, Pa-234m";
+        isotopDataIndex[39] = 1120; isotopData[39] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[40] = 1173; isotopData[40] = "Co-60";
+        isotopDataIndex[41] = 1332; isotopData[41] = "Co-60";
+        isotopDataIndex[42] = 1460; isotopData[42] = "K-40";
+        isotopDataIndex[43] = 1588; isotopData[43] = "Th-232, Ac-228";
+        isotopDataIndex[44] = 1600; isotopData[44] = "Th-232, Pb-212, Ac-228, Tl-208";
+        isotopDataIndex[45] = 1760; isotopData[45] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[46] = 2200; isotopData[46] = "Ra-226, Pb-214, Bi-214";
+        isotopDataIndex[47] = 2614; isotopData[47] = "Th-232, Pb-212, Ac-228, Tl-208";
+    }
+
+    /* Загрузка файла изотопов из файла*/
     public void readIsotopsFile(String isName) {
         //File bgFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DoZer/" + isName);
-        File bgFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/" + isName);
-        //Log.d(TAG, "Try open file: " + Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + isName);
+        String appDirectory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/";
+        File bgFile = new File(appDirectory + isName);
+        //File bgFile = new File(uri.getPath());
+        //Uri uri = Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADocuments%2FDoZer%2Fisotops.list");
+        //Uri uri = Uri.fromFile(bgFile);
+        //openDocument(uri);
+
         if (bgFile.exists()) {
             Log.d(TAG, "File found: " + isName);
             try {
                 BufferedReader fonBuf = new BufferedReader(new FileReader(bgFile));
                 String tmpStr;
                 int idx, idx2 = 0, idx3;
-                /* Clear isotops data */
+                // Clear isotops data
                 for (int ii = 0; ii < 255; ii++) {
                     isotopDataIndex[ii] = 0;
                     isotopData[ii] = "";
@@ -343,10 +462,10 @@ public class FullscreenActivity extends AppCompatActivity {
                             if (idx3 > 0) {
                                 isotopData[idx2] = tmpStr.substring(idx + 1, idx3);
                                 if (!tmpStr.substring(idx3 + 1).isEmpty()) {
-                                    /* Активность изотопа */
+                                    // Активность изотопа
                                     isotopDataEff[idx2] = Float.parseFloat(tmpStr.substring(idx3 + 1));
                                     if (correctA != 0 && correctB != 1 && correctC != 0) {  // Если определен полином: канал в энергию - сохраним канал.
-                                        /* Calculate channel over energy */
+                                        // Calculate channel over energy
                                         double DD = Math.pow(correctB, 2) - 4 * correctA * (correctC - isotopDataIndex[idx2]);
                                         if (DD > 0) {
                                             double x1 = (-correctB + Math.sqrt(DD)) / (2 * correctA);
@@ -623,7 +742,9 @@ public class FullscreenActivity extends AppCompatActivity {
         kR = PP.readProp("isotopLoad");
         if (kR != null && !kR.isEmpty()) {
             isotopLoadFlag = Integer.parseInt(kR);
-            readIsotopsFile(IsotopList);
+            //readIsotopsFile(IsotopList);
+            loadIsotop();
+            //readIsotopsDocument(IsotopList);
         } else {
             isotopLoadFlag = 0;
         }
@@ -693,26 +814,40 @@ public class FullscreenActivity extends AppCompatActivity {
         if (MAC.isEmpty()) {
             MAC = defMAC;
         }
-        BT = new getBluetooth();
+
+        /* Каталог для хранения данных приложения */
+        String appDirectory = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS).getAbsolutePath() + "/DoZer/";
+        File direct = new File(appDirectory);
+        //Log.d(TAG, "SD Path: " +  SDPath.getAbsolutePath() + "/DoZer");
+        Log.d(TAG, "SD Path: " +  appDirectory);
+        if(!direct.exists()) {
+            if(direct.mkdir()) {  // Создаем каталог если его нет;
+                Log.d(TAG, "SD Path: " +  appDirectory);
+            } else {
+                Log.d(TAG, "Create dir error.");
+                Toast.makeText(getBaseContext(), "Directory create error. ", Toast.LENGTH_LONG).show();
+            }
+        }
         /*
             Проверяем поддержку Bluetooth
          */
-        Log.d(TAG, "AppStart - 2");
+        //Log.d(TAG, "AppStart - 2");
+        BT = new getBluetooth();
         BT.bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (BT.bluetooth == null) { // Bluetooth отсутствует
             Toast.makeText(getApplicationContext(), "Bluetooth disabled ?", Toast.LENGTH_LONG).show();
         } else {
-            Log.d(TAG, "AppStart - 3");
+            //Log.d(TAG, "AppStart - 3");
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                Log.d(TAG, "AppStart - 4");
+                //Log.d(TAG, "AppStart - 4");
                 if (BT.bluetooth.isEnabled()) {
-                    Log.d(TAG, "AppStart - 5");
+                    //Log.d(TAG, "AppStart - 5");
                     BT.initLeDevice();
-                    Log.d(TAG, "AppStart - 6");
+                    //Log.d(TAG, "AppStart - 6");
                     tmFull.startTimer();
-                    Log.d(TAG, "AppStart - 7");
+                    //Log.d(TAG, "AppStart - 7");
                 } else {
-                    Log.d(TAG, "AppStart - 8");
+                    //Log.d(TAG, "AppStart - 8");
                     // Bluetooth выключен. Предложим пользователю включить его.
                     startActivityForResult(BT.enableBtIntent, 3);
                     /*
@@ -915,9 +1050,11 @@ public class FullscreenActivity extends AppCompatActivity {
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_DOCUMENTS) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-                Log.d(TAG, "AppStart - 1");
+                //Log.d(TAG, "AppStart - 1");
                 initApplication();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{
@@ -929,10 +1066,12 @@ public class FullscreenActivity extends AppCompatActivity {
                         Manifest.permission.BLUETOOTH_ADVERTISE,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        //Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
                         //Manifest.permission.READ_MEDIA_AUDIO,
+                        //Manifest.permission.MANAGE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO
+                        //Manifest.permission.MANAGE_DOCUMENTS
                 }, 200);
             }
         } else {
@@ -946,7 +1085,7 @@ public class FullscreenActivity extends AppCompatActivity {
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
 
-                Log.d(TAG, "AppStart - 1");
+                //Log.d(TAG, "AppStart - 1");
                 initApplication();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{

@@ -13,24 +13,24 @@
     <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS"
         tools:ignore="ProtectedPermissions" />
 
+    <!--<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
         android:maxSdkVersion="34" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
         android:maxSdkVersion="34"/>
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
-        android:minSdkVersion="33"/>
-    <!--<uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
-        android:maxSdkVersion="34"/>-->
+        android:minSdkVersion="34"/>
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"/>
     <!--<uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_NEARBY_COMMUNICATION"
         android:maxSdkVersion="33"/>-->
-    <uses-permission android:name="android.permission.stora"/>
+    <!--<uses-permission android:name="android.permission.storag"/>-->
 
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-feature android:name="android.permission.MANAGE_DOCUMENTS"/>
 
     <application
         android:allowBackup="true"
@@ -64,9 +64,23 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.OPENABLE"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="*/*"/>-->
             </intent-filter>
         </activity>
-
+<!--
+        <provider
+            android:name=".storageProvider"
+            android:authorities="ru.starline.android.storageprovider.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+-->
     </application>
 
 
