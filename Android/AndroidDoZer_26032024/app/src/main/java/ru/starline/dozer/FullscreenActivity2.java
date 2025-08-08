@@ -790,6 +790,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
             }
         }
 
+        @SuppressLint("MissingPermission")
         public void startScanLE() {
             scanBLEBTN.setTextColor(0xFFFF0000);
             scanBLEBTN.setText("Stop");
@@ -820,6 +821,7 @@ public class FullscreenActivity2 extends AppCompatActivity {
 
         private final ScanCallback scanCallback = new ScanCallback() {
             @Override
+            @SuppressLint("MissingPermission")
             public void onScanResult(int callbackType, ScanResult result) {
                 BluetoothDevice device = result.getDevice();
                 /*
