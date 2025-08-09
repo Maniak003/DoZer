@@ -2,4 +2,4 @@
 ../Core/Src/main.c:119:6:rwFlash	48	static
 ../Core/Src/main.c:553:6:SystemClock_Config	96	static
 ../Core/Src/main.c:209:5:main	112	static
-../Core/Src/main.c:1075:6:Error_Handler	0	static
+../Core/Src/main.c:1079:6:Error_Handler	0	static

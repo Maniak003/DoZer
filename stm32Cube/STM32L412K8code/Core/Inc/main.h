@@ -37,7 +37,7 @@
 #define reservDataSize 6
 #define batteryMeasureInterval 20000
 #define logSize 200
-#define ADC_REF_VOLTAGE 3.0f
+#define ADC_REF_VOLTAGE 1.8f
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -105,6 +105,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Vibro_Pin GPIO_PIN_1
 #define Vibro_GPIO_Port GPIOA
+#define Buzzer_Pin GPIO_PIN_3
+#define Buzzer_GPIO_Port GPIOA
 #define COM_Pin GPIO_PIN_6
 #define COM_GPIO_Port GPIOA
 #define BAT_LEVEL_Pin GPIO_PIN_7
