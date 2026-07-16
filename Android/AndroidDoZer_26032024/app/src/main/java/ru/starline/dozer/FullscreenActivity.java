@@ -37,6 +37,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -54,14 +55,15 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.NonNull;
+//import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.documentfile.provider.DocumentFile;
 
 import java.io.BufferedReader;
@@ -88,6 +90,8 @@ import java.util.UUID;
 import static java.lang.Math.log10;
 import static java.lang.Math.round;
 
+import org.jspecify.annotations.NonNull;
+
 public class FullscreenActivity extends AppCompatActivity {
     public DrawAll DA = new DrawAll();
     public Intent intent2;
@@ -111,7 +115,7 @@ public class FullscreenActivity extends AppCompatActivity {
     private View mContentView;
     private intervalTimer tmFull = new intervalTimer();
     public int histogramFlag = 0, tmpHistoryCount = 0, tmpHistogramFlag, smoothSpecter = 0, smoothWindow = 15, dataTpFlag = 0, logIndex = 0, resolutionPercent = 26, markChannel = 0;
-    public String TAG = "!!!!! BLE report : ", FLAG = "", foneFlName = "";
+    public String TAG = "DoZer", FLAG = "", foneFlName = "";
     public int startFlag = 0, bufferIndex = 0, foneActive = 0, calibrateIndex = 1, cursorHideFlag = 0;
     public int[][] calibrateData = new int[3][2];
     public String[] isotopData = new String[255];
@@ -839,15 +843,15 @@ public class FullscreenActivity extends AppCompatActivity {
         } else {
             //Log.d(TAG, "AppStart - 3");
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                //Log.d(TAG, "AppStart - 4");
+                Log.d(TAG, "AppStart - 4");
                 if (BT.bluetooth.isEnabled()) {
-                    //Log.d(TAG, "AppStart - 5");
+                    Log.d(TAG, "AppStart - 5");
                     BT.initLeDevice();
-                    //Log.d(TAG, "AppStart - 6");
+                    Log.d(TAG, "AppStart - 6");
                     tmFull.startTimer();
-                    //Log.d(TAG, "AppStart - 7");
+                    Log.d(TAG, "AppStart - 7");
                 } else {
-                    //Log.d(TAG, "AppStart - 8");
+                    Log.d(TAG, "AppStart - 8");
                     // Bluetooth выключен. Предложим пользователю включить его.
                     startActivityForResult(BT.enableBtIntent, 3);
                     /*
@@ -1015,9 +1019,10 @@ public class FullscreenActivity extends AppCompatActivity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    //@RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
         mContentView = findViewById(R.id.mainLayout);
@@ -1041,8 +1046,8 @@ public class FullscreenActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if( ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
+                //&& ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                //&& ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
                 //&& ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_GRANTED
@@ -1055,6 +1060,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                 //Log.d(TAG, "AppStart - 1");
+                Log.d(TAG, "AppStart - 3");
+                requestManageStoragePermission();
                 initApplication();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{
@@ -1069,35 +1076,46 @@ public class FullscreenActivity extends AppCompatActivity {
                         //Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
                         //Manifest.permission.READ_MEDIA_AUDIO,
                         //Manifest.permission.MANAGE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO
+                        //Manifest.permission.READ_MEDIA_IMAGES,
+                        //Manifest.permission.READ_MEDIA_VIDEO
                         //Manifest.permission.MANAGE_DOCUMENTS
                 }, 200);
             }
+            Log.d(TAG, "AppStart - 2");
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    //&& ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    //&& ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
 
-                //Log.d(TAG, "AppStart - 1");
+                Log.d(TAG, "AppStart - 1");
+                requestManageStoragePermission();
                 initApplication();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        //Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        //Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.BLUETOOTH,
                         Manifest.permission.BLUETOOTH_ADMIN,
                         //Manifest.permission.BLUETOOTH_CONNECT,
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 }, 200);
+            }
+        }
+    }
 
+    private void requestManageStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(intent);
+                // Пользователь должен вручную включить переключатель.
             }
         }
     }

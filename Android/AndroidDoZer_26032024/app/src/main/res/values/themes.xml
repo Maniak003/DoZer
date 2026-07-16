@@ -1,6 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.DoZer" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+
+    <!-- 1. НОВАЯ ТЕМА-ОБЕРТКА ДЛЯ SPLASH SCREEN (Именно она указана в Manifest) -->
+    <style name="Theme.DoZer" parent="Theme.SplashScreen">
+        <!-- Цвет фона заставки (замените @color/black на ваш @color/bz_bg, если он есть) -->
+        <item name="windowSplashScreenBackground">@color/black</item>
+
+        <!-- Иконка во время заставки -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <!-- САМОЕ ВАЖНОЕ: Указываем реальную тему, которая применится после заставки -->
+        <item name="postSplashScreenTheme">@style/Theme.DoZer.Base</item>
+    </style>
+
+    <!-- 2. РЕАЛЬНАЯ ТЕМА ПРИЛОЖЕНИЯ (переименована из вашего старого Theme.DoZer) -->
+    <style name="Theme.DoZer.Base" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
@@ -11,17 +24,21 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.DoZer.Fullscreen" parent="Theme.DoZer">
+    <!-- 3. FULLSCREEN ТЕМА (Наследуется от Base, а не от обертки) -->
+    <style name="Theme.DoZer.Fullscreen" parent="Theme.DoZer.Base">
         <item name="android:actionBarStyle">@style/Widget.Theme.DoZer.ActionBar.Fullscreen</item>
         <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
+
+        <!-- КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Никогда не используйте @null на Android 12+ -->
+        <!-- Используйте сплошной цвет. Если у вас есть цвет фона, укажите его, например @color/bz_bg -->
+        <item name="android:windowBackground">@color/black</item>
     </style>
 
     <style name="ThemeOverlay.DoZer.FullscreenContainer" parent="">
         <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
         <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
+
 </resources>
